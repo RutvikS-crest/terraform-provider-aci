@@ -394,6 +394,7 @@ func Provider() *schema.Provider {
 			"aci_coop_policy":                              dataSourceAciCOOPGroupPolicy(),
 			"aci_endpoint_loop_protection":                 dataSourceAciEPLoopProtectionPolicy(),
 			"aci_port_tracking":                            dataSourceAciPortTracking(),
+			"aci_isis_domain_policy":                       dataSourceAciISISDomainPolicy(),
 		},
 
 		ConfigureFunc: configureClient,
