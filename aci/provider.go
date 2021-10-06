@@ -228,7 +228,6 @@ func Provider() *schema.Provider {
 			"aci_user_security_domain_role":                resourceAciUserRole(),
 			"aci_console_authentication":                   resourceAciConsoleAuthenticationMethod(),
 			"aci_authentication_properties":                resourceAciAAAAuthentication(),
-			"aci_aaa_ping_ep":                              resourceAciDefaultRadiusAuthenticationSettings(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -408,7 +407,6 @@ func Provider() *schema.Provider {
 			"aci_user_security_domain_role":                dataSourceAciUserRole(),
 			"aci_console_authentication":                   dataSourceAciConsoleAuthenticationMethod(),
 			"aci_authentication_properties":                dataSourceAciAAAAuthentication(),
-			"aci_aaa_ping_ep":                              dataSourceAciDefaultRadiusAuthenticationSettings(),
 		},
 
 		ConfigureFunc: configureClient,
