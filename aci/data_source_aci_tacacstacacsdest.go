@@ -1,21 +1,20 @@
 package aci
 
-
-
-
 import (
+	"context"
 	"fmt"
 
 	"github.com/ciscoecosystem/aci-go-client/client"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceAciTACACSDestination() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceAciTACACSDestinationRead,
+		ReadContext:          dataSourceAciTACACSDestinationRead,
 		SchemaVersion: 1,
 		Schema: AppendBaseAttrSchema(AppendNameAliasAttrSchema(map[string]*schema.Schema{
-			"tacacs_monitoring_destination_group_dn": &schema.Schema{
+			"tacacs_accounting_dn": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
@@ -23,54 +22,50 @@ func dataSourceAciTACACSDestination() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				
 			},
-            "auth_protocol": &schema.Schema{
+			"auth_protocol": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				
 			},
-            "host": &schema.Schema{
+			"host": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				
 			},
-            "key": &schema.Schema{
+			"key": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				
 			},
-            "name": &schema.Schema{
+			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
-				
 			},
-            "port": &schema.Schema{
+			"port": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				
 			},
-            	    
-            })),
-    }
+		})),
+	}
 }
 
-func dataSourceAciTACACSDestinationRead(d *schema.ResourceData, m interface{}) error {
+func dataSourceAciTACACSDestinationRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	aciClient := m.(*client.Client)
 	host := d.Get("host").(string)
 	port := d.Get("port").(string)
-    TACACSMonitoringDestinationGroupDn := d.Get("tacacs_monitoring_destination_group_dn").(string)
-	rn := fmt.Sprintf("tacacsdest-%s-port-%s", host,port,)
-    dn := fmt.Sprintf("%s/%s",TACACSMonitoringDestinationGroupDn, rn)
+	TACACSMonitoringDestinationGroupDn := d.Get("tacacs_monitoring_destination_group_dn").(string)
+	rn := fmt.Sprintf("tacacsdest-%s-port-%s", host, port)
+	dn := fmt.Sprintf("%s/%s", TACACSMonitoringDestinationGroupDn, rn)
 	tacacsTacacsDest, err := getRemoteTACACSDestination(aciClient, dn)
 	if err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	d.SetId(dn)
-	setTACACSDestinationAttributes(tacacsTacacsDest, d)
+	_, err = setTACACSDestinationAttributes(tacacsTacacsDest, d)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 	return nil
 }

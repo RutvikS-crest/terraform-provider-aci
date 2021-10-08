@@ -1,17 +1,9 @@
 package aci
 
-
-
-
-
-
 import (
 	"context"
 	"fmt"
 	"log"
-	
-	
-
 
 	"github.com/ciscoecosystem/aci-go-client/client"
 	"github.com/ciscoecosystem/aci-go-client/models"
@@ -33,12 +25,12 @@ func resourceAciTACACSDestination() *schema.Resource {
 
 		SchemaVersion: 1,
 		Schema: AppendBaseAttrSchema(AppendNameAliasAttrSchema(map[string]*schema.Schema{
-			"tacacs_monitoring_destination_group_dn": &schema.Schema{
+			"tacacs_accounting_dn": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			 "auth_protocol": &schema.Schema{
+			"auth_protocol": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -46,43 +38,41 @@ func resourceAciTACACSDestination() *schema.Resource {
 					"chap",
 					"mschap",
 					"pap",
-					}, false),
-		},
+				}, false),
+			},
 			"host": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-		},
+			},
 			"key": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-		},
+			},
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-		},
+			},
 			"port": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
-		},
-			
+			},
+
 			"relation_file_rs_a_remote_host_to_epg": &schema.Schema{
-				Type:     schema.TypeString,
+				Type: schema.TypeString,
 
-				Optional: 	 true,
+				Optional:    true,
 				Description: "Create relation to fv:ATg",
-
 			},
 			"relation_file_rs_a_remote_host_to_epp": &schema.Schema{
-				Type:     schema.TypeString,
+				Type: schema.TypeString,
 
-				Optional: 	 true,
+				Optional:    true,
 				Description: "Create relation to fv:AREpP",
-
-			},})),
+			}})),
 	}
 }
 
@@ -98,12 +88,12 @@ func getRemoteTACACSDestination(client *client.Client, dn string) (*models.TACAC
 	return tacacsTacacsDest, nil
 }
 
-func setTACACSDestinationAttributes(tacacsTacacsDest *models.TACACSDestination, d *schema.ResourceData) *schema.ResourceData {
+func setTACACSDestinationAttributes(tacacsTacacsDest *models.TACACSDestination, d *schema.ResourceData) (*schema.ResourceData, error) {
 	d.SetId(tacacsTacacsDest.DistinguishedName)
 	d.Set("description", tacacsTacacsDest.Description)
 	tacacsTacacsDestMap, err := tacacsTacacsDest.ToMap()
 	if err != nil {
-		return d, err
+		return nil, err
 	}
 	d.Set("annotation", tacacsTacacsDestMap["annotation"])
 	d.Set("auth_protocol", tacacsTacacsDestMap["authProtocol"])
@@ -132,15 +122,15 @@ func resourceAciTACACSDestinationImport(d *schema.ResourceData, m interface{}) (
 }
 
 func resourceAciTACACSDestinationCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-    log.Printf("[DEBUG] TACACSDestination: Beginning Creation")
+	log.Printf("[DEBUG] TACACSDestination: Beginning Creation")
 	aciClient := m.(*client.Client)
 	desc := d.Get("description").(string)
 	host := d.Get("host").(string)
 	port := d.Get("port").(string)
 	TACACSMonitoringDestinationGroupDn := d.Get("tacacs_monitoring_destination_group_dn").(string)
-	
+
 	tacacsTacacsDestAttr := models.TACACSDestinationAttributes{}
-    nameAlias := ""
+	nameAlias := ""
 	if NameAlias, ok := d.GetOk("name_alias"); ok {
 		nameAlias = NameAlias.(string)
 	}
@@ -149,162 +139,141 @@ func resourceAciTACACSDestinationCreate(ctx context.Context, d *schema.ResourceD
 	} else {
 		tacacsTacacsDestAttr.Annotation = "{}"
 	}
-    
-	
-	
-	
+
 	if AuthProtocol, ok := d.GetOk("auth_protocol"); ok {
-        tacacsTacacsDestAttr.AuthProtocol  = AuthProtocol.(string)
-    }
-	
+		tacacsTacacsDestAttr.AuthProtocol = AuthProtocol.(string)
+	}
+
 	if Host, ok := d.GetOk("host"); ok {
-        tacacsTacacsDestAttr.Host  = Host.(string)
-    }
-	
+		tacacsTacacsDestAttr.Host = Host.(string)
+	}
+
 	if Key, ok := d.GetOk("key"); ok {
-        tacacsTacacsDestAttr.Key  = Key.(string)
-    }
-	
+		tacacsTacacsDestAttr.Key = Key.(string)
+	}
+
 	if Name, ok := d.GetOk("name"); ok {
-        tacacsTacacsDestAttr.Name  = Name.(string)
-    }
-	
+		tacacsTacacsDestAttr.Name = Name.(string)
+	}
+
 	if Port, ok := d.GetOk("port"); ok {
-        tacacsTacacsDestAttr.Port  = Port.(string)
-    }
-	tacacsTacacsDest := models.NewTACACSDestination(fmt.Sprintf("tacacsdest-%s-port-%s", host,port,),TACACSMonitoringDestinationGroupDn, desc, nameAlias, tacacsTacacsDestAttr)  
-	
+		tacacsTacacsDestAttr.Port = Port.(string)
+	}
+	tacacsTacacsDest := models.NewTACACSDestination(fmt.Sprintf("tacacsdest-%s-port-%s", host, port), TACACSMonitoringDestinationGroupDn, desc, nameAlias, tacacsTacacsDestAttr)
+
 	err := aciClient.Save(tacacsTacacsDest)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.Partial(true)
-	d.SetPartial("name")
-	d.Partial(false)
+
 	checkDns := make([]string, 0, 1)
-	
-	if  relationTofileRsARemoteHostToEpg, ok := d.GetOk("relation_file_rs_a_remote_host_to_epg") ; ok {
+
+	if relationTofileRsARemoteHostToEpg, ok := d.GetOk("relation_file_rs_a_remote_host_to_epg"); ok {
 		relationParam := relationTofileRsARemoteHostToEpg.(string)
 		checkDns = append(checkDns, relationParam)
-		
+
 	}
-	
-	if  relationTofileRsARemoteHostToEpp, ok := d.GetOk("relation_file_rs_a_remote_host_to_epp") ; ok {
+
+	if relationTofileRsARemoteHostToEpp, ok := d.GetOk("relation_file_rs_a_remote_host_to_epp"); ok {
 		relationParam := relationTofileRsARemoteHostToEpp.(string)
 		checkDns = append(checkDns, relationParam)
-		
+
 	}
-	
-	d.Partial(true)
+
 	err = checkTDn(aciClient, checkDns)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.Partial(false)
-	
-	if  relationTofileRsARemoteHostToEpg, ok := d.GetOk("relation_file_rs_a_remote_host_to_epg") ; ok {
+
+	if relationTofileRsARemoteHostToEpg, ok := d.GetOk("relation_file_rs_a_remote_host_to_epg"); ok {
 		relationParam := relationTofileRsARemoteHostToEpg.(string)
 		err = aciClient.CreateRelationfileRsARemoteHostToEpg(tacacsTacacsDest.DistinguishedName, tacacsTacacsDestAttr.Annotation, relationParam)
-		  
+
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		d.Partial(true)
-		d.SetPartial("relation_file_rs_a_remote_host_to_epg")
-		d.Partial(false)
-		
+
 	}
-	
-	if  relationTofileRsARemoteHostToEpp, ok := d.GetOk("relation_file_rs_a_remote_host_to_epp") ; ok {
+
+	if relationTofileRsARemoteHostToEpp, ok := d.GetOk("relation_file_rs_a_remote_host_to_epp"); ok {
 		relationParam := relationTofileRsARemoteHostToEpp.(string)
 		err = aciClient.CreateRelationfileRsARemoteHostToEpp(tacacsTacacsDest.DistinguishedName, tacacsTacacsDestAttr.Annotation, relationParam)
-		  
+
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		d.Partial(true)
-		d.SetPartial("relation_file_rs_a_remote_host_to_epp")
-		d.Partial(false)
-		
+
 	}
-	
+
 	d.SetId(tacacsTacacsDest.DistinguishedName)
 	log.Printf("[DEBUG] %s: Creation finished successfully", d.Id())
 	return resourceAciTACACSDestinationRead(ctx, d, m)
 }
 
 func resourceAciTACACSDestinationUpdate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-    log.Printf("[DEBUG] TACACSDestination: Beginning Update")
+	log.Printf("[DEBUG] TACACSDestination: Beginning Update")
 	aciClient := m.(*client.Client)
 	desc := d.Get("description").(string)
 	host := d.Get("host").(string)
 	port := d.Get("port").(string)
 	TACACSMonitoringDestinationGroupDn := d.Get("tacacs_monitoring_destination_group_dn").(string)
 	tacacsTacacsDestAttr := models.TACACSDestinationAttributes{}
-    nameAlias := ""
+	nameAlias := ""
 	if NameAlias, ok := d.GetOk("name_alias"); ok {
 		nameAlias = NameAlias.(string)
 	}
-	
+
 	if Annotation, ok := d.GetOk("annotation"); ok {
 		tacacsTacacsDestAttr.Annotation = Annotation.(string)
 	} else {
 		tacacsTacacsDestAttr.Annotation = "{}"
 	}
-	
-	
-	
+
 	if AuthProtocol, ok := d.GetOk("auth_protocol"); ok {
-        tacacsTacacsDestAttr.AuthProtocol  = AuthProtocol.(string)
-    }
-	
+		tacacsTacacsDestAttr.AuthProtocol = AuthProtocol.(string)
+	}
+
 	if Host, ok := d.GetOk("host"); ok {
-        tacacsTacacsDestAttr.Host  = Host.(string)
-    }
-	
+		tacacsTacacsDestAttr.Host = Host.(string)
+	}
+
 	if Key, ok := d.GetOk("key"); ok {
-        tacacsTacacsDestAttr.Key  = Key.(string)
-    }
-	
+		tacacsTacacsDestAttr.Key = Key.(string)
+	}
+
 	if Name, ok := d.GetOk("name"); ok {
-        tacacsTacacsDestAttr.Name  = Name.(string)
-    }
-	
+		tacacsTacacsDestAttr.Name = Name.(string)
+	}
+
 	if Port, ok := d.GetOk("port"); ok {
-        tacacsTacacsDestAttr.Port  = Port.(string)
-    }
-	tacacsTacacsDest := models.NewTACACSDestination(fmt.Sprintf("tacacsdest-%s-port-%s", host,port,),TACACSMonitoringDestinationGroupDn, desc, nameAlias, tacacsTacacsDestAttr)  
-	
+		tacacsTacacsDestAttr.Port = Port.(string)
+	}
+	tacacsTacacsDest := models.NewTACACSDestination(fmt.Sprintf("tacacsdest-%s-port-%s", host, port), TACACSMonitoringDestinationGroupDn, desc, nameAlias, tacacsTacacsDestAttr)
+
 	tacacsTacacsDest.Status = "modified"
 	err := aciClient.Save(tacacsTacacsDest)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.Partial(true)
-	d.SetPartial("name")
-	d.Partial(false)
 
 	checkDns := make([]string, 0, 1)
-	
+
 	if d.HasChange("relation_file_rs_a_remote_host_to_epg") || d.HasChange("annotation") {
 		_, newRelParam := d.GetChange("relation_file_rs_a_remote_host_to_epg")
 		checkDns = append(checkDns, newRelParam.(string))
-	
+
 	}
-	
+
 	if d.HasChange("relation_file_rs_a_remote_host_to_epp") || d.HasChange("annotation") {
 		_, newRelParam := d.GetChange("relation_file_rs_a_remote_host_to_epp")
 		checkDns = append(checkDns, newRelParam.(string))
-	
+
 	}
-	
-	
-	d.Partial(true)
+
 	err = checkTDn(aciClient, checkDns)
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	d.Partial(false)
 
 	if d.HasChange("relation_file_rs_a_remote_host_to_epg") || d.HasChange("annotation") {
 		_, newRelParam := d.GetChange("relation_file_rs_a_remote_host_to_epg")
@@ -313,14 +282,11 @@ func resourceAciTACACSDestinationUpdate(ctx context.Context, d *schema.ResourceD
 			return diag.FromErr(err)
 		}
 		err = aciClient.CreateRelationfileRsARemoteHostToEpg(tacacsTacacsDest.DistinguishedName, tacacsTacacsDestAttr.Annotation, newRelParam.(string))
-		 
+
 		if err != nil {
 			return diag.FromErr(err)
 		}
-        d.Partial(true)
-        d.SetPartial("relation_file_rs_a_remote_host_to_epg")
-        d.Partial(false)
-	
+
 	}
 	if d.HasChange("relation_file_rs_a_remote_host_to_epp") || d.HasChange("annotation") {
 		_, newRelParam := d.GetChange("relation_file_rs_a_remote_host_to_epp")
@@ -329,16 +295,13 @@ func resourceAciTACACSDestinationUpdate(ctx context.Context, d *schema.ResourceD
 			return diag.FromErr(err)
 		}
 		err = aciClient.CreateRelationfileRsARemoteHostToEpp(tacacsTacacsDest.DistinguishedName, tacacsTacacsDestAttr.Annotation, newRelParam.(string))
-		 
+
 		if err != nil {
 			return diag.FromErr(err)
 		}
-        d.Partial(true)
-        d.SetPartial("relation_file_rs_a_remote_host_to_epp")
-        d.Partial(false)
-	
+
 	}
-	
+
 	d.SetId(tacacsTacacsDest.DistinguishedName)
 	log.Printf("[DEBUG] %s: Update finished successfully", d.Id())
 	return resourceAciTACACSDestinationRead(ctx, d, m)
@@ -358,29 +321,28 @@ func resourceAciTACACSDestinationRead(ctx context.Context, d *schema.ResourceDat
 		d.SetId("")
 		return nil
 	}
-	
-	
+
 	fileRsARemoteHostToEpgData, err := aciClient.ReadRelationfileRsARemoteHostToEpg(dn)
 	if err != nil {
 		log.Printf("[DEBUG] Error while reading relation fileRsARemoteHostToEpg %v", err)
 		d.Set("relation_file_rs_a_remote_host_to_epg", "")
 	} else {
-	if _, ok := d.GetOk("relation_file_rs_a_remote_host_to_epg"); ok {
+		if _, ok := d.GetOk("relation_file_rs_a_remote_host_to_epg"); ok {
 			tfName := d.Get("relation_file_rs_a_remote_host_to_epg").(string)
-			if tfName !=  fileRsARemoteHostToEpgData {
+			if tfName != fileRsARemoteHostToEpgData {
 				d.Set("relation_file_rs_a_remote_host_to_epg", "")
 			}
 		}
 	}
-	
+
 	fileRsARemoteHostToEppData, err := aciClient.ReadRelationfileRsARemoteHostToEpp(dn)
 	if err != nil {
 		log.Printf("[DEBUG] Error while reading relation fileRsARemoteHostToEpp %v", err)
 		d.Set("relation_file_rs_a_remote_host_to_epp", "")
 	} else {
-	if _, ok := d.GetOk("relation_file_rs_a_remote_host_to_epp"); ok {
+		if _, ok := d.GetOk("relation_file_rs_a_remote_host_to_epp"); ok {
 			tfName := d.Get("relation_file_rs_a_remote_host_to_epp").(string)
-			if tfName !=  fileRsARemoteHostToEppData {
+			if tfName != fileRsARemoteHostToEppData {
 				d.Set("relation_file_rs_a_remote_host_to_epp", "")
 			}
 		}
