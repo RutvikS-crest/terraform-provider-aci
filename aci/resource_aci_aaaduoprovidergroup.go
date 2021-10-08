@@ -200,9 +200,10 @@ func resourceAciDuoProviderGroupCreate(ctx context.Context, d *schema.ResourceDa
 		}
 		SecFacAuthMethods := strings.Join(secFacAuthMethodsList, ",")
 		aaaDuoProviderGroupAttr.SecFacAuthMethods = SecFacAuthMethods
-	} else {
-		aaaDuoProviderGroupAttr.SecFacAuthMethods = "{}"
 	}
+	// else {
+	// 	aaaDuoProviderGroupAttr.SecFacAuthMethods = "{}"
+	// }
 	aaaDuoProviderGroup := models.NewDuoProviderGroup(fmt.Sprintf("userext/duoext/duoprovidergroup-%s", name), "uni", desc, nameAlias, aaaDuoProviderGroupAttr)
 	err := aciClient.Save(aaaDuoProviderGroup)
 	if err != nil {
@@ -253,9 +254,10 @@ func resourceAciDuoProviderGroupUpdate(ctx context.Context, d *schema.ResourceDa
 		}
 		SecFacAuthMethods := strings.Join(secFacAuthMethodsList, ",")
 		aaaDuoProviderGroupAttr.SecFacAuthMethods = SecFacAuthMethods
-	} else {
-		aaaDuoProviderGroupAttr.SecFacAuthMethods = "{}"
 	}
+	// else {
+	// 	aaaDuoProviderGroupAttr.SecFacAuthMethods = "{}"
+	// }
 	aaaDuoProviderGroup := models.NewDuoProviderGroup(fmt.Sprintf("userext/duoext/duoprovidergroup-%s", name), "uni", desc, nameAlias, aaaDuoProviderGroupAttr)
 	aaaDuoProviderGroup.Status = "modified"
 	err := aciClient.Save(aaaDuoProviderGroup)
