@@ -11,17 +11,12 @@ import (
 
 func dataSourceAciTACACSDestination() *schema.Resource {
 	return &schema.Resource{
-		ReadContext:          dataSourceAciTACACSDestinationRead,
+		ReadContext:   dataSourceAciTACACSDestinationRead,
 		SchemaVersion: 1,
 		Schema: AppendBaseAttrSchema(AppendNameAliasAttrSchema(map[string]*schema.Schema{
 			"tacacs_accounting_dn": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
-			},
-			"annotation": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
 			},
 			"auth_protocol": &schema.Schema{
 				Type:     schema.TypeString,
@@ -33,19 +28,15 @@ func dataSourceAciTACACSDestination() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"key": &schema.Schema{
+			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-			},
-			"name": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
 			},
 			"port": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "49",
 			},
 		})),
 	}
@@ -55,7 +46,7 @@ func dataSourceAciTACACSDestinationRead(ctx context.Context, d *schema.ResourceD
 	aciClient := m.(*client.Client)
 	host := d.Get("host").(string)
 	port := d.Get("port").(string)
-	TACACSMonitoringDestinationGroupDn := d.Get("tacacs_monitoring_destination_group_dn").(string)
+	TACACSMonitoringDestinationGroupDn := d.Get("tacacs_accounting_dn").(string)
 	rn := fmt.Sprintf("tacacsdest-%s-port-%s", host, port)
 	dn := fmt.Sprintf("%s/%s", TACACSMonitoringDestinationGroupDn, rn)
 	tacacsTacacsDest, err := getRemoteTACACSDestination(aciClient, dn)

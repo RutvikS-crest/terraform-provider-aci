@@ -57,8 +57,9 @@ func resourceAciTACACSDestination() *schema.Resource {
 			},
 			"port": &schema.Schema{
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
 				ForceNew: true,
+				Default:  "49",
 			},
 
 			"relation_file_rs_a_remote_host_to_epg": &schema.Schema{
@@ -95,10 +96,10 @@ func setTACACSDestinationAttributes(tacacsTacacsDest *models.TACACSDestination, 
 	if err != nil {
 		return nil, err
 	}
+	d.Set("tacacs_accounting_dn", GetParentDn(d.Id(), fmt.Sprintf("/tacacsdest-%s-port-%s", tacacsTacacsDestMap["host"], tacacsTacacsDestMap["port"])))
 	d.Set("annotation", tacacsTacacsDestMap["annotation"])
 	d.Set("auth_protocol", tacacsTacacsDestMap["authProtocol"])
 	d.Set("host", tacacsTacacsDestMap["host"])
-	d.Set("key", tacacsTacacsDestMap["key"])
 	d.Set("name", tacacsTacacsDestMap["name"])
 	d.Set("port", tacacsTacacsDestMap["port"])
 	d.Set("name_alias", tacacsTacacsDestMap["nameAlias"])
@@ -127,7 +128,7 @@ func resourceAciTACACSDestinationCreate(ctx context.Context, d *schema.ResourceD
 	desc := d.Get("description").(string)
 	host := d.Get("host").(string)
 	port := d.Get("port").(string)
-	TACACSMonitoringDestinationGroupDn := d.Get("tacacs_monitoring_destination_group_dn").(string)
+	TACACSMonitoringDestinationGroupDn := d.Get("tacacs_accounting_dn").(string)
 
 	tacacsTacacsDestAttr := models.TACACSDestinationAttributes{}
 	nameAlias := ""
@@ -216,7 +217,7 @@ func resourceAciTACACSDestinationUpdate(ctx context.Context, d *schema.ResourceD
 	desc := d.Get("description").(string)
 	host := d.Get("host").(string)
 	port := d.Get("port").(string)
-	TACACSMonitoringDestinationGroupDn := d.Get("tacacs_monitoring_destination_group_dn").(string)
+	TACACSMonitoringDestinationGroupDn := d.Get("tacacs_accounting_dn").(string)
 	tacacsTacacsDestAttr := models.TACACSDestinationAttributes{}
 	nameAlias := ""
 	if NameAlias, ok := d.GetOk("name_alias"); ok {
