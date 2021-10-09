@@ -150,11 +150,7 @@ func setLDAPProviderAttributes(ldap_provider_group_type string, aaaLdapProvider 
 	if err != nil {
 		return nil, err
 	}
-	if ldap_provider_group_type == "ldap" {
-		d.Set("type", "ldap")
-	} else {
-		d.Set("type", "duo")
-	}
+	d.Set("type", ldap_provider_group_type)
 	d.Set("ssl_validation_level", aaaLdapProviderMap["SSLValidationLevel"])
 	d.Set("annotation", aaaLdapProviderMap["annotation"])
 	d.Set("attribute", aaaLdapProviderMap["attribute"])
