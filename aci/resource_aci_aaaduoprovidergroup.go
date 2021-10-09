@@ -61,6 +61,7 @@ func resourceAciDuoProviderGroup() *schema.Resource {
 				Type:     schema.TypeList,
 				Optional: true,
 				Computed: true,
+				MinItems: 1,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 					ValidateFunc: validation.StringInSlice([]string{
@@ -99,25 +100,6 @@ func setDuoProviderGroupAttributes(aaaDuoProviderGroup *models.DuoProviderGroup,
 	d.Set("ldap_group_map_ref", aaaDuoProviderGroupMap["ldapGroupMapRef"])
 	d.Set("name", aaaDuoProviderGroupMap["name"])
 	d.Set("provider_type", aaaDuoProviderGroupMap["providerType"])
-	// secFacAuthMethodsGet := make([]string, 0, 1)
-	// for _, val := range strings.Split(aaaDuoProviderGroupMap["secFacAuthMethods"], ",") {
-	// 	secFacAuthMethodsGet = append(secFacAuthMethodsGet, strings.Trim(val, " "))
-	// }
-	// sort.Strings(secFacAuthMethodsGet)
-	// if secFacAuthMethodsIntr, ok := d.GetOk("sec_fac_auth_methods"); ok {
-	// 	secFacAuthMethodsAct := make([]string, 0, 1)
-	// 	for _, val := range secFacAuthMethodsIntr.([]interface{}) {
-	// 		secFacAuthMethodsAct = append(secFacAuthMethodsAct, val.(string))
-	// 	}
-	// 	sort.Strings(secFacAuthMethodsAct)
-	// 	if reflect.DeepEqual(secFacAuthMethodsAct, secFacAuthMethodsGet) {
-	// 		d.Set("sec_fac_auth_methods", d.Get("sec_fac_auth_methods").([]interface{}))
-	// 	} else {
-	// 		d.Set("sec_fac_auth_methods", secFacAuthMethodsGet)
-	// 	}
-	// } else {
-	// 	d.Set("sec_fac_auth_methods", secFacAuthMethodsGet)
-	// }
 	secFacAuthMethodsGet := make([]string, 0, 1)
 	if aaaDuoProviderGroupMap["secFacAuthMethods"] == "" {
 		d.Set("sec_fac_auth_methods", secFacAuthMethodsGet)
@@ -201,9 +183,6 @@ func resourceAciDuoProviderGroupCreate(ctx context.Context, d *schema.ResourceDa
 		SecFacAuthMethods := strings.Join(secFacAuthMethodsList, ",")
 		aaaDuoProviderGroupAttr.SecFacAuthMethods = SecFacAuthMethods
 	}
-	// else {
-	// 	aaaDuoProviderGroupAttr.SecFacAuthMethods = "{}"
-	// }
 	aaaDuoProviderGroup := models.NewDuoProviderGroup(fmt.Sprintf("userext/duoext/duoprovidergroup-%s", name), "uni", desc, nameAlias, aaaDuoProviderGroupAttr)
 	err := aciClient.Save(aaaDuoProviderGroup)
 	if err != nil {
@@ -255,9 +234,6 @@ func resourceAciDuoProviderGroupUpdate(ctx context.Context, d *schema.ResourceDa
 		SecFacAuthMethods := strings.Join(secFacAuthMethodsList, ",")
 		aaaDuoProviderGroupAttr.SecFacAuthMethods = SecFacAuthMethods
 	}
-	// else {
-	// 	aaaDuoProviderGroupAttr.SecFacAuthMethods = "{}"
-	// }
 	aaaDuoProviderGroup := models.NewDuoProviderGroup(fmt.Sprintf("userext/duoext/duoprovidergroup-%s", name), "uni", desc, nameAlias, aaaDuoProviderGroupAttr)
 	aaaDuoProviderGroup.Status = "modified"
 	err := aciClient.Save(aaaDuoProviderGroup)
