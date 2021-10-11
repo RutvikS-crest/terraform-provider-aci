@@ -20,25 +20,24 @@ Manages ACI LDAP Provider
 ## Example Usage ##
 ```hcl
 resource "aci_ldap_provider" "example" {
-  name  = "example"
-  ssl_validation_level = "strict"
-  attribute = ""
-  basedn = ""
-  enable_ssl = "false"
-  filter = 
-  key = 
-  monitor_server = "disabled"
-  monitoring_password = 
-  monitoring_user = "default"
-
-  port = "389"
-  retries = "1"
-  rootdn = 
-  timeout = "30"
-
-  aaa_rs_prov_to_epp = aci_resource.example.id
-
-  aaa_rs_sec_prov_to_epg = aci_resource.example.id
+	name = "example"
+	type = "duo"
+	description = "from terraform"
+	annotation = "example_annotation"
+	name_alias = "example_name_alias"
+	ssl_validation_level = "strict"
+	attribute = "example_attribute_value"
+	basedn = "example_basedn_value"
+	enable_ssl = "yes"
+	filter = "sAMAccountName=$userid"
+	key = "example_key_value"
+	monitor_server = "enabled"
+	monitoring_password = "example_monitoring_password_value"
+	monitoring_user = "example_monitoring_user_value"
+	port = "389"
+	retries = "1"
+	rootdn = "test_rootdn_value"
+	timeout = "30"
 }
 ```
 
