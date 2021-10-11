@@ -13,10 +13,6 @@ Manages ACI Duo Provider Group
 * `Class` - aaaDuoProviderGroup
 * `Distinguished Named` - uni/userext/duoext/duoprovidergroup-{name}
 
-## GUI Information ##
-* `Location` - 
-
-
 ## Example Usage ##
 ```hcl
 resource "aci_duo_provider_group" "example" {

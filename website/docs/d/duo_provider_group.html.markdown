@@ -14,9 +14,6 @@ Data source for ACI Duo Provider Group
 * `Class` - aaaDuoProviderGroup
 * `Distinguished Named` - uni/userext/duoext/duoprovidergroup-{name}
 
-## GUI Information ##
-* `Location` - 
-
 ## Example Usage ##
 
 ```hcl
