@@ -96,7 +96,10 @@ func setApplicationProfileAttributes(fvAp *models.ApplicationProfile, d *schema.
 	}
 
 	d.Set("name", fvApMap["name"])
-
+	parent_dn := GetParentDn(dn, fmt.Sprintf("/ap-%s", fvApMap["name"]))
+	log.Printf("parent_dn %s", parent_dn)
+	d.Set("tenant_dn", GetParentDn(dn, fmt.Sprintf("/ap-%s", fvApMap["name"])))
+	log.Println("after setting tenant_dn")
 	d.Set("annotation", fvApMap["annotation"])
 	d.Set("name_alias", fvApMap["nameAlias"])
 	d.Set("prio", fvApMap["prio"])
