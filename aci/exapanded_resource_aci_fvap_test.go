@@ -2,6 +2,7 @@ package aci
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/ciscoecosystem/aci-go-client/client"
@@ -11,15 +12,26 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
+//TODO: Multiple resource
+
 func TestAccAciApplicationProfile_Basic(t *testing.T) {
 	var application_profile models.ApplicationProfile
 	resourceName := "aci_application_profile.test"
 	rName := acctest.RandString(5)
+	longrName := acctest.RandString(65)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckAciApplicationProfileDestroy,
 		Steps: []resource.TestStep{
+			{
+				Config:      CreateAccApplicationProfileWithoutTenant(rName),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+			{
+				Config:      CreateAccApplicationProfileWithoutName(rName),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
 			{
 				Config: CreateAccApplicationProfileConfig(rName),
 				Check: resource.ComposeTestCheckFunc(
@@ -38,16 +50,37 @@ func TestAccAciApplicationProfile_Basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: CreateAccApplicationProfileConfigWithOptionalValues(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile),
+					resource.TestCheckResourceAttr(resourceName, "description", "from terraform"),
+					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_ap"),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", ""),
+					resource.TestCheckResourceAttr(resourceName, "annotation", "tag"),
+					resource.TestCheckResourceAttr(resourceName, "prio", "level1"),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rName)),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config:      CreateAccApplicationProfileConfigUpdatedName(rName, longrName),
+				ExpectError: regexp.MustCompile(fmt.Sprintf("property name of ap-%s failed validation for value '%s'", longrName, longrName)),
+			},
 		},
 	})
 }
 
-func TestAccApplicationProfile_description(t *testing.T) {
-	var application_profile_default_description models.ApplicationProfile
-	var application_profile_updated_description models.ApplicationProfile
+func TestAccApplicationProfile_Update(t *testing.T) {
+	var application_profile_default models.ApplicationProfile
+	var application_profile_updated models.ApplicationProfile
 	resourceName := "aci_application_profile.test"
 	rName := acctest.RandString(5)
-
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -56,28 +89,137 @@ func TestAccApplicationProfile_description(t *testing.T) {
 			{
 				Config: CreateAccApplicationProfileConfig(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_default_description),
-					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_default),
 				),
 			},
 			{
-				Config: CreateAccApplicationProfileUpdatedDescription(rName),
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccApplicationProfileUpdatedAttr(rName, "description", "updated description for terraform test"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated_description),
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated),
 					resource.TestCheckResourceAttr(resourceName, "description", "updated description for terraform test"),
-					testAccCheckAciApplicationProfileIdEqual(&application_profile_default_description, &application_profile_updated_description),
+					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccApplicationProfileUpdatedAttr(rName, "annotation", "updated_annotation_for_terraform_test"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated),
+					resource.TestCheckResourceAttr(resourceName, "annotation", "updated_annotation_for_terraform_test"),
+					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level1"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated),
+					resource.TestCheckResourceAttr(resourceName, "prio", "level1"),
+					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level2"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated),
+					resource.TestCheckResourceAttr(resourceName, "prio", "level2"),
+					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level3"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated),
+					resource.TestCheckResourceAttr(resourceName, "prio", "level3"),
+					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level4"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated),
+					resource.TestCheckResourceAttr(resourceName, "prio", "level4"),
+					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level5"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated),
+					resource.TestCheckResourceAttr(resourceName, "prio", "level5"),
+					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level6"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated),
+					resource.TestCheckResourceAttr(resourceName, "prio", "level6"),
+					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccApplicationProfileUpdatedAttr(rName, "name_alias", "updated_name_alias_for_terraform_test"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated),
+					resource.TestCheckResourceAttr(resourceName, "name_alias", "updated_name_alias_for_terraform_test"),
+					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_updated),
 				),
 			},
 		},
 	})
 }
 
-func TestAccApplicationProfile_annotation(t *testing.T) {
-	var application_profile_default_annotation models.ApplicationProfile
-	var application_profile_updated_annotation models.ApplicationProfile
+func TestAccApplicationProfile_NegativeCases(t *testing.T) {
+	var application_profile_default models.ApplicationProfile
 	resourceName := "aci_application_profile.test"
 	rName := acctest.RandString(5)
-
+	longDescAnnotation := acctest.RandString(129)
+	longNameAlias := acctest.RandString(64)
+	randomPrio := acctest.RandString(6)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -86,17 +228,34 @@ func TestAccApplicationProfile_annotation(t *testing.T) {
 			{
 				Config: CreateAccApplicationProfileConfig(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_default_annotation),
-					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_default),
 				),
 			},
 			{
-				Config: CreateAccApplicationProfileUpdatedAnnotation(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated_annotation),
-					resource.TestCheckResourceAttr(resourceName, "annotation", "updated_annotation_for_terraform_test"),
-					testAccCheckAciApplicationProfileIdEqual(&application_profile_default_annotation, &application_profile_updated_annotation),
-				),
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			//TODO: Invalid parent dn
+			{
+				Config:      CreateAccApplicationProfileUpdatedAttr(rName, "description", longDescAnnotation),
+				ExpectError: regexp.MustCompile(`property descr of (.)+ failed validation for value '(.)+'`),
+			},
+			{
+				Config:      CreateAccApplicationProfileUpdatedAttr(rName, "annotation", longDescAnnotation),
+				ExpectError: regexp.MustCompile(`property annotation of (.)+ failed validation for value '(.)+'`),
+			},
+			{
+				Config:      CreateAccApplicationProfileUpdatedAttr(rName, "name_alias", longNameAlias),
+				ExpectError: regexp.MustCompile(`property nameAlias of (.)+ failed validation for value '(.)+'`),
+			},
+			{
+				Config:      CreateAccApplicationProfileUpdatedAttr(rName, "prio", randomPrio),
+				ExpectError: regexp.MustCompile(`expected prio to be one of (.)+, got (.)+`),
+			},
+			//TODO: randomly generate parameter and value
+			{
+				Config: CreateAccApplicationProfileConfig(rName),
 			},
 		},
 	})
@@ -124,6 +283,11 @@ func TestAccApplicationProfile_relMonPol(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: CreateAccApplicationProfileUpdatedMonPol(rName, monPolName1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_relMonPol1),
@@ -139,116 +303,12 @@ func TestAccApplicationProfile_relMonPol(t *testing.T) {
 					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_relMonPol2),
 				),
 			},
+			// TODO: add dn which is not allowed
 			{
 				Config: CreateAccApplicationProfileConfig(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_default),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", ""),
-				),
-			},
-		},
-	})
-}
-
-func TestAccApplicationProfile_prio(t *testing.T) {
-	var application_profile_default_prio models.ApplicationProfile
-	var application_profile_l1_prio models.ApplicationProfile
-	var application_profile_l2_prio models.ApplicationProfile
-	var application_profile_l3_prio models.ApplicationProfile
-	var application_profile_l4_prio models.ApplicationProfile
-	var application_profile_l5_prio models.ApplicationProfile
-	var application_profile_l6_prio models.ApplicationProfile
-	resourceName := "aci_application_profile.test"
-	rName := acctest.RandString(5)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciApplicationProfileDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: CreateAccApplicationProfileConfig(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_default_prio),
-					resource.TestCheckResourceAttr(resourceName, "prio", "unspecified"),
-				),
-			},
-			{
-				Config: CreateAccApplicationProfileUpdatedPrio(rName, "level1"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_l1_prio),
-					resource.TestCheckResourceAttr(resourceName, "prio", "level1"),
-					testAccCheckAciApplicationProfileIdEqual(&application_profile_default_prio, &application_profile_l1_prio),
-				),
-			},
-			{
-				Config: CreateAccApplicationProfileUpdatedPrio(rName, "level2"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_l2_prio),
-					resource.TestCheckResourceAttr(resourceName, "prio", "level2"),
-					testAccCheckAciApplicationProfileIdEqual(&application_profile_default_prio, &application_profile_l2_prio),
-				),
-			},
-			{
-				Config: CreateAccApplicationProfileUpdatedPrio(rName, "level3"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_l3_prio),
-					resource.TestCheckResourceAttr(resourceName, "prio", "level3"),
-					testAccCheckAciApplicationProfileIdEqual(&application_profile_default_prio, &application_profile_l3_prio),
-				),
-			},
-			{
-				Config: CreateAccApplicationProfileUpdatedPrio(rName, "level4"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_l4_prio),
-					resource.TestCheckResourceAttr(resourceName, "prio", "level4"),
-					testAccCheckAciApplicationProfileIdEqual(&application_profile_default_prio, &application_profile_l4_prio),
-				),
-			},
-			{
-				Config: CreateAccApplicationProfileUpdatedPrio(rName, "level5"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_l5_prio),
-					resource.TestCheckResourceAttr(resourceName, "prio", "level5"),
-					testAccCheckAciApplicationProfileIdEqual(&application_profile_default_prio, &application_profile_l5_prio),
-				),
-			},
-			{
-				Config: CreateAccApplicationProfileUpdatedPrio(rName, "level6"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_l6_prio),
-					resource.TestCheckResourceAttr(resourceName, "prio", "level6"),
-					testAccCheckAciApplicationProfileIdEqual(&application_profile_default_prio, &application_profile_l6_prio),
-				),
-			},
-		},
-	})
-}
-
-func TestAccApplicationProfile_nameAlias(t *testing.T) {
-	var application_profile_default_nameAlias models.ApplicationProfile
-	var application_profile_updated_nameAlias models.ApplicationProfile
-	resourceName := "aci_application_profile.test"
-	rName := acctest.RandString(5)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciApplicationProfileDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: CreateAccApplicationProfileConfig(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_default_nameAlias),
-					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
-				),
-			},
-			{
-				Config: CreateAccApplicationProfileUpdatedNameAlias(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated_nameAlias),
-					resource.TestCheckResourceAttr(resourceName, "name_alias", "updated_name_alias_for_terraform_test"),
-					testAccCheckAciApplicationProfileIdEqual(&application_profile_default_nameAlias, &application_profile_updated_nameAlias),
 				),
 			},
 		},
@@ -264,6 +324,30 @@ func testAccCheckAciApplicationProfileIdEqual(ap1, ap2 *models.ApplicationProfil
 	}
 }
 
+func CreateAccApplicationProfileWithoutTenant(rName string) string {
+	fmt.Println("=== STEP  Basic: testing applicationProfile creation without creating tenant")
+	resource := fmt.Sprintf(`
+	resource "aci_application_profile" "test" {
+		name = "%s"
+	}
+	`, rName)
+	return resource
+}
+
+func CreateAccApplicationProfileWithoutName(rName string) string {
+	fmt.Println("=== STEP  Basic: testing applicationProfile creation without giving name")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test"{
+		name = "%s"
+	}
+
+	resource "aci_application_profile" "test" {
+		tenant_dn = aci_tenant.test.id
+	}
+	`, rName)
+	return resource
+}
+
 func CreateAccApplicationProfileConfig(rName string) string {
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
@@ -273,6 +357,25 @@ func CreateAccApplicationProfileConfig(rName string) string {
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
+	}
+	`, rName, rName)
+	return resource
+}
+
+func CreateAccApplicationProfileConfigWithOptionalValues(rName string) string {
+	fmt.Println("=== STEP  Basic: testing applicationProfile creation with optional parameters")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name = "%s"
+	}
+	
+	resource "aci_application_profile" "test" {
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+		annotation = "tag"
+		description = "from terraform"
+		name_alias = "test_ap"
+		prio = "level1"
 	}
 	`, rName, rName)
 	return resource
@@ -298,7 +401,8 @@ func CreateAccApplicationProfileUpdatedMonPol(rName, monPolName string) string {
 	return resource
 }
 
-func CreateAccApplicationProfileUpdatedPrio(rName, prio string) string {
+func CreateAccApplicationProfileConfigUpdatedName(rName, longrName string) string {
+	fmt.Println("=== STEP  Basic: testing applicationProfile creation with invalid name")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -307,54 +411,24 @@ func CreateAccApplicationProfileUpdatedPrio(rName, prio string) string {
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
-		prio = "%s"
 	}
-	`, rName, rName, prio)
+	`, rName, longrName)
 	return resource
 }
 
-func CreateAccApplicationProfileUpdatedNameAlias(rName string) string {
+func CreateAccApplicationProfileUpdatedAttr(rName, attribute, value string) string {
+	fmt.Printf("=== STEP  testing attribute: %s=%s \n", attribute, value)
 	resource := fmt.Sprintf(`
- 	resource "aci_tenant" "test" {
+	resource "aci_tenant" "test" {
 		name = "%s"
- 	}
- 
- 	resource "aci_application_profile" "test" {
+	}
+	
+	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
-		name_alias = "updated_name_alias_for_terraform_test"
- 	}
- `, rName, rName)
-	return resource
-}
-
-func CreateAccApplicationProfileUpdatedAnnotation(rName string) string {
-	resource := fmt.Sprintf(`
- 	resource "aci_tenant" "test" {
-		name = "%s"
- 	}
- 
- 	resource "aci_application_profile" "test" {
-		tenant_dn = aci_tenant.test.id
-		name = "%s"
-		annotation = "updated_annotation_for_terraform_test"
- 	}
- `, rName, rName)
-	return resource
-}
-
-func CreateAccApplicationProfileUpdatedDescription(rName string) string {
-	resource := fmt.Sprintf(`
- 	resource "aci_tenant" "test" {
-		name = "%s"
- 	}
- 
- 	resource "aci_application_profile" "test" {
-		tenant_dn = aci_tenant.test.id
-		name = "%s"
-		description = "updated description for terraform test"
- 	}
- `, rName, rName)
+		%s = "%s"
+	}
+	`, rName, rName, attribute, value)
 	return resource
 }
 

@@ -1,11 +1,17 @@
 package aci
 
 import (
+	"fmt"
 	"os"
+	"regexp"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
+
+//TODO: check password is not showing in state file
 
 var testAccProviders map[string]*schema.Provider
 var testAccProvider *schema.Provider
@@ -42,4 +48,35 @@ func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("ACI_URL"); v == "" {
 		t.Fatal("ACI_URL env variable must be set for acceptance tests")
 	}
+}
+
+func TestAccAciProviderWithInvalidCredentials(t *testing.T) {
+	rName := acctest.RandString(5)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAciApplicationProfileDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config:      CreateTenantWithWrongPassword(rName),
+				ExpectError: regexp.MustCompile(`User credential is incorrect - FAILED local authentication`),
+			},
+		},
+	})
+}
+
+func CreateTenantWithWrongPassword(rName string) string {
+	fmt.Println("=== STEP  testing creation with invalid credentials")
+	resource := fmt.Sprintf(`
+	provider "aci" {
+		username = "%s"
+		password = "%sxyz"
+		url      = "%s"
+		insecure = true
+	}
+
+	resource "aci_tenant" "test" {
+		name = "%s"
+	}`, os.Getenv("ACI_USERNAME"), os.Getenv("ACI_PASSWORD"), os.Getenv("ACI_URL"), rName)
+	return resource
 }
