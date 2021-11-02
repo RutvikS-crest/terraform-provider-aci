@@ -5,15 +5,13 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/ciscoecosystem/aci-go-client/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccAciApplicationProfileDataSource_Basic(t *testing.T) {
-	var application_profile models.ApplicationProfile
-	resourceName := "aci_application_profile.test"
-	dataSourceName := "data.aci_application_profile.test"
+	resourceName := "aci_application_profile.test"        // defining name of resource
+	dataSourceName := "data.aci_application_profile.test" // defining name of data source
 	rName := acctest.RandString(5)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -21,26 +19,25 @@ func TestAccAciApplicationProfileDataSource_Basic(t *testing.T) {
 		CheckDestroy: testAccCheckAciApplicationProfileDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      CreateAccApplicationProfileDSWithoutTenant(rName),
+				Config:      CreateAccApplicationProfileDSWithoutTenant(rName), // creating data source for application profile without required arguement tenant_dn
+				ExpectError: regexp.MustCompile(`Missing required argument`),   // test step expect error which should be match with defined regex
+			},
+			{
+				Config:      CreateAccApplicationProfileDSWithoutName(rName), // creating data source for application profile without required arguement name
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config:      CreateAccApplicationProfileDSWithoutName(rName),
-				ExpectError: regexp.MustCompile(`Missing required argument`),
-			},
-			{
-				Config: CreateAccApplicationProfileConfigDataSource(rName),
+				Config: CreateAccApplicationProfileConfigDataSource(rName), // creating data source with required arguements from the resource
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile),
-					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "prio", resourceName, "prio"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"), // comparing value of parameter description in data source and resoruce
+					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),   // comparing value of parameter description in data source and resoruce
+					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),   // comparing value of parameter description in data source and resoruce
+					resource.TestCheckResourceAttrPair(dataSourceName, "prio", resourceName, "prio"),               // comparing value of parameter description in data source and resoruce
 				),
 			},
 			{
-				Config:      CreateAccApplicationProfileDSWithInvalidName(rName),
-				ExpectError: regexp.MustCompile(`Error retriving Object: Object may not exists`),
+				Config:      CreateAccApplicationProfileDSWithInvalidName(rName),                 // data source configuration with invalid application profile profile name
+				ExpectError: regexp.MustCompile(`Error retriving Object: Object may not exists`), // test step expect error which should be match with defined regex
 			},
 		},
 	})

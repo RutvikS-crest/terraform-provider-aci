@@ -55,7 +55,6 @@ func TestAccAciProviderWithInvalidCredentials(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciApplicationProfileDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      CreateTenantWithWrongPassword(rName),
