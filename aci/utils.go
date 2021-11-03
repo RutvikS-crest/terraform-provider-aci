@@ -249,7 +249,6 @@ func StringListtoString(list []string) string {
 }
 
 func StringListtoStringWithoutQuoted(list []string) string {
-	log.Println("inside function")
 	val := ""
 	val = val + "["
 	for i := 0; i < len(list)-1; i++ {
@@ -258,6 +257,5 @@ func StringListtoStringWithoutQuoted(list []string) string {
 	}
 	val = val + list[len(list)-1]
 	val = val + "]"
-	log.Printf("val: %v\n", val)
 	return val
 }

@@ -225,11 +225,11 @@ func TestAccApplicationProfile_NegativeCases(t *testing.T) {
 	var application_profile_default models.ApplicationProfile
 	resourceName := "aci_application_profile.test"
 	rName := acctest.RandString(5)
-	longDescAnnotation := acctest.RandString(129) // creating random string of 129 characters
-	longNameAlias := acctest.RandString(64)       // creating random string of 64 characters
-	randomPrio := acctest.RandString(6)           // creating random string of 6 characters
-	randomParameter := acctest.RandString(5)      // creating random string of 5 characters (to give as random parameter)
-	randomValue := acctest.RandString(5)          // creating random string of 5 characters (to give as random value of random parameter)
+	longDescAnnotation := acctest.RandString(129)                                     // creating random string of 129 characters
+	longNameAlias := acctest.RandString(64)                                           // creating random string of 64 characters
+	randomPrio := acctest.RandString(6)                                               // creating random string of 6 characters
+	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz") // creating random string of 5 characters (to give as random parameter)
+	randomValue := acctest.RandString(5)                                              // creating random string of 5 characters (to give as random value of random parameter)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -277,10 +277,10 @@ func TestAccApplicationProfile_NegativeCases(t *testing.T) {
 	})
 }
 
-func TestAccApplicationProfile_relMonPol(t *testing.T) {
+func TestAccApplicationProfile_reltionalParameters(t *testing.T) {
 	var application_profile_default models.ApplicationProfile
-	var application_profile_relMonPol1 models.ApplicationProfile
-	var application_profile_relMonPol2 models.ApplicationProfile
+	var application_profile_rel1 models.ApplicationProfile
+	var application_profile_rel2 models.ApplicationProfile
 	resourceName := "aci_application_profile.test"
 	rName := acctest.RandString(5)
 	monPolName1 := acctest.RandString(5) // randomly created name for relational resoruce
@@ -303,25 +303,24 @@ func TestAccApplicationProfile_relMonPol(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: CreateAccApplicationProfileUpdatedMonPol(rName, monPolName1), // creating application profile with relation_fv_rs_ap_mon_pol parameter for the first randomly generated name
+				Config: CreateAccApplicationProfileConfigInitial(rName, monPolName1), // creating application profile with relation_fv_rs_ap_mon_pol parameter for the first randomly generated name
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_relMonPol1),                                            // checking whether resource is exist or not in state file
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_rel1),                                                  // checking whether resource is exist or not in state file
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", fmt.Sprintf("uni/tn-%s/monepg-%s", rName, monPolName1)), // checking relation by comparing values
-					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_relMonPol1),                           // this function will check whether id or dn of both resource are same or not to make sure updation is performed on the same resource
+					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_rel1),                                 // this function will check whether id or dn of both resource are same or not to make sure updation is performed on the same resource
 				),
 			},
 			{
-				Config: CreateAccApplicationProfileUpdatedMonPol(rName, monPolName2), // creating application profile with relation_fv_rs_ap_mon_pol parameter for the second randomly generated name (to verify update operation)
+				Config: CreateAccApplicationProfileConfigFinal(rName, monPolName2), // creating application profile with relation_fv_rs_ap_mon_pol parameter for the second randomly generated name (to verify update operation)
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_relMonPol2),                                            // checking whether resource is exist or not in state file
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_rel2),                                                  // checking whether resource is exist or not in state file
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", fmt.Sprintf("uni/tn-%s/monepg-%s", rName, monPolName2)), // checking relation by comparing values
-					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_relMonPol2),
+					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_rel2),
 				),
 			},
 			{
 				Config: CreateAccApplicationProfileConfig(rName), // this configuration will remove relation
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_default),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", ""), // checking removal of relation
 				),
 			},
@@ -478,7 +477,29 @@ func CreateAccApplicationProfileConfigWithOptionalValues(rName string) string {
 	return resource
 }
 
-func CreateAccApplicationProfileUpdatedMonPol(rName, monPolName string) string {
+func CreateAccApplicationProfileConfigInitial(rName, monPolName string) string {
+	fmt.Println("=== STEP  Basic: testing applicationProfile creation with initial relational parameters")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name = "%s"
+	}
+
+	resource "aci_monitoring_policy" "test" {
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+	}
+	
+	resource "aci_application_profile" "test" {
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+		relation_fv_rs_ap_mon_pol = aci_monitoring_policy.test.id
+	}
+	`, rName, monPolName, rName)
+	return resource
+}
+
+func CreateAccApplicationProfileConfigFinal(rName, monPolName string) string {
+	fmt.Println("=== STEP  Basic: testing applicationProfile creation with final relational parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"

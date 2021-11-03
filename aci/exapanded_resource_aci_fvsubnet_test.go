@@ -358,13 +358,13 @@ func TestAccSubnet_Update(t *testing.T) {
 	})
 }
 
-func TestAccApplicationProfile_NegativeCases(t *testing.T) {
+func TestAccSubnet_NegativeCases(t *testing.T) {
 	rName := acctest.RandString(5)
 	ip, _ := acctest.RandIpAddress("10.20.0.0/16")
 	ip = fmt.Sprintf("%s/16", ip)
 	longDescAnnotation := acctest.RandString(129)
 	longNameAlias := acctest.RandString(64)
-	randomParameter := acctest.RandString(5)
+	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(5)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -417,68 +417,16 @@ func TestAccApplicationProfile_NegativeCases(t *testing.T) {
 	})
 }
 
-func TestAccApplicationProfile_bdSubnetToProfile(t *testing.T) {
+func TestAccSubnet_reltionalParameters(t *testing.T) {
 	var subnet_default models.Subnet
-	var subnet_bdSubnetToProfile1 models.Subnet
-	var subnet_bdSubnetToProfile2 models.Subnet
+	var subnet_rel1 models.Subnet
+	var subnet_rel2 models.Subnet
 	resourceName := "aci_subnet.test"
 	rName := acctest.RandString(5)
 	ip, _ := acctest.RandIpAddress("10.20.0.0/16")
 	ip = fmt.Sprintf("%s/16", ip)
 	bdSubnetToProfileName1 := acctest.RandString(5)
 	bdSubnetToProfileName2 := acctest.RandString(5)
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciSubnetDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: CreateAccSubnetConfig(rName, ip),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciSubnetExists(resourceName, &subnet_default),
-					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", ""),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: CreateAccSubnetUpdatedbdSubnetToProfle(rName, ip, bdSubnetToProfileName1),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciSubnetExists(resourceName, &subnet_bdSubnetToProfile1),
-					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", fmt.Sprintf("uni/tn-%s/prof-%s", rName, bdSubnetToProfileName1)),
-					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_bdSubnetToProfile1),
-				),
-			},
-			{
-				Config: CreateAccSubnetUpdatedbdSubnetToProfle(rName, ip, bdSubnetToProfileName2),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciSubnetExists(resourceName, &subnet_bdSubnetToProfile2),
-					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", fmt.Sprintf("uni/tn-%s/prof-%s", rName, bdSubnetToProfileName2)),
-					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_bdSubnetToProfile2),
-				),
-			},
-			{
-				Config: CreateAccSubnetConfig(rName, ip),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciSubnetExists(resourceName, &subnet_default),
-					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", ""),
-				),
-			},
-		},
-	})
-}
-
-func TestAccApplicationProfile_bdSubnetToOut(t *testing.T) {
-	var subnet_default models.Subnet
-	var subnet_bdSubnetToOut1 models.Subnet
-	var subnet_bdSubnetToOut2 models.Subnet
-	resourceName := "aci_subnet.test"
-	rName := acctest.RandString(5)
-	ip, _ := acctest.RandIpAddress("10.20.0.0/16")
-	ip = fmt.Sprintf("%s/16", ip)
 	bdSubnetToOutName1 := acctest.RandString(5)
 	bdSubnetToOutName2 := acctest.RandString(5)
 	resource.ParallelTest(t, resource.TestCase{
@@ -490,6 +438,9 @@ func TestAccApplicationProfile_bdSubnetToOut(t *testing.T) {
 				Config: CreateAccSubnetConfig(rName, ip),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSubnetExists(resourceName, &subnet_default),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", ""),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_nd_pfx_pol", ""),
+					// resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_out", ""),
 				),
 			},
 			{
@@ -498,26 +449,30 @@ func TestAccApplicationProfile_bdSubnetToOut(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: CreateAccSubnetUpdatedbdSubnetToOut(rName, ip, bdSubnetToOutName1, StringListtoStringWithoutQuoted([]string{"aci_l3_outside.test1.id"})),
+				Config: CreateAccSubnetUpdatedbdSubnetIntial(rName, ip, bdSubnetToProfileName1, bdSubnetToOutName1, "aci_bgp_route_control_profile.test.id", StringListtoStringWithoutQuoted([]string{"aci_l3_outside.test1.id"})),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciSubnetExists(resourceName, &subnet_bdSubnetToOut1),
+					testAccCheckAciSubnetExists(resourceName, &subnet_rel1),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", fmt.Sprintf("uni/tn-%s/prof-%s", rName, bdSubnetToProfileName1)),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_out.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_out.0", fmt.Sprintf("uni/tn-%s/out-%s", rName, bdSubnetToOutName1)),
-					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_bdSubnetToOut1),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_rel1),
 				),
 			},
 			{
-				Config: CreateAccSubnetUpdatedbdSubnetToOutMultiple(rName, ip, bdSubnetToOutName1, bdSubnetToOutName2, StringListtoStringWithoutQuoted([]string{"aci_l3_outside.test1.id", "aci_l3_outside.test2.id"})),
+				Config: CreateAccSubnetUpdatedbdSubnetFinal(rName, ip, bdSubnetToProfileName2, bdSubnetToOutName1, bdSubnetToOutName2, "aci_bgp_route_control_profile.test.id", StringListtoStringWithoutQuoted([]string{"aci_l3_outside.test1.id", "aci_l3_outside.test2.id"})),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciSubnetExists(resourceName, &subnet_bdSubnetToOut2),
+					testAccCheckAciSubnetExists(resourceName, &subnet_rel2),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", fmt.Sprintf("uni/tn-%s/prof-%s", rName, bdSubnetToProfileName2)),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_out.#", "2"),
-					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_bdSubnetToOut2),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_rel2),
 				),
 			},
 			{
 				Config: CreateAccSubnetConfig(rName, ip),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSubnetExists(resourceName, &subnet_default),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", ""),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_nd_pfx_pol", ""),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_out.#", "0"),
 				),
 			},
@@ -673,7 +628,8 @@ func CreateAccSubnetConfigWithOptionalValues(rName, ip string) string {
 	return resource
 }
 
-func CreateAccSubnetUpdatedbdSubnetToProfle(rName, ip, bdSubnetToProfileName string) string {
+func CreateAccSubnetUpdatedbdSubnetIntial(rName, ip, bdSubnetToProfileName, bdSubnetToOutName, bdSubnetToProfileRef, bdSubnetToOutRef string) string {
+	fmt.Println("=== STEP  Basic: testing subnet creation with initial relational parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -681,28 +637,6 @@ func CreateAccSubnetUpdatedbdSubnetToProfle(rName, ip, bdSubnetToProfileName str
 
 	resource "aci_bgp_route_control_profile" "test" {
 		parent_dn = aci_tenant.test.id
-		name = "%s"
-	}
-
-	resource "aci_bridge_domain" "test"{
-		name = "%s"
-		tenant_dn = aci_tenant.test.id
-	}
-	
-	resource "aci_subnet" "test" {
-		parent_dn = aci_bridge_domain.test.id
-		ip = "%s"
-		relation_fv_rs_bd_subnet_to_profile = aci_bgp_route_control_profile.test.id
-	}
-	`, rName, bdSubnetToProfileName, rName, ip)
-	return resource
-}
-
-func CreateAccSubnetUpdatedbdSubnetToOut(rName, ip, bdSubnetToOutName, bdSubnetToOutList string) string {
-	fmt.Printf("bdSubnetToOutName: %v\n", bdSubnetToOutName)
-	fmt.Printf("bdSubnetToOutList: %v\n", bdSubnetToOutList)
-	resource := fmt.Sprintf(`
-	resource "aci_tenant" "test" {
 		name = "%s"
 	}
 
@@ -719,18 +653,22 @@ func CreateAccSubnetUpdatedbdSubnetToOut(rName, ip, bdSubnetToOutName, bdSubnetT
 	resource "aci_subnet" "test" {
 		parent_dn = aci_bridge_domain.test.id
 		ip = "%s"
+		relation_fv_rs_bd_subnet_to_profile = %s
 		relation_fv_rs_bd_subnet_to_out = %s
 	}
-	`, rName, bdSubnetToOutName, rName, ip, bdSubnetToOutList)
+	`, rName, bdSubnetToProfileName, bdSubnetToOutName, rName, ip, bdSubnetToProfileRef, bdSubnetToOutRef)
 	return resource
 }
 
-func CreateAccSubnetUpdatedbdSubnetToOutMultiple(rName, ip, bdSubnetToOutName1, bdSubnetToOutName2, bdSubnetToOutList string) string {
-	fmt.Printf("bdSubnetToOutName1: %v\n", bdSubnetToOutName1)
-	fmt.Printf("bdSubnetToOutName2: %v\n", bdSubnetToOutName2)
-	fmt.Printf("bdSubnetToOutList: %v\n", bdSubnetToOutList)
+func CreateAccSubnetUpdatedbdSubnetFinal(rName, ip, bdSubnetToProfileName, bdSubnetToOutName1, bdSubnetToOutName2, bdSubnetToProfileRef, bdSubnetToOutRef string) string {
+	fmt.Println("=== STEP  Basic: testing subnet creation with final relational parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
+		name = "%s"
+	}
+
+	resource "aci_bgp_route_control_profile" "test" {
+		parent_dn = aci_tenant.test.id
 		name = "%s"
 	}
 
@@ -752,9 +690,10 @@ func CreateAccSubnetUpdatedbdSubnetToOutMultiple(rName, ip, bdSubnetToOutName1, 
 	resource "aci_subnet" "test" {
 		parent_dn = aci_bridge_domain.test.id
 		ip = "%s"
+		relation_fv_rs_bd_subnet_to_profile = %s
 		relation_fv_rs_bd_subnet_to_out = %s
 	}
-	`, rName, bdSubnetToOutName1, bdSubnetToOutName2, rName, ip, bdSubnetToOutList)
+	`, rName, bdSubnetToProfileName, bdSubnetToOutName1, bdSubnetToOutName2, rName, ip, bdSubnetToProfileRef, bdSubnetToOutRef)
 	return resource
 }
 
