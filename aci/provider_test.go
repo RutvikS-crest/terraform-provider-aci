@@ -1,13 +1,13 @@
 package aci
 
 import (
-	"fmt"
+	// "fmt"
 	"os"
-	"regexp"
+	// "regexp"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	// "github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	// "github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -50,32 +50,32 @@ func testAccPreCheck(t *testing.T) {
 	}
 }
 
-func TestAccAciProviderWithInvalidCredentials(t *testing.T) {
-	rName := acctest.RandString(5)
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config:      CreateTenantWithWrongPassword(rName),
-				ExpectError: regexp.MustCompile(`User credential is incorrect - FAILED local authentication`),
-			},
-		},
-	})
-}
+// func TestAccAciProviderWithInvalidCredentials(t *testing.T) {
+// 	rName := acctest.RandString(5)
+// 	resource.ParallelTest(t, resource.TestCase{
+// 		PreCheck:  func() { testAccPreCheck(t) },
+// 		Providers: testAccProviders,
+// 		Steps: []resource.TestStep{
+// 			{
+// 				Config:      CreateTenantWithWrongPassword(rName),
+// 				ExpectError: regexp.MustCompile(`User credential is incorrect - FAILED local authentication`),
+// 			},
+// 		},
+// 	})
+// }
 
-func CreateTenantWithWrongPassword(rName string) string {
-	fmt.Println("=== STEP  testing creation with invalid credentials")
-	resource := fmt.Sprintf(`
-	provider "aci" {
-		username = "%s"
-		password = "%sxyz"
-		url      = "%s"
-		insecure = true
-	}
+// func CreateTenantWithWrongPassword(rName string) string {
+// 	fmt.Println("=== STEP  testing creation with invalid credentials")
+// 	resource := fmt.Sprintf(`
+// 	provider "aci" {
+// 		username = "%s"
+// 		password = "%sxyz"
+// 		url      = "%s"
+// 		insecure = true
+// 	}
 
-	resource "aci_tenant" "test" {
-		name = "%s"
-	}`, os.Getenv("ACI_USERNAME"), os.Getenv("ACI_PASSWORD"), os.Getenv("ACI_URL"), rName)
-	return resource
-}
+// 	resource "aci_tenant" "test" {
+// 		name = "%s"
+// 	}`, os.Getenv("ACI_USERNAME"), os.Getenv("ACI_PASSWORD"), os.Getenv("ACI_URL"), rName)
+// 	return resource
+// }

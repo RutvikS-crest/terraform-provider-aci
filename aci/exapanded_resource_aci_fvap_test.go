@@ -24,17 +24,17 @@ func TestAccAciApplicationProfile_Basic(t *testing.T) {
 		CheckDestroy: testAccCheckAciApplicationProfileDestroy,
 		Steps: []resource.TestStep{
 			{
-				// in this step terraform will try to create application profile without required arguement tenant_dn
+				// terraform will try to create application profile without required arguement tenant_dn
 				Config:      CreateAccApplicationProfileWithoutTenant(rName), // configuration to check creation of application profile without tenant
 				ExpectError: regexp.MustCompile(`Missing required argument`), // test step expect error which should be match with defined regex
 			},
 			{
-				// in this step terraform will try to create application profile without required arguement name
+				// terraform will try to create application profile without required arguement name
 				Config:      CreateAccApplicationProfileWithoutName(rName), // configuration to check creation of application profile without tenant
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				// in this step terraform will create application profile with only required arguements i.e. name and tenant_dn
+				// step terraform will create application profile with only required arguements i.e. name and tenant_dn
 				Config: CreateAccApplicationProfileConfig(rName), // configuration to create application profile with required fields only
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_default), // this function will check whether any resource is exist or not in state file with given resource name
@@ -285,7 +285,6 @@ func TestAccApplicationProfile_relMonPol(t *testing.T) {
 	rName := acctest.RandString(5)
 	monPolName1 := acctest.RandString(5) // randomly created name for relational resoruce
 	monPolName2 := acctest.RandString(5) // randomly created name for relational resoruce
-	//TODO: Invalid relation check
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,

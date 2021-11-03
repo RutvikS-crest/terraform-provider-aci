@@ -230,3 +230,34 @@ func checkAtleasOne() schema.SchemaValidateFunc {
 		return
 	}
 }
+
+func GetQuoted(s string) string {
+	ans := "\"" + s + "\""
+	return ans
+}
+
+func StringListtoString(list []string) string {
+	val := ""
+	val = val + "["
+	for i := 0; i < len(list)-1; i++ {
+		val = val + GetQuoted(list[i])
+		val = val + ","
+	}
+	val = val + GetQuoted(list[len(list)-1])
+	val = val + "]"
+	return val
+}
+
+func StringListtoStringWithoutQuoted(list []string) string {
+	log.Println("inside function")
+	val := ""
+	val = val + "["
+	for i := 0; i < len(list)-1; i++ {
+		val = val + list[i]
+		val = val + ","
+	}
+	val = val + list[len(list)-1]
+	val = val + "]"
+	log.Printf("val: %v\n", val)
+	return val
+}

@@ -12,16 +12,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccAciApplicationProfile_Basic(t *testing.T) {
-	var subnet_initial models.Subnet
+func TestAccAciSubnet_Basic(t *testing.T) {
+	var subnet_default models.Subnet
 	var subnet_updated models.Subnet
-	var subnet_using_tenant models.Subnet
-	var subnet_using_tenant_updated models.Subnet
 	resourceName := "aci_subnet.test"
 	rName := acctest.RandString(5)
-	prefixLen := acctest.RandIntRange(0, 31)
-	ip, _ := acctest.RandIpAddress(string(prefixLen))
-	longerName := acctest.RandString(65)
+	ip, _ := acctest.RandIpAddress("10.20.0.0/16")
+	ip = fmt.Sprintf("%s/16", ip)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -36,50 +33,23 @@ func TestAccAciApplicationProfile_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccSubnetConfigParentEpg(rName, ip),
+				Config: CreateAccSubnetConfig(rName, ip),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciSubnetExists(resourceName, &subnet_initial),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: CreateAccSubnetConfigParentBridgeDomain(rName,ip),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
-					testAccCheckAciSubnetIdNotEqual(&subnet_initial, &subnet_updated),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: CreateAccSubnetConfigParentL2OutExtEpg(rName,ip),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
-					testAccCheckAciSubnetIdNotEqual(&subnet_initial, &subnet_updated),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: CreateAccSubnetConfig(rName,ip),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciSubnetExists(resourceName, &subnet_using_tenant),
-					resource.TestCheckResourceAttr(resourceName, "description", ""),
-					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
+					testAccCheckAciSubnetExists(resourceName, &subnet_default),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "nd"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "ip", ip),
+					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 					resource.TestCheckResourceAttr(resourceName, "preferred", "no"),
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s", rName)),
+					resource.TestCheckResourceAttr(resourceName, "scope.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "scope.0", "private"),
+					resource.TestCheckResourceAttr(resourceName, "virtual", "no"),
+					// resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_out", ""),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", ""),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_nd_pfx_pol", ""),
+					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s/BD-%s", rName, rName)),
 				),
 			},
 			{
@@ -88,18 +58,26 @@ func TestAccAciApplicationProfile_Basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				// in this step all optional attribute expect realational attribute are given for the same resource and then compared
-				Config: CreateAccSubnetConfigWithOptionalValues(rName), // configuration to update optional filelds
+				Config: CreateAccSubnetConfigWithOptionalValues(rName, ip),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciSubnetExists(resourceName, &application_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "description", "from terraform"), // comparing description with value which is given in configuration
-					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_ap"),         // comparing name_alias with value which is given in configuration
-					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", ""),
-					resource.TestCheckResourceAttr(resourceName, "annotation", "tag"), // comparing annotation with value which is given in configuration
-					resource.TestCheckResourceAttr(resourceName, "prio", "level1"),    // comparing prio with value which is given in configuration
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rName)),
-					testAccCheckAciSubnetIdEqual(&application_profile_default, &application_profile_updated), // this function will check whether id or dn of both resource are same or not to make sure updation is performed on the same resource
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "annotation", "tag_subnet"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "nd"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "querier"),
+					resource.TestCheckResourceAttr(resourceName, "description", "subnet"),
+					resource.TestCheckResourceAttr(resourceName, "ip", ip),
+					resource.TestCheckResourceAttr(resourceName, "name_alias", "alias_subnet"),
+					resource.TestCheckResourceAttr(resourceName, "preferred", "no"),
+					resource.TestCheckResourceAttr(resourceName, "scope.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "scope.0", "private"),
+					resource.TestCheckResourceAttr(resourceName, "scope.1", "shared"),
+					resource.TestCheckResourceAttr(resourceName, "virtual", "yes"),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_out.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", ""),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_nd_pfx_pol", ""),
+					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s/BD-%s", rName, rName)),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
 				),
 			},
 			{
@@ -108,275 +86,444 @@ func TestAccAciApplicationProfile_Basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config:      CreateAccSubnetConfigUpdatedName(rName, longerName), // passing invalid name for application profile
-				ExpectError: regexp.MustCompile(fmt.Sprintf("property name of ap-%s failed validation for value '%s'", longerName, longerName)),
+				Config:      CreateAccSubnetWithInavalidIP(rName, ip),
+				ExpectError: regexp.MustCompile(`unknown property value (.)+, name dn, class fvSubnet (.)+`),
 			},
 		},
 	})
 }
 
-// func TestAccApplicationProfile_Update(t *testing.T) {
-// 	var application_profile_default models.ApplicationProfile
-// 	var application_profile_updated models.ApplicationProfile
-// 	resourceName := "aci_application_profile.test"
-// 	rName := acctest.RandString(5)
-// 	resource.ParallelTest(t, resource.TestCase{
-// 		PreCheck:     func() { testAccPreCheck(t) },
-// 		Providers:    testAccProviders,
-// 		CheckDestroy: testAccCheckAciSubnetDestroy,
-// 		Steps: []resource.TestStep{
-// 			{
-// 				Config: CreateAccSubnetConfig(rName), // creating application profile with required arguements only
-// 				Check: resource.ComposeTestCheckFunc(
-// 					testAccCheckAciSubnetExists(resourceName, &application_profile_default),
-// 				),
-// 			},
-// 			{
-// 				// this step will import state of particular resource and will test state file with configuration file
-// 				ResourceName:      resourceName,
-// 				ImportState:       true,
-// 				ImportStateVerify: true,
-// 			},
-// 			{
-// 				Config: CreateAccApplicationProfileUpdatedAttr(rName, "description", "updated description for terraform test"), // updating only description parameter
-// 				Check: resource.ComposeTestCheckFunc(
-// 					testAccCheckAciSubnetExists(resourceName, &application_profile_updated),                               // checking whether resource is exist or not in state file
-// 					resource.TestCheckResourceAttr(resourceName, "description", "updated description for terraform test"), // checking value updated value of description parameter
-// 					testAccCheckAciSubnetIdEqual(&application_profile_default, &application_profile_updated),  // this function will check whether id or dn of both resource are same or not to make sure updation is performed on the same resource
-// 				),
-// 			},
-// 			{
-// 				ResourceName:      resourceName,
-// 				ImportState:       true,
-// 				ImportStateVerify: true,
-// 			},
-// 			{
-// 				Config: CreateAccApplicationProfileUpdatedAttr(rName, "annotation", "updated_annotation_for_terraform_test"), // updating only description parameter
-// 				Check: resource.ComposeTestCheckFunc(
-// 					testAccCheckAciSubnetExists(resourceName, &application_profile_updated),
-// 					resource.TestCheckResourceAttr(resourceName, "annotation", "updated_annotation_for_terraform_test"), // checking value updated value of description parameter
-// 					testAccCheckAciSubnetIdEqual(&application_profile_default, &application_profile_updated),
-// 				),
-// 			},
-// 			{
-// 				ResourceName:      resourceName,
-// 				ImportState:       true,
-// 				ImportStateVerify: true,
-// 			},
-// 			// there are various value of prio parameter is possible so checking prio for each value
-// 			{
-// 				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level1"), // updating only prio parameter
-// 				Check: resource.ComposeTestCheckFunc(
-// 					testAccCheckAciSubnetExists(resourceName, &application_profile_updated),
-// 					resource.TestCheckResourceAttr(resourceName, "prio", "level1"), // checking value updated value of prio parameter
-// 					testAccCheckAciSubnetIdEqual(&application_profile_default, &application_profile_updated),
-// 				),
-// 			},
-// 			{
-// 				ResourceName:      resourceName,
-// 				ImportState:       true,
-// 				ImportStateVerify: true,
-// 			},
-// 			{
-// 				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level2"), // updating only prio parameter
-// 				Check: resource.ComposeTestCheckFunc(
-// 					testAccCheckAciSubnetExists(resourceName, &application_profile_updated),
-// 					resource.TestCheckResourceAttr(resourceName, "prio", "level2"), // checking value updated value of prio parameter
-// 					testAccCheckAciSubnetIdEqual(&application_profile_default, &application_profile_updated),
-// 				),
-// 			},
-// 			{
-// 				ResourceName:      resourceName,
-// 				ImportState:       true,
-// 				ImportStateVerify: true,
-// 			},
-// 			{
-// 				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level3"),
-// 				Check: resource.ComposeTestCheckFunc(
-// 					testAccCheckAciSubnetExists(resourceName, &application_profile_updated),
-// 					resource.TestCheckResourceAttr(resourceName, "prio", "level3"),
-// 					testAccCheckAciSubnetIdEqual(&application_profile_default, &application_profile_updated),
-// 				),
-// 			},
-// 			{
-// 				ResourceName:      resourceName,
-// 				ImportState:       true,
-// 				ImportStateVerify: true,
-// 			},
-// 			{
-// 				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level4"),
-// 				Check: resource.ComposeTestCheckFunc(
-// 					testAccCheckAciSubnetExists(resourceName, &application_profile_updated),
-// 					resource.TestCheckResourceAttr(resourceName, "prio", "level4"),
-// 					testAccCheckAciSubnetIdEqual(&application_profile_default, &application_profile_updated),
-// 				),
-// 			},
-// 			{
-// 				ResourceName:      resourceName,
-// 				ImportState:       true,
-// 				ImportStateVerify: true,
-// 			},
-// 			{
-// 				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level5"),
-// 				Check: resource.ComposeTestCheckFunc(
-// 					testAccCheckAciSubnetExists(resourceName, &application_profile_updated),
-// 					resource.TestCheckResourceAttr(resourceName, "prio", "level5"),
-// 					testAccCheckAciSubnetIdEqual(&application_profile_default, &application_profile_updated),
-// 				),
-// 			},
-// 			{
-// 				ResourceName:      resourceName,
-// 				ImportState:       true,
-// 				ImportStateVerify: true,
-// 			},
-// 			{
-// 				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level6"),
-// 				Check: resource.ComposeTestCheckFunc(
-// 					testAccCheckAciSubnetExists(resourceName, &application_profile_updated),
-// 					resource.TestCheckResourceAttr(resourceName, "prio", "level6"),
-// 					testAccCheckAciSubnetIdEqual(&application_profile_default, &application_profile_updated),
-// 				),
-// 			},
-// 			{
-// 				ResourceName:      resourceName,
-// 				ImportState:       true,
-// 				ImportStateVerify: true,
-// 			},
-// 			{
-// 				Config: CreateAccApplicationProfileUpdatedAttr(rName, "name_alias", "updated_name_alias_for_terraform_test"), // updating only name_alias parameter
-// 				Check: resource.ComposeTestCheckFunc(
-// 					testAccCheckAciSubnetExists(resourceName, &application_profile_updated),
-// 					resource.TestCheckResourceAttr(resourceName, "name_alias", "updated_name_alias_for_terraform_test"), // checking value updated value of prio parameter
-// 					testAccCheckAciSubnetIdEqual(&application_profile_default, &application_profile_updated),
-// 				),
-// 			},
-// 		},
-// 	})
-// }
-
-// func TestAccApplicationProfile_NegativeCases(t *testing.T) {
-// 	var application_profile_default models.ApplicationProfile
-// 	resourceName := "aci_application_profile.test"
-// 	rName := acctest.RandString(5)
-// 	longDescAnnotation := acctest.RandString(129) // creating random string of 129 characters
-// 	longNameAlias := acctest.RandString(64)       // creating random string of 64 characters
-// 	randomPrio := acctest.RandString(6)           // creating random string of 6 characters
-// 	randomParameter := acctest.RandString(5)      // creating random string of 5 characters (to give as random parameter)
-// 	randomValue := acctest.RandString(5)          // creating random string of 5 characters (to give as random value of random parameter)
-// 	resource.ParallelTest(t, resource.TestCase{
-// 		PreCheck:     func() { testAccPreCheck(t) },
-// 		Providers:    testAccProviders,
-// 		CheckDestroy: testAccCheckAciSubnetDestroy,
-// 		Steps: []resource.TestStep{
-// 			{
-// 				Config: CreateAccSubnetConfig(rName), // creating application profile with required arguements only
-// 				Check: resource.ComposeTestCheckFunc(
-// 					testAccCheckAciSubnetExists(resourceName, &application_profile_default),
-// 				),
-// 			},
-// 			{
-// 				ResourceName:      resourceName,
-// 				ImportState:       true,
-// 				ImportStateVerify: true,
-// 			},
-// 			{
-// 				Config:      CreateAccApplicationProfileWithInValidTenantDn(rName),                       // checking application profile creation with invalid tenant_dn value
-// 				ExpectError: regexp.MustCompile(`unknown property value (.)+, name dn, class fvAp (.)+`), // test step expect error which should be match with defined regex
-// 			},
-// 			{
-// 				Config:      CreateAccApplicationProfileUpdatedAttr(rName, "description", longDescAnnotation), // checking application profile creation with invalid description value
-// 				ExpectError: regexp.MustCompile(`property descr of (.)+ failed validation for value '(.)+'`),
-// 			},
-// 			{
-// 				Config:      CreateAccApplicationProfileUpdatedAttr(rName, "annotation", longDescAnnotation), // checking application profile creation with invalid annotation value
-// 				ExpectError: regexp.MustCompile(`property annotation of (.)+ failed validation for value '(.)+'`),
-// 			},
-// 			{
-// 				Config:      CreateAccApplicationProfileUpdatedAttr(rName, "name_alias", longNameAlias), // checking application profile creation with invalid name_alias value
-// 				ExpectError: regexp.MustCompile(`property nameAlias of (.)+ failed validation for value '(.)+'`),
-// 			},
-// 			{
-// 				Config:      CreateAccApplicationProfileUpdatedAttr(rName, "prio", randomPrio), // checking application profile creation with invalid prio value
-// 				ExpectError: regexp.MustCompile(`expected prio to be one of (.)+, got (.)+`),
-// 			},
-// 			{
-// 				Config:      CreateAccApplicationProfileUpdatedAttr(rName, randomParameter, randomValue), // checking application profile creation with randomly created parameter and value
-// 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
-// 			},
-// 			{
-// 				Config: CreateAccSubnetConfig(rName), // creating application profile with required arguements only
-// 			},
-// 		},
-// 	})
-// }
-
-// func TestAccApplicationProfile_relMonPol(t *testing.T) {
-// 	var application_profile_default models.ApplicationProfile
-// 	var application_profile_relMonPol1 models.ApplicationProfile
-// 	var application_profile_relMonPol2 models.ApplicationProfile
-// 	resourceName := "aci_application_profile.test"
-// 	rName := acctest.RandString(5)
-// 	monPolName1 := acctest.RandString(5) // randomly created name for relational resoruce
-// 	monPolName2 := acctest.RandString(5) // randomly created name for relational resoruce
-// 	//TODO: Invalid relation check
-// 	resource.ParallelTest(t, resource.TestCase{
-// 		PreCheck:     func() { testAccPreCheck(t) },
-// 		Providers:    testAccProviders,
-// 		CheckDestroy: testAccCheckAciSubnetDestroy,
-// 		Steps: []resource.TestStep{
-// 			{
-// 				Config: CreateAccSubnetConfig(rName),
-// 				Check: resource.ComposeTestCheckFunc(
-// 					testAccCheckAciSubnetExists(resourceName, &application_profile_default),       // creating application profile with required arguements only
-// 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", ""), // checking value of relation_fv_rs_ap_mon_pol parameter for given configuration
-// 				),
-// 			},
-// 			{
-// 				ResourceName:      resourceName,
-// 				ImportState:       true,
-// 				ImportStateVerify: true,
-// 			},
-// 			{
-// 				Config: CreateAccApplicationProfileUpdatedMonPol(rName, monPolName1), // creating application profile with relation_fv_rs_ap_mon_pol parameter for the first randomly generated name
-// 				Check: resource.ComposeTestCheckFunc(
-// 					testAccCheckAciSubnetExists(resourceName, &application_profile_relMonPol1),                                                        // checking whether resource is exist or not in state file
-// 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", fmt.Sprintf("uni/tn-%s/monepg-%s", rName, monPolName1)), // checking relation by comparing values
-// 					testAccCheckAciSubnetIdEqual(&application_profile_default, &application_profile_relMonPol1),                           // this function will check whether id or dn of both resource are same or not to make sure updation is performed on the same resource
-// 				),
-// 			},
-// 			{
-// 				Config: CreateAccApplicationProfileUpdatedMonPol(rName, monPolName2), // creating application profile with relation_fv_rs_ap_mon_pol parameter for the second randomly generated name (to verify update operation)
-// 				Check: resource.ComposeTestCheckFunc(
-// 					testAccCheckAciSubnetExists(resourceName, &application_profile_relMonPol2),                                                        // checking whether resource is exist or not in state file
-// 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", fmt.Sprintf("uni/tn-%s/monepg-%s", rName, monPolName2)), // checking relation by comparing values
-// 					testAccCheckAciSubnetIdEqual(&application_profile_default, &application_profile_relMonPol2),
-// 				),
-// 			},
-// 			{
-// 				Config: CreateAccSubnetConfig(rName), // this configuration will remove relation
-// 				Check: resource.ComposeTestCheckFunc(
-// 					testAccCheckAciSubnetExists(resourceName, &application_profile_default),
-// 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", ""), // checking removal of relation
-// 				),
-// 			},
-// 		},
-// 	})
-// }
-
-// func TestAccApplicationProfile_MultipleCreateDelete(t *testing.T) {
-// 	for i := 0; i < 20; i++ {
-// 		resource.Test(t, resource.TestCase{
-// 			PreCheck:     func() { testAccPreCheck(t) },
-// 			Providers:    testAccProviders,
-// 			CheckDestroy: testAccCheckAciSubnetDestroy,
-// 			Steps: []resource.TestStep{
-// 				{
-// 					Config: CreateAccSubnetConfig(fmt.Sprintf("r%d", i)),
-// 				},
-// 			},
-// 		})
+// func ExpandList(attr, rName string, num int) []resource.TestCheckFunc {
+// 	list := make([]resource.TestCheckFunc, 0, 1)
+// 	list = append(list, resource.TestCheckResourceAttr(rName, fmt.Sprintf("%s.#", attr), strconv.Itoa(num)))
+// 	for i := 0; i < num; i++ {
+// 		list = append(list, resource.TestCheckResourceAttr(rName, fmt.Sprintf("%s.%d", attr, i), "querier"))
 // 	}
+// 	return list
 // }
+
+func TestAccSubnet_Update(t *testing.T) {
+	var subnet_default models.Subnet
+	var subnet_updated models.Subnet
+	resourceName := "aci_subnet.test"
+	rName := acctest.RandString(5)
+	ip, _ := acctest.RandIpAddress("10.20.0.0/16")
+	ip = fmt.Sprintf("%s/16", ip)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAciSubnetDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccSubnetConfig(rName, ip),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_default),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccSubnetUpdatedAttr(rName, ip, "description", "updated description for terraform test"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "description", "updated description for terraform test"),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccSubnetUpdatedAttr(rName, ip, "annotation", "updated_annotation_for_terraform_test"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "annotation", "updated_annotation_for_terraform_test"),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccSubnetUpdatedAttr(rName, ip, "preferred", "yes"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "preferred", "yes"),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccSubnetUpdatedAttr(rName, ip, "virtual", "yes"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "virtual", "yes"),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"unspecified"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "unspecified"),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"querier"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "querier"),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"no-default-gateway"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "no-default-gateway"),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"nd", "no-default-gateway"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "nd"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "no-default-gateway"),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"nd", "querier"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "nd"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "querier"),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"no-default-gateway", "querier"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "no-default-gateway"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "querier"),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"nd", "no-default-gateway", "querier"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "nd"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "no-default-gateway"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.2", "querier"),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"public"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "scope.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "scope.0", "public"),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"shared"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "scope.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "scope.0", "shared"),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"private", "public"})),
+				ExpectError: regexp.MustCompile(`Invalid Configuration : Subnet scope cannot be both private and public`),
+			},
+			{
+				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"private", "shared"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "scope.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "scope.0", "private"),
+					resource.TestCheckResourceAttr(resourceName, "scope.1", "shared"),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"public", "shared"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "scope.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "scope.0", "public"),
+					resource.TestCheckResourceAttr(resourceName, "scope.1", "shared"),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"private", "public", "shared"})),
+				ExpectError: regexp.MustCompile(`Invalid Configuration : Subnet scope cannot be both private and public`),
+			},
+			{
+				Config: CreateAccSubnetUpdatedAttr(rName, ip, "name_alias", "updated_name_alias_for_terraform_test"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "name_alias", "updated_name_alias_for_terraform_test"),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
+				),
+			},
+		},
+	})
+}
+
+func TestAccApplicationProfile_NegativeCases(t *testing.T) {
+	rName := acctest.RandString(5)
+	ip, _ := acctest.RandIpAddress("10.20.0.0/16")
+	ip = fmt.Sprintf("%s/16", ip)
+	longDescAnnotation := acctest.RandString(129)
+	longNameAlias := acctest.RandString(64)
+	randomParameter := acctest.RandString(5)
+	randomValue := acctest.RandString(5)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAciSubnetDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccSubnetConfig(rName, ip),
+			},
+			{
+				Config:      CreateAccSubnetWithInValidParentDn(rName, ip),
+				ExpectError: regexp.MustCompile(`configured object (.)+ not found (.)+,`),
+			},
+			{
+				Config:      CreateAccSubnetUpdatedAttr(rName, ip, "description", longDescAnnotation),
+				ExpectError: regexp.MustCompile(`property descr of (.)+ failed validation for value '(.)+'`),
+			},
+			{
+				Config:      CreateAccSubnetUpdatedAttr(rName, ip, "annotation", longDescAnnotation),
+				ExpectError: regexp.MustCompile(`property annotation of (.)+ failed validation for value '(.)+'`),
+			},
+			{
+				Config:      CreateAccSubnetUpdatedAttr(rName, ip, "name_alias", longNameAlias),
+				ExpectError: regexp.MustCompile(`property nameAlias of (.)+ failed validation for value '(.)+'`),
+			},
+			{
+				Config:      CreateAccSubnetUpdatedAttr(rName, ip, "virtual", randomValue),
+				ExpectError: regexp.MustCompile(`expected virtual to be one of (.)+, got (.)+`),
+			},
+			{
+				Config:      CreateAccSubnetUpdatedAttr(rName, ip, "preferred", randomValue),
+				ExpectError: regexp.MustCompile(`expected preferred to be one of (.)+, got (.)+`),
+			},
+			{
+				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{randomValue})),
+				ExpectError: regexp.MustCompile(`expected scope.0 to be one of (.)+, got (.)+`),
+			},
+			{
+				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{randomValue})),
+				ExpectError: regexp.MustCompile(`expected ctrl.0 to be one of (.)+, got (.)+`),
+			},
+			{
+				Config:      CreateAccSubnetUpdatedAttr(rName, ip, randomParameter, randomValue),
+				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
+			},
+			{
+				Config: CreateAccSubnetConfig(rName, ip),
+			},
+		},
+	})
+}
+
+func TestAccApplicationProfile_bdSubnetToProfile(t *testing.T) {
+	var subnet_default models.Subnet
+	var subnet_bdSubnetToProfile1 models.Subnet
+	var subnet_bdSubnetToProfile2 models.Subnet
+	resourceName := "aci_subnet.test"
+	rName := acctest.RandString(5)
+	ip, _ := acctest.RandIpAddress("10.20.0.0/16")
+	ip = fmt.Sprintf("%s/16", ip)
+	bdSubnetToProfileName1 := acctest.RandString(5)
+	bdSubnetToProfileName2 := acctest.RandString(5)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAciSubnetDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccSubnetConfig(rName, ip),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_default),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", ""),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccSubnetUpdatedbdSubnetToProfle(rName, ip, bdSubnetToProfileName1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_bdSubnetToProfile1),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", fmt.Sprintf("uni/tn-%s/prof-%s", rName, bdSubnetToProfileName1)),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_bdSubnetToProfile1),
+				),
+			},
+			{
+				Config: CreateAccSubnetUpdatedbdSubnetToProfle(rName, ip, bdSubnetToProfileName2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_bdSubnetToProfile2),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", fmt.Sprintf("uni/tn-%s/prof-%s", rName, bdSubnetToProfileName2)),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_bdSubnetToProfile2),
+				),
+			},
+			{
+				Config: CreateAccSubnetConfig(rName, ip),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_default),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", ""),
+				),
+			},
+		},
+	})
+}
+
+func TestAccApplicationProfile_bdSubnetToOut(t *testing.T) {
+	var subnet_default models.Subnet
+	var subnet_bdSubnetToOut1 models.Subnet
+	var subnet_bdSubnetToOut2 models.Subnet
+	resourceName := "aci_subnet.test"
+	rName := acctest.RandString(5)
+	ip, _ := acctest.RandIpAddress("10.20.0.0/16")
+	ip = fmt.Sprintf("%s/16", ip)
+	bdSubnetToOutName1 := acctest.RandString(5)
+	bdSubnetToOutName2 := acctest.RandString(5)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAciSubnetDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccSubnetConfig(rName, ip),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_default),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccSubnetUpdatedbdSubnetToOut(rName, ip, bdSubnetToOutName1, StringListtoStringWithoutQuoted([]string{"aci_l3_outside.test1.id"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_bdSubnetToOut1),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_out.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_out.0", fmt.Sprintf("uni/tn-%s/out-%s", rName, bdSubnetToOutName1)),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_bdSubnetToOut1),
+				),
+			},
+			{
+				Config: CreateAccSubnetUpdatedbdSubnetToOutMultiple(rName, ip, bdSubnetToOutName1, bdSubnetToOutName2, StringListtoStringWithoutQuoted([]string{"aci_l3_outside.test1.id", "aci_l3_outside.test2.id"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_bdSubnetToOut2),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_out.#", "2"),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_bdSubnetToOut2),
+				),
+			},
+			{
+				Config: CreateAccSubnetConfig(rName, ip),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_default),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_out.#", "0"),
+				),
+			},
+		},
+	})
+}
 
 func testAccCheckAciSubnetExists(name string, subnet *models.Subnet) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -435,15 +582,6 @@ func testAccCheckAciSubnetIdEqual(sn1, sn2 *models.Subnet) resource.TestCheckFun
 	}
 }
 
-func testAccCheckAciSubnetIdNotEqual(sn1, sn2 *models.Subnet) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if sn1.DistinguishedName == sn2.DistinguishedName {
-			return fmt.Errorf("Subnet DNs are equal")
-		}
-		return nil
-	}
-}
-
 func CreateSubnetWithoutParentDn(ip string) string {
 	fmt.Println("=== STEP  Basic: testing subnet creation without creating parent resource")
 	resource := fmt.Sprintf(`
@@ -455,7 +593,7 @@ func CreateSubnetWithoutParentDn(ip string) string {
 }
 
 func CreateSubnetWithoutIP(rName string) string {
-	fmt.Println("=== STEP  Basic: testing subnet creation without giving name")
+	fmt.Println("=== STEP  Basic: testing subnet creation without giving ip")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test"{
 		name = "%s"
@@ -468,33 +606,8 @@ func CreateSubnetWithoutIP(rName string) string {
 	return resource
 }
 
-func CreateAccSubnetConfigParentEpg(rName, ip string) string {
-	fmt.Println("=== STEP  Basic: testing subnet creation with applicationEpg as parent resource")
-	resource := fmt.Sprintf(`
-	resource "aci_tenant" "test"{
-		name = "%s"
-	}
-	
-	resource "aci_application_profile" "test"{
-		name = "%s"
-		tenant_dn = aci_tenant.test.id
-	}
-
-	resource "aci_application_epg" "test"{
-		name = "%s"
-		application_profile_dn = aci_application_profile.test.id
-	}
-
-	resource "aci_subnet" "test" {
-		parent_dn = aci_application_epg.test.id
-		ip = "%s"
-	}
-	`, rName, rName, rName, ip)
-	return resource
-}
-
-func CreateAccSubnetConfigParentBridgeDomain(rName,ip string) string {
-	fmt.Println("=== STEP  Basic: testing subnet creation with bridgeDomain as parent resource")
+func CreateAccSubnetConfig(rName, ip string) string {
+	fmt.Println("=== STEP  Basic: testing subnet creation with required arguements only")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test"{
 		name = "%s"
@@ -513,131 +626,196 @@ func CreateAccSubnetConfigParentBridgeDomain(rName,ip string) string {
 	return resource
 }
 
-func CreateAccSubnetConfigParentL2OutExtEpg(rName,ip string) string {
-	fmt.Println("=== STEP  Basic: testing subnet creation with l2out_extepg as parent resource")
+func CreateAccSubnetWithInValidParentDn(rName, ip string) string {
+	fmt.Println("=== STEP  Negative Case: testing subnet creation with invalid parent_dn")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name = "%s"
+	}
+
+	resource "aci_bridge_domain" "test"{
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+	}
+	
+	resource "aci_subnet" "test" {
+		parent_dn = "${aci_bridge_domain.test.id}xyz"
+		ip = "%s"
+	}
+	`, rName, rName, ip)
+	return resource
+}
+
+func CreateAccSubnetConfigWithOptionalValues(rName, ip string) string {
+	fmt.Println("=== STEP  Basic: testing subnet creation with optional parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test"{
 		name = "%s"
 	}
 	
-	resource "aci_l2_outside" "test"{
+	resource "aci_bridge_domain" "test"{
 		name = "%s"
 		tenant_dn = aci_tenant.test.id
 	}
 
-	resource "aci_l2out_extepg" "test"{
-		name = "%s"
-		l2_outside_dn = aci_l2_outside.test.id
-	}
-
 	resource "aci_subnet" "test" {
-		parent_dn = aci_l2out_extepg.test.id
+		parent_dn = aci_bridge_domain.test.id
 		ip = "%s"
+		description = "subnet"
+        annotation = "tag_subnet"
+        ctrl = ["nd", "querier"]
+        name_alias = "alias_subnet"
+        preferred = "no"
+        scope = ["private", "shared"]
+        virtual = "yes"
 	}
-	`, rName, rName, rName, ip)
+	`, rName, rName, ip)
 	return resource
 }
 
-func CreateAccSubnetConfig(rName,ip string) string {
+func CreateAccSubnetUpdatedbdSubnetToProfle(rName, ip, bdSubnetToProfileName string) string {
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
-	resource "aci_subnet" "test" {
+
+	resource "aci_bgp_route_control_profile" "test" {
 		parent_dn = aci_tenant.test.id
+		name = "%s"
+	}
+
+	resource "aci_bridge_domain" "test"{
+		name = "%s"
+		tenant_dn = aci_tenant.test.id
+	}
+	
+	resource "aci_subnet" "test" {
+		parent_dn = aci_bridge_domain.test.id
 		ip = "%s"
+		relation_fv_rs_bd_subnet_to_profile = aci_bgp_route_control_profile.test.id
 	}
-	`, rName, ip)
+	`, rName, bdSubnetToProfileName, rName, ip)
 	return resource
 }
 
-func CreateAccApplicationProfileWithInValidTenantDn(rName string) string {
-	fmt.Println("=== STEP  Negative Case: testing applicationProfile creation with invalid tenant_dn")
+func CreateAccSubnetUpdatedbdSubnetToOut(rName, ip, bdSubnetToOutName, bdSubnetToOutList string) string {
+	fmt.Printf("bdSubnetToOutName: %v\n", bdSubnetToOutName)
+	fmt.Printf("bdSubnetToOutList: %v\n", bdSubnetToOutList)
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
 
-	resource "aci_vrf" "test"{
+	resource "aci_l3_outside" "test1" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
 	}
-	
-	resource "aci_application_profile" "test" {
-		tenant_dn = aci_vrf.test.id
-		name = "%s"
-	}
-	`, rName, rName, rName)
-	return resource
-}
 
-func CreateAccSubnetConfigWithOptionalValues(rName string) string {
-	fmt.Println("=== STEP  Basic: testing applicationProfile creation with optional parameters")
-	resource := fmt.Sprintf(`
-	resource "aci_tenant" "test" {
+	resource "aci_bridge_domain" "test"{
 		name = "%s"
-	}
-	
-	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
-		name = "%s"
-		annotation = "tag"
-		description = "from terraform"
-		name_alias = "test_ap"
-		prio = "level1"
 	}
-	`, rName, rName)
+	
+	resource "aci_subnet" "test" {
+		parent_dn = aci_bridge_domain.test.id
+		ip = "%s"
+		relation_fv_rs_bd_subnet_to_out = %s
+	}
+	`, rName, bdSubnetToOutName, rName, ip, bdSubnetToOutList)
 	return resource
 }
 
-func CreateAccApplicationProfileUpdatedMonPol(rName, monPolName string) string {
+func CreateAccSubnetUpdatedbdSubnetToOutMultiple(rName, ip, bdSubnetToOutName1, bdSubnetToOutName2, bdSubnetToOutList string) string {
+	fmt.Printf("bdSubnetToOutName1: %v\n", bdSubnetToOutName1)
+	fmt.Printf("bdSubnetToOutName2: %v\n", bdSubnetToOutName2)
+	fmt.Printf("bdSubnetToOutList: %v\n", bdSubnetToOutList)
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
 
-	resource "aci_monitoring_policy" "test" {
+	resource "aci_l3_outside" "test1" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
+	}
+
+	resource "aci_l3_outside" "test2" {
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+	}
+
+	resource "aci_bridge_domain" "test"{
+		name = "%s"
+		tenant_dn = aci_tenant.test.id
 	}
 	
-	resource "aci_application_profile" "test" {
-		tenant_dn = aci_tenant.test.id
-		name = "%s"
-		relation_fv_rs_ap_mon_pol = aci_monitoring_policy.test.id
+	resource "aci_subnet" "test" {
+		parent_dn = aci_bridge_domain.test.id
+		ip = "%s"
+		relation_fv_rs_bd_subnet_to_out = %s
 	}
-	`, rName, monPolName, rName)
+	`, rName, bdSubnetToOutName1, bdSubnetToOutName2, rName, ip, bdSubnetToOutList)
 	return resource
 }
 
-func CreateAccSubnetConfigUpdatedName(rName, longerName string) string {
-	fmt.Println("=== STEP  Basic: testing applicationProfile creation with invalid name")
+func CreateAccSubnetWithInavalidIP(rName, ip string) string {
+	fmt.Println("=== STEP  Basic: testing subnet creation with invalid IP")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
 	
-	resource "aci_application_profile" "test" {
+	resource "aci_bridge_domain" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
 	}
-	`, rName, longerName)
+
+	resource "aci_subnet" "test"{
+		parent_dn = aci_bridge_domain.test.id
+		ip = "%s0"
+	}
+	`, rName, rName, ip)
 	return resource
 }
 
-func CreateAccApplicationProfileUpdatedAttr(rName, attribute, value string) string {
+func CreateAccSubnetUpdatedAttr(rName, ip, attribute, value string) string {
 	fmt.Printf("=== STEP  testing attribute: %s=%s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
 	
-	resource "aci_application_profile" "test" {
+	resource "aci_bridge_domain" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
+	}
+
+	resource "aci_subnet" "test"{
+		parent_dn = aci_bridge_domain.test.id
+		ip = "%s"
 		%s = "%s"
 	}
-	`, rName, rName, attribute, value)
+	`, rName, rName, ip, attribute, value)
+	return resource
+}
+
+func CreateAccSubnetUpdatedAttrList(rName, ip, attribute, value string) string {
+	fmt.Printf("=== STEP  testing attribute: %s=%s \n", attribute, value)
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name = "%s"
+	}
+	
+	resource "aci_bridge_domain" "test" {
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+	}
+
+	resource "aci_subnet" "test"{
+		parent_dn = aci_bridge_domain.test.id
+		ip = "%s"
+		%s = %s
+	}
+	`, rName, rName, ip, attribute, value)
 	return resource
 }
