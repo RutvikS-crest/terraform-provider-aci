@@ -1,4 +1,4 @@
-package aci
+package acctest
 
 import (
 	"fmt"

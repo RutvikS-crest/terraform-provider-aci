@@ -704,12 +704,13 @@ func resourceAciVRFRead(ctx context.Context, d *schema.ResourceData, m interface
 		d.Set("relation_fv_rs_ospf_ctx_pol", "")
 
 	} else {
-		if _, ok := d.GetOk("relation_fv_rs_ospf_ctx_pol"); ok {
-			tfName := GetMOName(d.Get("relation_fv_rs_ospf_ctx_pol").(string))
-			if tfName != fvRsOspfCtxPolData {
-				d.Set("relation_fv_rs_ospf_ctx_pol", "")
-			}
-		}
+		// if _, ok := d.GetOk("relation_fv_rs_ospf_ctx_pol"); ok {
+		// 	tfName := GetMOName(d.Get("relation_fv_rs_ospf_ctx_pol").(string))
+		// 	if tfName != fvRsOspfCtxPolData {
+		// 		d.Set("relation_fv_rs_ospf_ctx_pol", "")
+		// 	}
+		// }
+		d.Set("relation_fv_rs_ospf_ctx_pol", fvRsOspfCtxPolData.(string))
 	}
 
 	fvRsVrfValidationPolData, err := aciClient.ReadRelationfvRsVrfValidationPolFromVRF(dn)
