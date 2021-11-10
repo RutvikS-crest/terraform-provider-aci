@@ -17,8 +17,11 @@ func TestAccAciSubnet_Basic(t *testing.T) {
 	var subnet_updated models.Subnet
 	resourceName := "aci_subnet.test"
 	rName := acctest.RandString(5)
+	rOtherName := acctest.RandString(5)
 	ip, _ := acctest.RandIpAddress("10.20.0.0/16")
 	ip = fmt.Sprintf("%s/16", ip)
+	ipother, _ := acctest.RandIpAddress("10.21.0.0/16")
+	ipother = fmt.Sprintf("%s/16", ipother)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -37,14 +40,14 @@ func TestAccAciSubnet_Basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSubnetExists(resourceName, &subnet_default),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "nd"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),  // ctrl is list type attribute with default value "nd", comparing length of ctrl with 1
+					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "nd"), // comparing 0'th index element of ctrl with "nd"
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "ip", ip),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 					resource.TestCheckResourceAttr(resourceName, "preferred", "no"),
-					resource.TestCheckResourceAttr(resourceName, "scope.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "scope.0", "private"),
+					resource.TestCheckResourceAttr(resourceName, "scope.#", "1"),       // scope is list type attribute with default value "private", comparing length of scope with 1
+					resource.TestCheckResourceAttr(resourceName, "scope.0", "private"), // comparing 0'th index element of scope with "nd"
 					resource.TestCheckResourceAttr(resourceName, "virtual", "no"),
 					// resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_out", ""),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", ""),
@@ -88,6 +91,32 @@ func TestAccAciSubnet_Basic(t *testing.T) {
 			{
 				Config:      CreateAccSubnetWithInavalidIP(rName, ip),
 				ExpectError: regexp.MustCompile(`unknown property value (.)+, name dn, class fvSubnet (.)+`),
+			},
+			{
+				Config: CreateAccSubnetConfigWithParentDnAndName(rOtherName, ip),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "ip", ip),
+					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s/BD-%s", rOtherName, rOtherName)),
+					testAccCheckAciSubnetIdNotEqual(&subnet_default, &subnet_updated),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccSubnetConfig(rName, ip),
+			},
+			{
+				Config: CreateAccSubnetConfigWithParentDnAndName(rName, ipother),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "ip", ipother),
+					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s/BD-%s", rName, rName)),
+					testAccCheckAciSubnetIdNotEqual(&subnet_default, &subnet_updated),
+				),
 			},
 		},
 	})
@@ -178,7 +207,7 @@ func TestAccSubnet_Update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"unspecified"})),
+				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"unspecified"})), // StringListtoString will convert array of string to string with quoated elements, so that it can be passed into configuration
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
 					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),
@@ -449,7 +478,7 @@ func TestAccSubnet_reltionalParameters(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: CreateAccSubnetUpdatedbdSubnetIntial(rName, ip, bdSubnetToProfileName1, bdSubnetToOutName1, "aci_bgp_route_control_profile.test.id", StringListtoStringWithoutQuoted([]string{"aci_l3_outside.test1.id"})),
+				Config: CreateAccSubnetUpdatedbdSubnetIntial(rName, ip, bdSubnetToProfileName1, bdSubnetToOutName1, "aci_bgp_route_control_profile.test.id", StringListtoStringWithoutQuoted([]string{"aci_l3_outside.test1.id"})), // StringListtoStringWithoutQuoted will convert array of string to string without elements, so that it can be passed into configuration
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSubnetExists(resourceName, &subnet_rel1),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", fmt.Sprintf("uni/tn-%s/prof-%s", rName, bdSubnetToProfileName1)),
@@ -532,6 +561,15 @@ func testAccCheckAciSubnetIdEqual(sn1, sn2 *models.Subnet) resource.TestCheckFun
 	return func(s *terraform.State) error {
 		if sn1.DistinguishedName != sn2.DistinguishedName {
 			return fmt.Errorf("Subnet DNs are not equal")
+		}
+		return nil
+	}
+}
+
+func testAccCheckAciSubnetIdNotEqual(sn1, sn2 *models.Subnet) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if sn1.DistinguishedName == sn2.DistinguishedName {
+			return fmt.Errorf("Subnet DNs are equal")
 		}
 		return nil
 	}
@@ -694,6 +732,26 @@ func CreateAccSubnetUpdatedbdSubnetFinal(rName, ip, bdSubnetToProfileName, bdSub
 		relation_fv_rs_bd_subnet_to_out = %s
 	}
 	`, rName, bdSubnetToProfileName, bdSubnetToOutName1, bdSubnetToOutName2, rName, ip, bdSubnetToProfileRef, bdSubnetToOutRef)
+	return resource
+}
+
+func CreateAccSubnetConfigWithParentDnAndName(rName, ip string) string {
+	fmt.Printf("=== STEP  Basic: testing subnet creation with parent resource name %s and ip %s\n", rName, ip)
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name = "%s"
+	}
+	
+	resource "aci_bridge_domain" "test" {
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+	}
+
+	resource "aci_subnet" "test"{
+		parent_dn = aci_bridge_domain.test.id
+		ip = "%s"
+	}
+	`, rName, rName, ip)
 	return resource
 }
 

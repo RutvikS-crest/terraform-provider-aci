@@ -17,6 +17,8 @@ func TestAccAciApplicationProfile_Basic(t *testing.T) {
 	var application_profile_updated models.ApplicationProfile // variable of ApplicationProfile's model type would be useful to compare ids
 	resourceName := "aci_application_profile.test"            // declared resource on which all operation would be performed
 	rName := acctest.RandString(5)                            // randomly created string of 5 alphanumeric characters' for resource name
+	rOther := acctest.RandString(5)                           // randomly created string of 5 alphanumeric characters' for another resource name
+	prOther := acctest.RandString(5)                          // randomly created string of 5 alphanumeric characters' for another parent resource name
 	longrName := acctest.RandString(65)                       // randomly created string of 65 alphanumeric characters' for negative resource name test case
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -77,6 +79,37 @@ func TestAccAciApplicationProfile_Basic(t *testing.T) {
 			{
 				Config:      CreateAccApplicationProfileConfigUpdatedName(rName, longrName), // passing invalid name for application profile
 				ExpectError: regexp.MustCompile(fmt.Sprintf("property name of ap-%s failed validation for value '%s'", longrName, longrName)),
+			},
+			{
+				Config: CreateAccApplicationProfileConfigWithParentAndName(rName, rOther), // creating resource with same parent name and different resource name
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated),
+					resource.TestCheckResourceAttr(resourceName, "name", rOther),                                            // comparing name attribute of applicaiton profile
+					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rName)),              // comparing tenant_dn attribute of application profile
+					testAccCheckAciApplicationProfileIdNotEqual(&application_profile_default, &application_profile_updated), // checking whether id or dn of both resource are different because name changed and terraform need to create another resource
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccApplicationProfileConfig(rName), // creating resource with required parameters only
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccApplicationProfileConfigWithParentAndName(prOther, rName), // creating resource with same name but different parent resource name
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", prOther)),
+					testAccCheckAciApplicationProfileIdNotEqual(&application_profile_default, &application_profile_updated), // checking whether id or dn of both resource are different because tenant_dn changed and terraform need to create another resource
+				),
 			},
 		},
 	})
@@ -222,7 +255,6 @@ func TestAccApplicationProfile_Update(t *testing.T) {
 }
 
 func TestAccApplicationProfile_NegativeCases(t *testing.T) {
-	var application_profile_default models.ApplicationProfile
 	resourceName := "aci_application_profile.test"
 	rName := acctest.RandString(5)
 	longDescAnnotation := acctest.RandString(129)                                     // creating random string of 129 characters
@@ -237,9 +269,6 @@ func TestAccApplicationProfile_NegativeCases(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccApplicationProfileConfig(rName), // creating application profile with required arguements only
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_default),
-				),
 			},
 			{
 				ResourceName:      resourceName,
@@ -400,6 +429,15 @@ func testAccCheckAciApplicationProfileIdEqual(ap1, ap2 *models.ApplicationProfil
 	}
 }
 
+func testAccCheckAciApplicationProfileIdNotEqual(ap1, ap2 *models.ApplicationProfile) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if ap1.DistinguishedName == ap2.DistinguishedName {
+			return fmt.Errorf("ApplicationProfile DNs are equal")
+		}
+		return nil
+	}
+}
+
 func CreateAccApplicationProfileWithoutTenant(rName string) string {
 	fmt.Println("=== STEP  Basic: testing applicationProfile creation without creating tenant")
 	resource := fmt.Sprintf(`
@@ -421,6 +459,21 @@ func CreateAccApplicationProfileWithoutName(rName string) string {
 		tenant_dn = aci_tenant.test.id
 	}
 	`, rName)
+	return resource
+}
+
+func CreateAccApplicationProfileConfigWithParentAndName(prName, rName string) string {
+	fmt.Printf("=== STEP  Basic: testing applicationProfile creation with tenant name %s name %s\n", prName, rName)
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test"{
+		name = "%s"
+	}
+
+	resource "aci_application_profile" "test" {
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+	}
+	`, prName, rName)
 	return resource
 }
 
@@ -531,6 +584,21 @@ func CreateAccApplicationProfileConfigUpdatedName(rName, longrName string) strin
 		name = "%s"
 	}
 	`, rName, longrName)
+	return resource
+}
+
+func CreateAccApplicationProfileConfigWithChangedName(rName1, rName2 string) string {
+	fmt.Println("=== STEP  Basic: testing applicationProfile creation with changed name")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name = "%s"
+	}
+	
+	resource "aci_application_profile" "test" {
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+	}
+	`, rName1, rName2)
 	return resource
 }
 
