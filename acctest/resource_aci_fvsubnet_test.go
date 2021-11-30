@@ -57,11 +57,6 @@ func TestAccAciSubnet_Basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
 				Config: CreateAccSubnetConfigWithOptionalValues(rName, ip),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
@@ -101,11 +96,6 @@ func TestAccAciSubnet_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s/BD-%s", rOtherName, rOtherName)),
 					testAccCheckAciSubnetIdNotEqual(&subnet_default, &subnet_updated),
 				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 			{
 				Config: CreateAccSubnetConfig(rName, ip),
@@ -151,11 +141,6 @@ func TestAccSubnet_Update(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
 				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"unspecified"})), // StringListtoString will convert array of string to string with quoated elements, so that it can be passed into configuration
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
@@ -163,11 +148,6 @@ func TestAccSubnet_Update(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "unspecified"),
 					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
 				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 			{
 				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"querier"})),
@@ -179,11 +159,6 @@ func TestAccSubnet_Update(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
 				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"no-default-gateway"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
@@ -191,11 +166,6 @@ func TestAccSubnet_Update(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "no-default-gateway"),
 					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
 				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 			{
 				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"nd", "no-default-gateway"})),
@@ -208,11 +178,6 @@ func TestAccSubnet_Update(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
 				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"no-default-gateway", "querier"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
@@ -221,11 +186,6 @@ func TestAccSubnet_Update(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "querier"),
 					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
 				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 			{
 				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"nd", "no-default-gateway", "querier"})),
@@ -237,11 +197,6 @@ func TestAccSubnet_Update(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "ctrl.2", "querier"),
 					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
 				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 			{
 				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"querier", "no-default-gateway", "nd"})),
@@ -267,11 +222,6 @@ func TestAccSubnet_Update(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
 				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"shared"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
@@ -279,11 +229,6 @@ func TestAccSubnet_Update(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "scope.0", "shared"),
 					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
 				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 			{
 				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"private", "public"})),
@@ -298,11 +243,6 @@ func TestAccSubnet_Update(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "scope.1", "shared"),
 					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
 				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 			{
 				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"shared", "public"})),

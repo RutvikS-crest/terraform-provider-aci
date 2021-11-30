@@ -51,12 +51,6 @@ func TestAccAciApplicationProfile_Basic(t *testing.T) {
 				),
 			},
 			{
-				// this step will import state of particular resource and will test state file with configuration file
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
 				// in this step all optional attribute expect realational attribute are given for the same resource and then compared
 				Config: CreateAccApplicationProfileConfigWithOptionalValues(rName), // configuration to update optional filelds
 				Check: resource.ComposeTestCheckFunc(
@@ -88,11 +82,6 @@ func TestAccAciApplicationProfile_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rName)),              // comparing tenant_dn attribute of application profile
 					testAccCheckAciApplicationProfileIdNotEqual(&application_profile_default, &application_profile_updated), // checking whether id or dn of both resource are different because name changed and terraform need to create another resource
 				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 			{
 				Config: CreateAccApplicationProfileConfig(rName), // creating resource with required parameters only
@@ -131,12 +120,6 @@ func TestAccApplicationProfile_Update(t *testing.T) {
 					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_default),
 				),
 			},
-			{
-				// this step will import state of particular resource and will test state file with configuration file
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
 			// there are various value of prio parameter is possible so checking prio for each value
 			{
 				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level2"), // updating only prio parameter
@@ -147,22 +130,12 @@ func TestAccApplicationProfile_Update(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
 				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level3"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated),
 					resource.TestCheckResourceAttr(resourceName, "prio", "level3"),
 					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_updated),
 				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 			{
 				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level4"),
@@ -173,22 +146,12 @@ func TestAccApplicationProfile_Update(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
 				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level5"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated),
 					resource.TestCheckResourceAttr(resourceName, "prio", "level5"),
 					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_updated),
 				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 			{
 				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level6"),
@@ -198,17 +161,11 @@ func TestAccApplicationProfile_Update(t *testing.T) {
 					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_updated),
 				),
 			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
 		},
 	})
 }
 
 func TestAccApplicationProfile_NegativeCases(t *testing.T) {
-	resourceName := "aci_application_profile.test"
 	rName := acctest.RandString(5)
 	longDescAnnotation := acctest.RandString(129)                                     // creating random string of 129 characters
 	longNameAlias := acctest.RandString(64)                                           // creating random string of 64 characters
@@ -222,11 +179,6 @@ func TestAccApplicationProfile_NegativeCases(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccApplicationProfileConfig(rName), // creating application profile with required arguements only
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 			{
 				Config:      CreateAccApplicationProfileWithInValidTenantDn(rName),                       // checking application profile creation with invalid tenant_dn value
@@ -278,11 +230,6 @@ func TestAccApplicationProfile_reltionalParameters(t *testing.T) {
 					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_default), // creating application profile with required arguements only
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", ""),       // checking value of relation_fv_rs_ap_mon_pol parameter for given configuration
 				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 			{
 				Config: CreateAccApplicationProfileConfigInitial(rName, monPolName1), // creating application profile with relation_fv_rs_ap_mon_pol parameter for the first randomly generated name
