@@ -48,7 +48,7 @@ func CreateAccApplicationProfileConfigDataSource(rName string) string {
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
@@ -68,7 +68,7 @@ func CreateAccApplicationProfileDSWithInvalidName(rName string) string {
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
@@ -88,7 +88,7 @@ func CreateAccApplicationProfileDSWithoutTenant(rName string) string {
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
@@ -107,7 +107,7 @@ func CreateAccApplicationProfileDSWithoutName(rName string) string {
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"

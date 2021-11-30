@@ -55,7 +55,7 @@ func CreateAccSubnetConfigDataSource(rName, ip string) string {
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_bridge_domain" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
@@ -80,7 +80,7 @@ func CreateAccSubnetDSWithInvalidParentDn(rName, ip string) string {
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_bridge_domain" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
@@ -105,7 +105,7 @@ func CreateAccSubnetDSWithoutParentDn(rName, ip string) string {
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_bridge_domain" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
@@ -129,7 +129,7 @@ func CreateAccSubnetDSWithoutIP(rName, ip string) string {
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_bridge_domain" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"

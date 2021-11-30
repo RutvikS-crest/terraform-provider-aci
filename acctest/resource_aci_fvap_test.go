@@ -137,46 +137,7 @@ func TestAccApplicationProfile_Update(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
-			{
-				Config: CreateAccApplicationProfileUpdatedAttr(rName, "description", "updated description for terraform test"), // updating only description parameter
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated),                   // checking whether resource is exist or not in state file
-					resource.TestCheckResourceAttr(resourceName, "description", "updated description for terraform test"), // checking value updated value of description parameter
-					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_updated),  // this function will check whether id or dn of both resource are same or not to make sure updation is performed on the same resource
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: CreateAccApplicationProfileUpdatedAttr(rName, "annotation", "updated_annotation_for_terraform_test"), // updating only description parameter
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "annotation", "updated_annotation_for_terraform_test"), // checking value updated value of description parameter
-					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_updated),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
 			// there are various value of prio parameter is possible so checking prio for each value
-			{
-				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level1"), // updating only prio parameter
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "prio", "level1"), // checking value updated value of prio parameter
-					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_updated),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
 			{
 				Config: CreateAccApplicationProfileUpdatedAttr(rName, "prio", "level2"), // updating only prio parameter
 				Check: resource.ComposeTestCheckFunc(
@@ -241,14 +202,6 @@ func TestAccApplicationProfile_Update(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
-			{
-				Config: CreateAccApplicationProfileUpdatedAttr(rName, "name_alias", "updated_name_alias_for_terraform_test"), // updating only name_alias parameter
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "name_alias", "updated_name_alias_for_terraform_test"), // checking value updated value of prio parameter
-					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_updated),
-				),
 			},
 		},
 	})
@@ -482,7 +435,7 @@ func CreateAccApplicationProfileConfig(rName string) string {
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
@@ -502,7 +455,7 @@ func CreateAccApplicationProfileWithInValidTenantDn(rName string) string {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
 	}
-	
+
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_vrf.test.id
 		name = "%s"
@@ -517,7 +470,7 @@ func CreateAccApplicationProfileConfigWithOptionalValues(rName string) string {
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
@@ -541,7 +494,7 @@ func CreateAccApplicationProfileConfigInitial(rName, monPolName string) string {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
 	}
-	
+
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
@@ -562,7 +515,7 @@ func CreateAccApplicationProfileConfigFinal(rName, monPolName string) string {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
 	}
-	
+
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
@@ -578,7 +531,7 @@ func CreateAccApplicationProfileConfigUpdatedName(rName, longrName string) strin
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
@@ -593,7 +546,7 @@ func CreateAccApplicationProfileConfigWithChangedName(rName1, rName2 string) str
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
@@ -608,7 +561,7 @@ func CreateAccApplicationProfileUpdatedAttr(rName, attribute, value string) stri
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"

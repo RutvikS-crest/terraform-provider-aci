@@ -316,6 +316,9 @@ func resourceAciSubnetCreate(ctx context.Context, d *schema.ResourceData, m inte
 		for _, val := range ctrlInp.([]interface{}) {
 			ctrlList = append(ctrlList, val.(string))
 		}
+		if containsDuplicate(ctrlList) {
+			log.Println("[DEBUG] duplication in value of ctrl")
+		}
 		ctrl := strings.Join(ctrlList, ",")
 		fvSubnetAttr.Ctrl = ctrl
 	}
@@ -332,6 +335,9 @@ func resourceAciSubnetCreate(ctx context.Context, d *schema.ResourceData, m inte
 		scopeList := make([]string, 0, 1)
 		for _, val := range scIntr.([]interface{}) {
 			scopeList = append(scopeList, val.(string))
+		}
+		if containsDuplicate(scopeList) {
+			log.Println("[DEBUG] duplication in value of scope")
 		}
 		Scope := strings.Join(scopeList, ",")
 		fvSubnetAttr.Scope = Scope
@@ -427,6 +433,9 @@ func resourceAciSubnetUpdate(ctx context.Context, d *schema.ResourceData, m inte
 		for _, val := range ctrlInp.([]interface{}) {
 			ctrlList = append(ctrlList, val.(string))
 		}
+		if containsDuplicate(ctrlList) {
+			log.Println("[DEBUG] duplication in value of ctrl")
+		}
 		ctrl := strings.Join(ctrlList, ",")
 		fvSubnetAttr.Ctrl = ctrl
 	}
@@ -443,6 +452,9 @@ func resourceAciSubnetUpdate(ctx context.Context, d *schema.ResourceData, m inte
 		scopeList := make([]string, 0, 1)
 		for _, val := range scIntr.([]interface{}) {
 			scopeList = append(scopeList, val.(string))
+		}
+		if containsDuplicate(scopeList) {
+			log.Println("[DEBUG] duplication in value of scope")
 		}
 		Scope := strings.Join(scopeList, ",")
 		fvSubnetAttr.Scope = Scope

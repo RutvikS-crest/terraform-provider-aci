@@ -3,6 +3,7 @@ package acctest
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"testing"
 
 	"github.com/ciscoecosystem/aci-go-client/client"
@@ -71,7 +72,7 @@ func TestAccAciSubnet_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "subnet"),
 					resource.TestCheckResourceAttr(resourceName, "ip", ip),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "alias_subnet"),
-					resource.TestCheckResourceAttr(resourceName, "preferred", "no"),
+					resource.TestCheckResourceAttr(resourceName, "preferred", "yes"),
 					resource.TestCheckResourceAttr(resourceName, "scope.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "scope.0", "private"),
 					resource.TestCheckResourceAttr(resourceName, "scope.1", "shared"),
@@ -122,14 +123,14 @@ func TestAccAciSubnet_Basic(t *testing.T) {
 	})
 }
 
-// func ExpandList(attr, rName string, num int) []resource.TestCheckFunc {
-// 	list := make([]resource.TestCheckFunc, 0, 1)
-// 	list = append(list, resource.TestCheckResourceAttr(rName, fmt.Sprintf("%s.#", attr), strconv.Itoa(num)))
-// 	for i := 0; i < num; i++ {
-// 		list = append(list, resource.TestCheckResourceAttr(rName, fmt.Sprintf("%s.%d", attr, i), "querier"))
-// 	}
-// 	return list
-// }
+func ExpandList(attr, rName string, num int) []resource.TestCheckFunc {
+	list := make([]resource.TestCheckFunc, 0, 1)
+	list = append(list, resource.TestCheckResourceAttr(rName, fmt.Sprintf("%s.#", attr), strconv.Itoa(num)))
+	for i := 0; i < num; i++ {
+		list = append(list, resource.TestCheckResourceAttr(rName, fmt.Sprintf("%s.%d", attr, i), "querier"))
+	}
+	return list
+}
 
 func TestAccSubnet_Update(t *testing.T) {
 	var subnet_default models.Subnet
@@ -147,58 +148,6 @@ func TestAccSubnet_Update(t *testing.T) {
 				Config: CreateAccSubnetConfig(rName, ip),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSubnetExists(resourceName, &subnet_default),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: CreateAccSubnetUpdatedAttr(rName, ip, "description", "updated description for terraform test"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
-					resource.TestCheckResourceAttr(resourceName, "description", "updated description for terraform test"),
-					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: CreateAccSubnetUpdatedAttr(rName, ip, "annotation", "updated_annotation_for_terraform_test"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
-					resource.TestCheckResourceAttr(resourceName, "annotation", "updated_annotation_for_terraform_test"),
-					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: CreateAccSubnetUpdatedAttr(rName, ip, "preferred", "yes"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
-					resource.TestCheckResourceAttr(resourceName, "preferred", "yes"),
-					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: CreateAccSubnetUpdatedAttr(rName, ip, "virtual", "yes"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
-					resource.TestCheckResourceAttr(resourceName, "virtual", "yes"),
-					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
 				),
 			},
 			{
@@ -264,21 +213,6 @@ func TestAccSubnet_Update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"nd", "querier"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "nd"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "querier"),
-					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
 				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"no-default-gateway", "querier"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
@@ -308,6 +242,20 @@ func TestAccSubnet_Update(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"querier", "no-default-gateway", "nd"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "3"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "querier"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "no-default-gateway"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.2", "nd"),
+					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
+				),
+			},
+			{
+				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"nd"})),
 			},
 			{
 				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"public"})),
@@ -342,21 +290,6 @@ func TestAccSubnet_Update(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Invalid Configuration : Subnet scope cannot be both private and public`),
 			},
 			{
-				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"private", "shared"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
-					resource.TestCheckResourceAttr(resourceName, "scope.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "scope.0", "private"),
-					resource.TestCheckResourceAttr(resourceName, "scope.1", "shared"),
-					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
-				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
 				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"public", "shared"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
@@ -372,16 +305,18 @@ func TestAccSubnet_Update(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"private", "public", "shared"})),
-				ExpectError: regexp.MustCompile(`Invalid Configuration : Subnet scope cannot be both private and public`),
-			},
-			{
-				Config: CreateAccSubnetUpdatedAttr(rName, ip, "name_alias", "updated_name_alias_for_terraform_test"),
+				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"shared", "public"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
-					resource.TestCheckResourceAttr(resourceName, "name_alias", "updated_name_alias_for_terraform_test"),
+					resource.TestCheckResourceAttr(resourceName, "scope.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "scope.0", "shared"),
+					resource.TestCheckResourceAttr(resourceName, "scope.1", "public"),
 					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
 				),
+			},
+			{
+				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"private", "public", "shared"})),
+				ExpectError: regexp.MustCompile(`Invalid Configuration : Subnet scope cannot be both private and public`),
 			},
 		},
 	})
@@ -478,21 +413,23 @@ func TestAccSubnet_reltionalParameters(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: CreateAccSubnetUpdatedbdSubnetIntial(rName, ip, bdSubnetToProfileName1, bdSubnetToOutName1, "aci_bgp_route_control_profile.test.id", StringListtoStringWithoutQuoted([]string{"aci_l3_outside.test1.id"})), // StringListtoStringWithoutQuoted will convert array of string to string without elements, so that it can be passed into configuration
+				Config: CreateAccSubnetUpdatedbdSubnetIntial(rName, ip, bdSubnetToProfileName1, bdSubnetToOutName1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSubnetExists(resourceName, &subnet_rel1),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", fmt.Sprintf("uni/tn-%s/prof-%s", rName, bdSubnetToProfileName1)),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_out.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_out.0", fmt.Sprintf("uni/tn-%s/out-%s", rName, bdSubnetToOutName1)),
+					resource.TestCheckTypeSetElemAttr(resourceName, "relation_fv_rs_bd_subnet_to_out.*", fmt.Sprintf("uni/tn-%s/out-%s", rName, bdSubnetToOutName1)),
 					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_rel1),
 				),
 			},
 			{
-				Config: CreateAccSubnetUpdatedbdSubnetFinal(rName, ip, bdSubnetToProfileName2, bdSubnetToOutName1, bdSubnetToOutName2, "aci_bgp_route_control_profile.test.id", StringListtoStringWithoutQuoted([]string{"aci_l3_outside.test1.id", "aci_l3_outside.test2.id"})),
+				Config: CreateAccSubnetUpdatedbdSubnetFinal(rName, ip, bdSubnetToProfileName2, bdSubnetToOutName1, bdSubnetToOutName2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSubnetExists(resourceName, &subnet_rel2),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", fmt.Sprintf("uni/tn-%s/prof-%s", rName, bdSubnetToProfileName2)),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_out.#", "2"),
+					resource.TestCheckTypeSetElemAttr(resourceName, "relation_fv_rs_bd_subnet_to_out.*", fmt.Sprintf("uni/tn-%s/out-%s", rName, bdSubnetToOutName1)),
+					resource.TestCheckTypeSetElemAttr(resourceName, "relation_fv_rs_bd_subnet_to_out.*", fmt.Sprintf("uni/tn-%s/out-%s", rName, bdSubnetToOutName2)),
 					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_rel2),
 				),
 			},
@@ -658,7 +595,7 @@ func CreateAccSubnetConfigWithOptionalValues(rName, ip string) string {
         annotation = "tag_subnet"
         ctrl = ["nd", "querier"]
         name_alias = "alias_subnet"
-        preferred = "no"
+        preferred = "yes"
         scope = ["private", "shared"]
         virtual = "yes"
 	}
@@ -666,7 +603,7 @@ func CreateAccSubnetConfigWithOptionalValues(rName, ip string) string {
 	return resource
 }
 
-func CreateAccSubnetUpdatedbdSubnetIntial(rName, ip, bdSubnetToProfileName, bdSubnetToOutName, bdSubnetToProfileRef, bdSubnetToOutRef string) string {
+func CreateAccSubnetUpdatedbdSubnetIntial(rName, ip, bdSubnetToProfileName, bdSubnetToOutName string) string {
 	fmt.Println("=== STEP  Basic: testing subnet creation with initial relational parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
@@ -691,14 +628,14 @@ func CreateAccSubnetUpdatedbdSubnetIntial(rName, ip, bdSubnetToProfileName, bdSu
 	resource "aci_subnet" "test" {
 		parent_dn = aci_bridge_domain.test.id
 		ip = "%s"
-		relation_fv_rs_bd_subnet_to_profile = %s
-		relation_fv_rs_bd_subnet_to_out = %s
+		relation_fv_rs_bd_subnet_to_profile = aci_bgp_route_control_profile.test.id
+		relation_fv_rs_bd_subnet_to_out = [aci_l3_outside.test1.id]
 	}
-	`, rName, bdSubnetToProfileName, bdSubnetToOutName, rName, ip, bdSubnetToProfileRef, bdSubnetToOutRef)
+	`, rName, bdSubnetToProfileName, bdSubnetToOutName, rName, ip)
 	return resource
 }
 
-func CreateAccSubnetUpdatedbdSubnetFinal(rName, ip, bdSubnetToProfileName, bdSubnetToOutName1, bdSubnetToOutName2, bdSubnetToProfileRef, bdSubnetToOutRef string) string {
+func CreateAccSubnetUpdatedbdSubnetFinal(rName, ip, bdSubnetToProfileName, bdSubnetToOutName1, bdSubnetToOutName2 string) string {
 	fmt.Println("=== STEP  Basic: testing subnet creation with final relational parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
@@ -728,10 +665,10 @@ func CreateAccSubnetUpdatedbdSubnetFinal(rName, ip, bdSubnetToProfileName, bdSub
 	resource "aci_subnet" "test" {
 		parent_dn = aci_bridge_domain.test.id
 		ip = "%s"
-		relation_fv_rs_bd_subnet_to_profile = %s
-		relation_fv_rs_bd_subnet_to_out = %s
+		relation_fv_rs_bd_subnet_to_profile = aci_bgp_route_control_profile.test.id
+		relation_fv_rs_bd_subnet_to_out = [aci_l3_outside.test1.id,aci_l3_outside.test2.id]
 	}
-	`, rName, bdSubnetToProfileName, bdSubnetToOutName1, bdSubnetToOutName2, rName, ip, bdSubnetToProfileRef, bdSubnetToOutRef)
+	`, rName, bdSubnetToProfileName, bdSubnetToOutName1, bdSubnetToOutName2, rName, ip)
 	return resource
 }
 
