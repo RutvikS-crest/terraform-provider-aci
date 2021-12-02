@@ -16,9 +16,9 @@ func TestAccAciApplicationProfile_Basic(t *testing.T) {
 	var application_profile_default models.ApplicationProfile // variable of ApplicationProfile's model type would be useful to compare ids
 	var application_profile_updated models.ApplicationProfile // variable of ApplicationProfile's model type would be useful to compare ids
 	resourceName := "aci_application_profile.test"            // declared resource on which all operation would be performed
-	rName := acctest.RandString(5)                            // randomly created string of 5 alphanumeric characters' for resource name
-	rOther := acctest.RandString(5)                           // randomly created string of 5 alphanumeric characters' for another resource name
-	prOther := acctest.RandString(5)                          // randomly created string of 5 alphanumeric characters' for another parent resource name
+	rName := makeTestVariable(acctest.RandString(5))          // randomly created string of 5 alphanumeric characters' for resource name
+	rOther := makeTestVariable(acctest.RandString(5))         // randomly created string of 5 alphanumeric characters' for another resource name
+	prOther := makeTestVariable(acctest.RandString(5))        // randomly created string of 5 alphanumeric characters' for another parent resource name
 	longrName := acctest.RandString(65)                       // randomly created string of 65 alphanumeric characters' for negative resource name test case
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -44,10 +44,8 @@ func TestAccAciApplicationProfile_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", ""), // no default value for description so comparing with ""
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),  // no default value for name_alias so comparing with ""
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", ""),
-					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),       // comparing with default value of annotation
-					resource.TestCheckResourceAttr(resourceName, "prio", "unspecified"),                        // comparing with default value of prio
-					resource.TestCheckResourceAttr(resourceName, "name", rName),                                // comparing application profile name with randomly created name
-					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rName)), // comparing tenant_dn with its proper format
+					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"), // comparing with default value of annotation
+					resource.TestCheckResourceAttr(resourceName, "prio", "unspecified"),                  // comparing with default value of prio
 				),
 			},
 			{
@@ -58,10 +56,8 @@ func TestAccAciApplicationProfile_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "from terraform"), // comparing description with value which is given in configuration
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_ap"),         // comparing name_alias with value which is given in configuration
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", ""),
-					resource.TestCheckResourceAttr(resourceName, "annotation", "tag"), // comparing annotation with value which is given in configuration
-					resource.TestCheckResourceAttr(resourceName, "prio", "level1"),    // comparing prio with value which is given in configuration
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rName)),
+					resource.TestCheckResourceAttr(resourceName, "annotation", "tag"),                                    // comparing annotation with value which is given in configuration
+					resource.TestCheckResourceAttr(resourceName, "prio", "level1"),                                       // comparing prio with value which is given in configuration
 					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_updated), // this function will check whether id or dn of both resource are same or not to make sure updation is performed on the same resource
 				),
 			},
@@ -87,11 +83,6 @@ func TestAccAciApplicationProfile_Basic(t *testing.T) {
 				Config: CreateAccApplicationProfileConfig(rName), // creating resource with required parameters only
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
 				Config: CreateAccApplicationProfileConfigWithParentAndName(prOther, rName), // creating resource with same name but different parent resource name
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_updated),
@@ -108,7 +99,7 @@ func TestAccApplicationProfile_Update(t *testing.T) {
 	var application_profile_default models.ApplicationProfile
 	var application_profile_updated models.ApplicationProfile
 	resourceName := "aci_application_profile.test"
-	rName := acctest.RandString(5)
+	rName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -166,7 +157,7 @@ func TestAccApplicationProfile_Update(t *testing.T) {
 }
 
 func TestAccApplicationProfile_NegativeCases(t *testing.T) {
-	rName := acctest.RandString(5)
+	rName := makeTestVariable(acctest.RandString(5))
 	longDescAnnotation := acctest.RandString(129)                                     // creating random string of 129 characters
 	longNameAlias := acctest.RandString(64)                                           // creating random string of 64 characters
 	randomPrio := acctest.RandString(6)                                               // creating random string of 6 characters
@@ -216,9 +207,9 @@ func TestAccApplicationProfile_reltionalParameters(t *testing.T) {
 	var application_profile_rel1 models.ApplicationProfile
 	var application_profile_rel2 models.ApplicationProfile
 	resourceName := "aci_application_profile.test"
-	rName := acctest.RandString(5)
-	monPolName1 := acctest.RandString(5) // randomly created name for relational resoruce
-	monPolName2 := acctest.RandString(5) // randomly created name for relational resoruce
+	rName := makeTestVariable(acctest.RandString(5))
+	relRes1 := makeTestVariable(acctest.RandString(5)) // randomly created name for relational resoruce
+	relRes2 := makeTestVariable(acctest.RandString(5)) // randomly created name for relational resoruce
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -232,18 +223,18 @@ func TestAccApplicationProfile_reltionalParameters(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccApplicationProfileConfigInitial(rName, monPolName1), // creating application profile with relation_fv_rs_ap_mon_pol parameter for the first randomly generated name
+				Config: CreateAccApplicationProfileConfigInitial(rName, relRes1), // creating application profile with relation_fv_rs_ap_mon_pol parameter for the first randomly generated name
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_rel1),                                                  // checking whether resource is exist or not in state file
-					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", fmt.Sprintf("uni/tn-%s/monepg-%s", rName, monPolName1)), // checking relation by comparing values
-					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_rel1),                                 // this function will check whether id or dn of both resource are same or not to make sure updation is performed on the same resource
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_rel1),                                              // checking whether resource is exist or not in state file
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", fmt.Sprintf("uni/tn-%s/monepg-%s", rName, relRes1)), // checking relation by comparing values
+					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_rel1),                             // this function will check whether id or dn of both resource are same or not to make sure updation is performed on the same resource
 				),
 			},
 			{
-				Config: CreateAccApplicationProfileConfigFinal(rName, monPolName2), // creating application profile with relation_fv_rs_ap_mon_pol parameter for the second randomly generated name (to verify update operation)
+				Config: CreateAccApplicationProfileConfigFinal(rName, relRes2), // creating application profile with relation_fv_rs_ap_mon_pol parameter for the second randomly generated name (to verify update operation)
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_rel2),                                                  // checking whether resource is exist or not in state file
-					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", fmt.Sprintf("uni/tn-%s/monepg-%s", rName, monPolName2)), // checking relation by comparing values
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_rel2),                                              // checking whether resource is exist or not in state file
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", fmt.Sprintf("uni/tn-%s/monepg-%s", rName, relRes2)), // checking relation by comparing values
 					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_rel2),
 				),
 			},
@@ -257,20 +248,19 @@ func TestAccApplicationProfile_reltionalParameters(t *testing.T) {
 	})
 }
 
-// func TestAccApplicationProfile_MultipleCreateDelete(t *testing.T) {
-// 	for i := 0; i < 20; i++ {
-// 		resource.Test(t, resource.TestCase{
-// 			PreCheck:     func() { testAccPreCheck(t) },
-// 			Providers:    testAccProviders,
-// 			CheckDestroy: testAccCheckAciApplicationProfileDestroy,
-// 			Steps: []resource.TestStep{
-// 				{
-// 					Config: CreateAccApplicationProfileConfig(fmt.Sprintf("r%d", i)),
-// 				},
-// 			},
-// 		})
-// 	}
-// }
+func TestAccApplicationProfile_MultipleCreateDelete(t *testing.T) {
+	rName := makeTestVariable(acctest.RandString(5))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAciApplicationProfileDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccApplicationProfilesConfig(rName),
+			},
+		},
+	})
+}
 
 func testAccCheckAciApplicationProfileExists(name string, application_profile *models.ApplicationProfile) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
@@ -388,6 +378,31 @@ func CreateAccApplicationProfileConfig(rName string) string {
 		name = "%s"
 	}
 	`, rName, rName)
+	return resource
+}
+
+func CreateAccApplicationProfilesConfig(rName string) string {
+	fmt.Println("=== STEP  creating multiple application profiles")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test"{
+		name = "%s"
+	}
+
+	resource "aci_application_profile" "test1"{
+		name = "%s"
+		tenant_dn = aci_tenant.test.id
+	}
+
+	resource "aci_application_profile" "test2"{
+		name = "%s"
+		tenant_dn = aci_tenant.test.id
+	}
+
+	resource "aci_application_profile" "test3"{
+		name = "%s"
+		tenant_dn = aci_tenant.test.id
+	}
+	`, rName, rName+"1", rName+"2", rName+"3")
 	return resource
 }
 

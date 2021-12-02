@@ -259,3 +259,7 @@ func StringListtoStringWithoutQuoted(list []string) string {
 	val = val + "]"
 	return val
 }
+
+func makeTestVariable(s string) string {
+	return "acctest" + s
+}
