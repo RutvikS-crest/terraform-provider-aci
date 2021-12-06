@@ -49,7 +49,8 @@ func TestAccAciSubnet_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "scope.#", "1"),       // scope is list type attribute with default value "private", comparing length of scope with 1
 					resource.TestCheckResourceAttr(resourceName, "scope.0", "private"), // comparing 0'th index element of scope with "nd"
 					resource.TestCheckResourceAttr(resourceName, "virtual", "no"),
-					// resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_out", ""),
+					resource.TestCheckResourceAttr(resourceName, "ip", ip),
+					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s/BD-%s", rName, rName)),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", ""),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_nd_pfx_pol", ""),
 				),
@@ -69,6 +70,8 @@ func TestAccAciSubnet_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "scope.0", "private"),
 					resource.TestCheckResourceAttr(resourceName, "scope.1", "shared"),
 					resource.TestCheckResourceAttr(resourceName, "virtual", "yes"),
+					resource.TestCheckResourceAttr(resourceName, "ip", ip),
+					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s/BD-%s", rName, rName)),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_out.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", ""),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_nd_pfx_pol", ""),
@@ -79,6 +82,10 @@ func TestAccAciSubnet_Basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			{
+				Config:      CreateAccSubnetRemovingRequiredField(),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
 				Config:      CreateAccSubnetWithInavalidIP(rName, ip),
@@ -303,8 +310,20 @@ func TestAccSubnet_NegativeCases(t *testing.T) {
 				ExpectError: regexp.MustCompile(`expected scope.0 to be one of (.)+, got (.)+`),
 			},
 			{
+				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"public", "public"})),
+				ExpectError: regexp.MustCompile(`duplication in list`),
+			},
+			{
 				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{randomValue})),
 				ExpectError: regexp.MustCompile(`expected ctrl.0 to be one of (.)+, got (.)+`),
+			},
+			{
+				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"nd", "nd"})),
+				ExpectError: regexp.MustCompile(`duplication in list`),
+			},
+			{
+				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"unspecified", "nd"})),
+				ExpectError: regexp.MustCompile(`(.)+ should't be used along with other values`),
 			},
 			{
 				Config:      CreateAccSubnetUpdatedAttr(rName, ip, randomParameter, randomValue),
@@ -342,11 +361,6 @@ func TestAccSubnet_reltionalParameters(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
 				Config: CreateAccSubnetUpdatedbdSubnetIntial(rName, ip, relRes1, relRes1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSubnetExists(resourceName, &subnet_rel1),
@@ -382,15 +396,19 @@ func TestAccSubnet_reltionalParameters(t *testing.T) {
 
 func TestAccSubnet_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
-	ip, _ := acctest.RandIpAddress("10.20.0.0/16")
-	ip = fmt.Sprintf("%s/16", ip)
+	ip1, _ := acctest.RandIpAddress("10.20.0.0/16")
+	ip1 = fmt.Sprintf("%s/16", ip1)
+	ip2, _ := acctest.RandIpAddress("10.20.0.0/16")
+	ip2 = fmt.Sprintf("%s/16", ip2)
+	ip3, _ := acctest.RandIpAddress("10.20.0.0/16")
+	ip3 = fmt.Sprintf("%s/16", ip3)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckAciSubnetDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: CreateAccSubnetsConfig(rName, ip),
+				Config: CreateAccSubnetsConfig(rName, ip1, ip2, ip3),
 			},
 		},
 	})
@@ -506,7 +524,7 @@ func CreateAccSubnetConfig(rName, ip string) string {
 	return resource
 }
 
-func CreateAccSubnetsConfig(rName, ip string) string {
+func CreateAccSubnetsConfig(rName, ip1, ip2, ip3 string) string {
 	fmt.Println("=== STEP  creating multiple subnet")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test"{
@@ -534,15 +552,15 @@ func CreateAccSubnetsConfig(rName, ip string) string {
 	}
 
 	resource "aci_subnet" "test2"{
-		parent_dn = aci_bridge_domain.test1.id
+		parent_dn = aci_bridge_domain.test2.id
 		ip = "%s"
 	}
 
 	resource "aci_subnet" "test3"{
-		parent_dn = aci_bridge_domain.test1.id
+		parent_dn = aci_bridge_domain.test3.id
 		ip = "%s"
 	}
-	`, rName, rName+"1", rName+"2", rName+"3", ip, ip, ip)
+	`, rName, rName, rName, rName, ip1, ip2, ip3)
 	return resource
 }
 
@@ -590,6 +608,23 @@ func CreateAccSubnetConfigWithOptionalValues(rName, ip string) string {
         virtual = "yes"
 	}
 	`, rName, rName, ip)
+	return resource
+}
+
+func CreateAccSubnetRemovingRequiredField() string {
+	fmt.Println("=== STEP  Basic: testing subnet update without optional parameters")
+	resource := fmt.Sprintf(`
+
+	resource "aci_subnet" "test" {
+		description = "subnet"
+        annotation = "tag_subnet"
+        ctrl = ["nd", "querier"]
+        name_alias = "alias_subnet"
+        preferred = "yes"
+        scope = ["private", "shared"]
+        virtual = "yes"
+	}
+	`)
 	return resource
 }
 

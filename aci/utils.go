@@ -260,13 +260,27 @@ func StringListtoStringWithoutQuoted(list []string) string {
 	return val
 }
 
-func containsDuplicate(arr []string) bool {
+func checkDuplicate(arr []string) error {
 	for i := 0; i < len(arr)-1; i++ {
 		for j := i + 1; j < len(arr); j++ {
 			if arr[i] == arr[j] {
-				return false
+				return fmt.Errorf("duplication in list")
 			}
 		}
 	}
-	return true
+	return nil
+}
+
+func checkWhetherListContainOnlyParameter(arr []string, val string) error {
+	vis := false
+	for i := 0; i < len(arr); i++ {
+		if arr[i] == val {
+			vis = true
+			break
+		}
+	}
+	if vis && len(arr) > 1 {
+		return fmt.Errorf("%s should't be used along with other values", val)
+	}
+	return nil
 }

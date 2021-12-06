@@ -316,8 +316,13 @@ func resourceAciSubnetCreate(ctx context.Context, d *schema.ResourceData, m inte
 		for _, val := range ctrlInp.([]interface{}) {
 			ctrlList = append(ctrlList, val.(string))
 		}
-		if containsDuplicate(ctrlList) {
-			log.Println("[DEBUG] duplication in value of ctrl")
+		err := checkDuplicate(ctrlList)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = checkWhetherListContainOnlyParameter(ctrlList, "unspecified")
+		if err != nil {
+			return diag.FromErr(err)
 		}
 		ctrl := strings.Join(ctrlList, ",")
 		fvSubnetAttr.Ctrl = ctrl
@@ -336,8 +341,9 @@ func resourceAciSubnetCreate(ctx context.Context, d *schema.ResourceData, m inte
 		for _, val := range scIntr.([]interface{}) {
 			scopeList = append(scopeList, val.(string))
 		}
-		if containsDuplicate(scopeList) {
-			log.Println("[DEBUG] duplication in value of scope")
+		err := checkDuplicate(scopeList)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 		Scope := strings.Join(scopeList, ",")
 		fvSubnetAttr.Scope = Scope
@@ -433,8 +439,13 @@ func resourceAciSubnetUpdate(ctx context.Context, d *schema.ResourceData, m inte
 		for _, val := range ctrlInp.([]interface{}) {
 			ctrlList = append(ctrlList, val.(string))
 		}
-		if containsDuplicate(ctrlList) {
-			log.Println("[DEBUG] duplication in value of ctrl")
+		err := checkDuplicate(ctrlList)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+		err = checkWhetherListContainOnlyParameter(ctrlList, "unspecified")
+		if err != nil {
+			return diag.FromErr(err)
 		}
 		ctrl := strings.Join(ctrlList, ",")
 		fvSubnetAttr.Ctrl = ctrl
@@ -453,8 +464,9 @@ func resourceAciSubnetUpdate(ctx context.Context, d *schema.ResourceData, m inte
 		for _, val := range scIntr.([]interface{}) {
 			scopeList = append(scopeList, val.(string))
 		}
-		if containsDuplicate(scopeList) {
-			log.Println("[DEBUG] duplication in value of scope")
+		err := checkDuplicate(scopeList)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 		Scope := strings.Join(scopeList, ",")
 		fvSubnetAttr.Scope = Scope

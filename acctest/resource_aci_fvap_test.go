@@ -67,6 +67,11 @@ func TestAccAciApplicationProfile_Basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
+				// trying to update resource after removing required fields
+				Config:      CreateAccApplicationProfileRemovingRequiredField(),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+			{
 				Config:      CreateAccApplicationProfileConfigUpdatedName(rName, longrName), // passing invalid name for application profile
 				ExpectError: regexp.MustCompile(fmt.Sprintf("property name of ap-%s failed validation for value '%s'", longrName, longrName)),
 			},
@@ -159,8 +164,7 @@ func TestAccApplicationProfile_Update(t *testing.T) {
 func TestAccApplicationProfile_NegativeCases(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 	longDescAnnotation := acctest.RandString(129)                                     // creating random string of 129 characters
-	longNameAlias := acctest.RandString(64)                                           // creating random string of 64 characters
-	randomPrio := acctest.RandString(6)                                               // creating random string of 6 characters
+	longNameAlias := acctest.RandString(64)                                           // creating random string of 64 characters                                              // creating random string of 6 characters
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz") // creating random string of 5 characters (to give as random parameter)
 	randomValue := acctest.RandString(5)                                              // creating random string of 5 characters (to give as random value of random parameter)
 	resource.ParallelTest(t, resource.TestCase{
@@ -188,7 +192,7 @@ func TestAccApplicationProfile_NegativeCases(t *testing.T) {
 				ExpectError: regexp.MustCompile(`property nameAlias of (.)+ failed validation for value '(.)+'`),
 			},
 			{
-				Config:      CreateAccApplicationProfileUpdatedAttr(rName, "prio", randomPrio), // checking application profile creation with invalid prio value
+				Config:      CreateAccApplicationProfileUpdatedAttr(rName, "prio", randomValue), // checking application profile creation with invalid prio value
 				ExpectError: regexp.MustCompile(`expected prio to be one of (.)+, got (.)+`),
 			},
 			{
@@ -329,7 +333,7 @@ func testAccCheckAciApplicationProfileIdNotEqual(ap1, ap2 *models.ApplicationPro
 }
 
 func CreateAccApplicationProfileWithoutTenant(rName string) string {
-	fmt.Println("=== STEP  Basic: testing applicationProfile creation without creating tenant")
+	fmt.Println("=== STEP  Basic: testing application profile creation without creating tenant")
 	resource := fmt.Sprintf(`
 	resource "aci_application_profile" "test" {
 		name = "%s"
@@ -339,7 +343,7 @@ func CreateAccApplicationProfileWithoutTenant(rName string) string {
 }
 
 func CreateAccApplicationProfileWithoutName(rName string) string {
-	fmt.Println("=== STEP  Basic: testing applicationProfile creation without giving name")
+	fmt.Println("=== STEP  Basic: testing application profile creation without giving name")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test"{
 		name = "%s"
@@ -353,7 +357,7 @@ func CreateAccApplicationProfileWithoutName(rName string) string {
 }
 
 func CreateAccApplicationProfileConfigWithParentAndName(prName, rName string) string {
-	fmt.Printf("=== STEP  Basic: testing applicationProfile creation with tenant name %s name %s\n", prName, rName)
+	fmt.Printf("=== STEP  Basic: testing application profile creation with tenant name %s name %s\n", prName, rName)
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test"{
 		name = "%s"
@@ -368,6 +372,7 @@ func CreateAccApplicationProfileConfigWithParentAndName(prName, rName string) st
 }
 
 func CreateAccApplicationProfileConfig(rName string) string {
+	fmt.Println("=== STEP  Basic: testing applicationProfile creation with required arguements")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -445,6 +450,19 @@ func CreateAccApplicationProfileConfigWithOptionalValues(rName string) string {
 	return resource
 }
 
+func CreateAccApplicationProfileRemovingRequiredField() string {
+	fmt.Println("=== STEP  Basic: testing application profile updation without required fields")
+	resource := fmt.Sprintf(`
+	resource "aci_application_profile" "test" {
+		annotation = "tag"
+		description = "from terraform test acc"
+		name_alias = "test_ap"
+		prio = "level1"
+	}
+	`)
+	return resource
+}
+
 func CreateAccApplicationProfileConfigInitial(rName, monPolName string) string {
 	fmt.Println("=== STEP  Basic: testing applicationProfile creation with initial relational parameters")
 	resource := fmt.Sprintf(`
@@ -488,7 +506,7 @@ func CreateAccApplicationProfileConfigFinal(rName, monPolName string) string {
 }
 
 func CreateAccApplicationProfileConfigUpdatedName(rName, longrName string) string {
-	fmt.Println("=== STEP  Basic: testing applicationProfile creation with invalid name")
+	fmt.Println("=== STEP  Basic: testing application profile creation with invalid name")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"

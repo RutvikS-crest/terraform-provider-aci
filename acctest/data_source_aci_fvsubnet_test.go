@@ -15,6 +15,8 @@ func TestAccAciSubnetDataSource_Basic(t *testing.T) {
 	rName := acctest.RandString(5)
 	ip, _ := acctest.RandIpAddress("10.20.0.0/16")
 	ip = fmt.Sprintf("%s/16", ip)
+	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz") // creating random string of 5 characters (to give as random parameter)
+	randomValue := acctest.RandString(5)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -40,17 +42,30 @@ func TestAccAciSubnetDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "scope.#", resourceName, "scope.#"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "scope.0", resourceName, "scope.0"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "virtual", resourceName, "virtual"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "parent_dn", resourceName, "parent_dn"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "ip", resourceName, "ip"),
 				),
+			},
+			{
+				Config:      CreateAccSubnetDataSourceUpdate(rName, ip, randomParameter, randomValue),
+				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
 			{
 				Config:      CreateAccSubnetDSWithInvalidParentDn(rName, ip),
 				ExpectError: regexp.MustCompile(`Error retriving Object: Object may not exists`),
 			},
+			{
+				Config: CreateAccSubnetDataSourceUpdate(rName, ip, "description", "description"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
+				),
+			},
 		},
 	})
 }
 
-func CreateAccSubnetConfigDataSource(rName, ip string) string {
+func CreateAccSubnetDataSourceUpdate(rName, ip, key, value string) string {
+	fmt.Printf("=== STEP  Basic: testing subnet data source update for attribute: %s = %s \n", key, value)
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -64,6 +79,33 @@ func CreateAccSubnetConfigDataSource(rName, ip string) string {
 	resource "aci_subnet" "test"{
 		parent_dn = aci_bridge_domain.test.id
 		ip = "%s"
+	}
+
+	data "aci_subnet" "test" {
+		parent_dn = aci_bridge_domain.test.id
+		ip = aci_subnet.test.ip
+		%s = "%s"
+	}
+	`, rName, rName, ip, key, value)
+	return resource
+}
+
+func CreateAccSubnetConfigDataSource(rName, ip string) string {
+	fmt.Println("=== STEP  Basic: testing subnet creation for data source test")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name = "%s"
+	}
+
+	resource "aci_bridge_domain" "test" {
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+	}
+
+	resource "aci_subnet" "test"{
+		parent_dn = aci_bridge_domain.test.id
+		ip = "%s"
+		description = "description"
 	}
 
 	data "aci_subnet" "test" {
@@ -100,7 +142,7 @@ func CreateAccSubnetDSWithInvalidParentDn(rName, ip string) string {
 }
 
 func CreateAccSubnetDSWithoutParentDn(rName, ip string) string {
-	fmt.Println("=== STEP  Basic: testing Subnet reading without giving parent_dn")
+	fmt.Println("=== STEP  Basic: testing subnet reading without giving parent_dn")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -124,7 +166,7 @@ func CreateAccSubnetDSWithoutParentDn(rName, ip string) string {
 }
 
 func CreateAccSubnetDSWithoutIP(rName, ip string) string {
-	fmt.Println("=== STEP  Basic: testing Subnet reading without giving IP")
+	fmt.Println("=== STEP  Basic: testing subnet reading without giving IP")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
