@@ -212,6 +212,7 @@ func testAccCheckAciTenantExists(name string, tenant *models.Tenant) resource.Te
 }
 
 func testAccCheckAciTenantDestroy(s *terraform.State) error {
+	fmt.Println("=== STEP  testing tenant destroy")
 	client := testAccProvider.Meta().(*client.Client)
 
 	for _, rs := range s.RootModule().Resources {
