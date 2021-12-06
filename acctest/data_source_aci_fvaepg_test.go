@@ -5,14 +5,19 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/ciscoecosystem/aci-go-client/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccAciApplicationEPGDataSource_Basic(t *testing.T) {
+	var application_epg_default models.ApplicationEPG
+	var application_epg_updated models.ApplicationEPG
 	resourceName := "aci_application_epg.test"
 	dataSourceName := "data.aci_application_epg.test"
 	rName := acctest.RandString(5)
+	randomParamter := acctest.RandString(10)
+	randomValue := acctest.RandString(10)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -45,11 +50,47 @@ func TestAccAciApplicationEPGDataSource_Basic(t *testing.T) {
 				),
 			},
 			{
+				Config:      CreateAccApplicationEPGUpdatedConfigDataSource(rName, randomParamter, randomValue),
+				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
+			},
+			{
+				Config: CreateAccApplicationEPGUpdatedConfigDataSource(rName, "description", randomValue),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
+					testAccCheckAciApplicationEPGIdEqual(&application_epg_default, &application_epg_updated),
+				),
+			},
+			{
 				Config:      CreateAccApplicationEPGDSWithInvalidName(rName),                     // data source configuration with invalid application profile profile name
 				ExpectError: regexp.MustCompile(`Error retriving Object: Object may not exists`), // test step expect error which should be match with defined regex
 			},
 		},
 	})
+}
+
+func CreateAccApplicationEPGUpdatedConfigDataSource(rName, attribute, value string) string {
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name = "%s"
+	}
+	
+	resource "aci_application_profile" "test" {
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+	}
+
+	resource "aci_application_epg" "test"{
+		application_profile_dn = aci_application_profile.test.id
+		name = "%s"
+		%s = "%s"
+	}
+
+	data "aci_application_epg" "test" {
+		application_profile_dn = aci_application_profile.test.id
+		name = aci_application_epg.test.name
+	}
+	`, rName, rName, rName, attribute, value)
+	return resource
 }
 
 func CreateAccApplicationEPGConfigDataSource(rName string) string {

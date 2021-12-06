@@ -155,20 +155,6 @@ func TestAccAciApplicationEPG_Update(t *testing.T) {
 				Check:  resource.ComposeTestCheckFunc(testAccCheckAciApplicationEPGExists(resourceName, &application_epg_default)),
 			},
 			{
-				Config: CreateAccApplicationEPGUpdatedAttr(rName, "description", "updated description for terraform test"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationEPGExists(resourceName, &application_epg_updated),
-					resource.TestCheckResourceAttr(resourceName, "description", "updated description for terraform test"),
-					testAccCheckAciApplicationEPGIdEqual(&application_epg_default, &application_epg_updated)),
-			},
-			{
-				Config: CreateAccApplicationEPGUpdatedAttr(rName, "annotation", "updated_annotation_for_terraform_test"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationEPGExists(resourceName, &application_epg_updated),
-					resource.TestCheckResourceAttr(resourceName, "annotation", "updated_annotation_for_terraform_test"),
-					testAccCheckAciApplicationEPGIdEqual(&application_epg_default, &application_epg_updated)),
-			},
-			{
 				Config: CreateAccApplicationEPGUpdatedAttr(rName, "prio", "level1"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciApplicationEPGExists(resourceName, &application_epg_updated),
@@ -292,7 +278,6 @@ func TestAccAciApplicationEPG_Update(t *testing.T) {
 }
 
 func TestAccAciApplicationEPG_NegativeCases(t *testing.T) {
-	resourceName := "aci_application_epg.test"
 	rName := acctest.RandString(5)
 	longAnnotation := acctest.RandString(129)
 	longNameAlias := acctest.RandString(65)
@@ -317,11 +302,6 @@ func TestAccAciApplicationEPG_NegativeCases(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccApplicationEPGConfig(rName),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 			{
 				Config:      CreateAccApplicationEPGWithInvalidApplicationProfile(rName),
@@ -431,11 +411,6 @@ func TestAccAciApplicationEPG_RelationParameters(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_prov_def.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_trust_ctrl", ""),
 				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 			{
 				Config: CreateAccApplicationEPGRelConfig(rName, randomName1),
