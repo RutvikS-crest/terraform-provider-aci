@@ -227,7 +227,7 @@ func TestAccApplicationProfile_reltionalParameters(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccApplicationProfileConfigInitial(rName, relRes1), // creating application profile with relation_fv_rs_ap_mon_pol parameter for the first randomly generated name
+				Config: CreateAccApplicationProfileRelConfig(rName, relRes1), // creating application profile with relation_fv_rs_ap_mon_pol parameter for the first randomly generated name
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_rel1),                                              // checking whether resource is exist or not in state file
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", fmt.Sprintf("uni/tn-%s/monepg-%s", rName, relRes1)), // checking relation by comparing values
@@ -235,7 +235,7 @@ func TestAccApplicationProfile_reltionalParameters(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccApplicationProfileConfigFinal(rName, relRes2), // creating application profile with relation_fv_rs_ap_mon_pol parameter for the second randomly generated name (to verify update operation)
+				Config: CreateAccApplicationProfileRelConfig(rName, relRes2), // creating application profile with relation_fv_rs_ap_mon_pol parameter for the second randomly generated name (to verify update operation)
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_rel2),                                              // checking whether resource is exist or not in state file
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", fmt.Sprintf("uni/tn-%s/monepg-%s", rName, relRes2)), // checking relation by comparing values
@@ -295,6 +295,7 @@ func testAccCheckAciApplicationProfileExists(name string, application_profile *m
 }
 
 func testAccCheckAciApplicationProfileDestroy(s *terraform.State) error {
+	fmt.Println("=== STEP  testing application profile destroy")
 	client := testAccProvider.Meta().(*client.Client)
 
 	for _, rs := range s.RootModule().Resources {
@@ -372,7 +373,7 @@ func CreateAccApplicationProfileConfigWithParentAndName(prName, rName string) st
 }
 
 func CreateAccApplicationProfileConfig(rName string) string {
-	fmt.Println("=== STEP  Basic: testing applicationProfile creation with required arguements")
+	fmt.Println("=== STEP  testing application profile creation with required arguements")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -412,7 +413,7 @@ func CreateAccApplicationProfilesConfig(rName string) string {
 }
 
 func CreateAccApplicationProfileWithInValidTenantDn(rName string) string {
-	fmt.Println("=== STEP  Negative Case: testing applicationProfile creation with invalid tenant_dn")
+	fmt.Println("=== STEP  Negative Case: testing application profile creation with invalid tenant_dn")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -432,7 +433,7 @@ func CreateAccApplicationProfileWithInValidTenantDn(rName string) string {
 }
 
 func CreateAccApplicationProfileConfigWithOptionalValues(rName string) string {
-	fmt.Println("=== STEP  Basic: testing applicationProfile creation with optional parameters")
+	fmt.Println("=== STEP  Basic: testing application profile creation with optional parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -452,7 +453,7 @@ func CreateAccApplicationProfileConfigWithOptionalValues(rName string) string {
 
 func CreateAccApplicationProfileRemovingRequiredField() string {
 	fmt.Println("=== STEP  Basic: testing application profile updation without required fields")
-	resource := fmt.Sprintf(`
+	resource := fmt.Sprintln(`
 	resource "aci_application_profile" "test" {
 		annotation = "tag"
 		description = "from terraform test acc"
@@ -463,29 +464,8 @@ func CreateAccApplicationProfileRemovingRequiredField() string {
 	return resource
 }
 
-func CreateAccApplicationProfileConfigInitial(rName, monPolName string) string {
-	fmt.Println("=== STEP  Basic: testing applicationProfile creation with initial relational parameters")
-	resource := fmt.Sprintf(`
-	resource "aci_tenant" "test" {
-		name = "%s"
-	}
-
-	resource "aci_monitoring_policy" "test" {
-		tenant_dn = aci_tenant.test.id
-		name = "%s"
-	}
-
-	resource "aci_application_profile" "test" {
-		tenant_dn = aci_tenant.test.id
-		name = "%s"
-		relation_fv_rs_ap_mon_pol = aci_monitoring_policy.test.id
-	}
-	`, rName, monPolName, rName)
-	return resource
-}
-
-func CreateAccApplicationProfileConfigFinal(rName, monPolName string) string {
-	fmt.Println("=== STEP  Basic: testing applicationProfile creation with final relational parameters")
+func CreateAccApplicationProfileRelConfig(rName, monPolName string) string {
+	fmt.Println("=== STEP  testing application profile creation with relational parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -536,7 +516,7 @@ func CreateAccApplicationProfileConfigWithChangedName(rName1, rName2 string) str
 }
 
 func CreateAccApplicationProfileUpdatedAttr(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing attribute: %s=%s \n", attribute, value)
+	fmt.Printf("=== STEP  testing application profile attribute: %s=%s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"

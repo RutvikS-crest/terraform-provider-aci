@@ -3,7 +3,6 @@ package acctest
 import (
 	"fmt"
 	"regexp"
-	"strconv"
 	"testing"
 
 	"github.com/ciscoecosystem/aci-go-client/client"
@@ -114,15 +113,6 @@ func TestAccAciSubnet_Basic(t *testing.T) {
 			},
 		},
 	})
-}
-
-func ExpandList(attr, rName string, num int) []resource.TestCheckFunc {
-	list := make([]resource.TestCheckFunc, 0, 1)
-	list = append(list, resource.TestCheckResourceAttr(rName, fmt.Sprintf("%s.#", attr), strconv.Itoa(num)))
-	for i := 0; i < num; i++ {
-		list = append(list, resource.TestCheckResourceAttr(rName, fmt.Sprintf("%s.%d", attr, i), "querier"))
-	}
-	return list
 }
 
 func TestAccSubnet_Update(t *testing.T) {
@@ -261,6 +251,9 @@ func TestAccSubnet_Update(t *testing.T) {
 				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"private", "public", "shared"})),
 				ExpectError: regexp.MustCompile(`Invalid Configuration : Subnet scope cannot be both private and public`),
 			},
+			{
+				Config: CreateAccSubnetConfig(rName, ip),
+			},
 		},
 	})
 }
@@ -357,7 +350,6 @@ func TestAccSubnet_reltionalParameters(t *testing.T) {
 					testAccCheckAciSubnetExists(resourceName, &subnet_default),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_profile", ""),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_nd_pfx_pol", ""),
-					// resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_subnet_to_out", ""),
 				),
 			},
 			{
@@ -443,6 +435,7 @@ func testAccCheckAciSubnetExists(name string, subnet *models.Subnet) resource.Te
 }
 
 func testAccCheckAciSubnetDestroy(s *terraform.State) error {
+	fmt.Println("=== STEP  testing subnet destroy")
 	client := testAccProvider.Meta().(*client.Client)
 
 	for _, rs := range s.RootModule().Resources {
@@ -505,7 +498,7 @@ func CreateSubnetWithoutIP(rName string) string {
 }
 
 func CreateAccSubnetConfig(rName, ip string) string {
-	fmt.Println("=== STEP  Basic: testing subnet creation with required arguements only")
+	fmt.Println("=== STEP  testing subnet creation with required arguements only")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test"{
 		name = "%s"
@@ -613,7 +606,7 @@ func CreateAccSubnetConfigWithOptionalValues(rName, ip string) string {
 
 func CreateAccSubnetRemovingRequiredField() string {
 	fmt.Println("=== STEP  Basic: testing subnet update without optional parameters")
-	resource := fmt.Sprintf(`
+	resource := fmt.Sprintln(`
 
 	resource "aci_subnet" "test" {
 		description = "subnet"
@@ -738,7 +731,7 @@ func CreateAccSubnetWithInavalidIP(rName, ip string) string {
 }
 
 func CreateAccSubnetUpdatedAttr(rName, ip, attribute, value string) string {
-	fmt.Printf("=== STEP  testing attribute: %s=%s \n", attribute, value)
+	fmt.Printf("=== STEP  testing subnet attribute: %s=%s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
