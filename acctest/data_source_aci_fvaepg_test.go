@@ -13,7 +13,7 @@ func TestAccAciApplicationEPGDataSource_Basic(t *testing.T) {
 	resourceName := "aci_application_epg.test"
 	dataSourceName := "data.aci_application_epg.test"
 	rName := acctest.RandString(5)
-	randomParamter := acctest.RandString(10)
+	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(10)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -49,7 +49,7 @@ func TestAccAciApplicationEPGDataSource_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config:      CreateAccApplicationEPGUpdatedConfigDataSource(rName, randomParamter, randomValue),
+				Config:      CreateAccApplicationEPGUpdatedConfigDataSource(rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
 			{
@@ -67,7 +67,7 @@ func TestAccAciApplicationEPGDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccApplicationEPGUpdatedConfigDataSource(rName, attribute, value string) string {
-	fmt.Println("=== STEP Basic: Testing application_epg data source with updated resource")
+	fmt.Println("=== STEP  Basic: Testing application_epg data source with updated resource")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -93,7 +93,7 @@ func CreateAccApplicationEPGUpdatedConfigDataSource(rName, attribute, value stri
 }
 
 func CreateAccApplicationEPGConfigDataSource(rName string) string {
-	fmt.Println("=== STEP Basic: Testing application_epg data source")
+	fmt.Println("=== STEP  Basic: Testing application_epg data source")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
