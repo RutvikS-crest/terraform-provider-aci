@@ -5,14 +5,11 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/ciscoecosystem/aci-go-client/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccAciApplicationEPGDataSource_Basic(t *testing.T) {
-	var application_epg_default models.ApplicationEPG
-	var application_epg_updated models.ApplicationEPG
 	resourceName := "aci_application_epg.test"
 	dataSourceName := "data.aci_application_epg.test"
 	rName := acctest.RandString(5)
@@ -43,6 +40,8 @@ func TestAccAciApplicationEPGDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "fwd_ctrl", resourceName, "fwd_ctrl"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "has_mcast_source", resourceName, "has_mcast_source"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "is_attr_based_epg", resourceName, "is_attr_based_epg"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "tenant_dn", resourceName, "tanant_dn"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "match_t", resourceName, "match_t"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "pc_enf_pref", resourceName, "pc_enf_pref"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "pref_gr_memb", resourceName, "pref_gr_memb"),
@@ -57,7 +56,6 @@ func TestAccAciApplicationEPGDataSource_Basic(t *testing.T) {
 				Config: CreateAccApplicationEPGUpdatedConfigDataSource(rName, "description", randomValue),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
-					testAccCheckAciApplicationEPGIdEqual(&application_epg_default, &application_epg_updated),
 				),
 			},
 			{
@@ -69,6 +67,7 @@ func TestAccAciApplicationEPGDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccApplicationEPGUpdatedConfigDataSource(rName, attribute, value string) string {
+	fmt.Println("=== STEP Basic: Testing application_epg data source with updated resource")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -94,6 +93,7 @@ func CreateAccApplicationEPGUpdatedConfigDataSource(rName, attribute, value stri
 }
 
 func CreateAccApplicationEPGConfigDataSource(rName string) string {
+	fmt.Println("=== STEP Basic: Testing application_epg data source")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -107,6 +107,7 @@ func CreateAccApplicationEPGConfigDataSource(rName string) string {
 	resource "aci_application_epg" "test"{
 		application_profile_dn = aci_application_profile.test.id
 		name = "%s"
+		description = "test_description"
 	}
 
 	data "aci_application_epg" "test" {
