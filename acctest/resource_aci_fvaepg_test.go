@@ -115,6 +115,10 @@ func TestAccAciApplicationEPG_Basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
+				Config:      CreateAccApplicationEPGConfigUpdateWithoutRequiredParameters(rName, "description", "test_coverage"),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+			{
 				Config:      CreateAccApplicationEPGConfigUpdatedName(rName, longrName),
 				ExpectError: regexp.MustCompile(fmt.Sprintf("property name of epg-%s failed validation for value '%s'", longrName, longrName)),
 			},
@@ -153,20 +157,6 @@ func TestAccAciApplicationEPG_Update(t *testing.T) {
 			{
 				Config: CreateAccApplicationEPGConfig(rName),
 				Check:  resource.ComposeTestCheckFunc(testAccCheckAciApplicationEPGExists(resourceName, &application_epg_default)),
-			},
-			{
-				Config: CreateAccApplicationEPGUpdatedAttr(rName, "description", "updated description for terraform test"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationEPGExists(resourceName, &application_epg_updated),
-					resource.TestCheckResourceAttr(resourceName, "description", "updated description for terraform test"),
-					testAccCheckAciApplicationEPGIdEqual(&application_epg_default, &application_epg_updated)),
-			},
-			{
-				Config: CreateAccApplicationEPGUpdatedAttr(rName, "annotation", "updated_annotation_for_terraform_test"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationEPGExists(resourceName, &application_epg_updated),
-					resource.TestCheckResourceAttr(resourceName, "annotation", "updated_annotation_for_terraform_test"),
-					testAccCheckAciApplicationEPGIdEqual(&application_epg_default, &application_epg_updated)),
 			},
 			{
 				Config: CreateAccApplicationEPGUpdatedAttr(rName, "prio", "level1"),
@@ -292,7 +282,6 @@ func TestAccAciApplicationEPG_Update(t *testing.T) {
 }
 
 func TestAccAciApplicationEPG_NegativeCases(t *testing.T) {
-	resourceName := "aci_application_epg.test"
 	rName := acctest.RandString(5)
 	longAnnotation := acctest.RandString(129)
 	longNameAlias := acctest.RandString(65)
@@ -317,11 +306,6 @@ func TestAccAciApplicationEPG_NegativeCases(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccApplicationEPGConfig(rName),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 			{
 				Config:      CreateAccApplicationEPGWithInvalidApplicationProfile(rName),
@@ -431,11 +415,6 @@ func TestAccAciApplicationEPG_RelationParameters(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_prov_def.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_trust_ctrl", ""),
 				),
-			},
-			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
 			},
 			{
 				Config: CreateAccApplicationEPGRelConfig(rName, randomName1),
@@ -591,7 +570,7 @@ func testAccCheckAciApplicationEPGIdEqual(epg1, epg2 *models.ApplicationEPG) res
 }
 
 func CreateAccApplicationEPGWithoutApplicationProfile(rName string) string {
-	fmt.Println("Basic: Testing application_epg without creating application_profile")
+	fmt.Println("=== STEP Basic: Testing application_epg without creating application_profile")
 	resource := fmt.Sprintf(`
 	resource "aci_application_epg" "test" {
 		name = "%s"
@@ -601,7 +580,7 @@ func CreateAccApplicationEPGWithoutApplicationProfile(rName string) string {
 }
 
 func CreateAccApplicationEPGWithoutName(rName string) string {
-	fmt.Println("Basic: Testing application_epg without passing name attribute")
+	fmt.Println("=== STEP Basic: Testing application_epg without passing name attribute")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test"{
 		name = "%s"
@@ -621,7 +600,7 @@ func CreateAccApplicationEPGWithoutName(rName string) string {
 }
 
 func CreateAccApplicationEPGConfigWithParentAndName(parentName, rName string) string {
-	fmt.Println("Basic: Testing application_epg with same parent name and different resource name")
+	fmt.Println("=== STEP Basic: Testing application_epg with same parent name and different resource name")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -641,6 +620,7 @@ func CreateAccApplicationEPGConfigWithParentAndName(parentName, rName string) st
 }
 
 func CreateAccApplicationEPGConfig(rName string) string {
+	fmt.Println("=== STEP Basic: Testing application_epg with required paramters")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -660,7 +640,7 @@ func CreateAccApplicationEPGConfig(rName string) string {
 }
 
 func CreateAccApplicationEPGConfigWithOPtionalValues(rName string) string {
-	fmt.Println("Basic: Testing application_epg creation with optional parameters")
+	fmt.Println("=== STEP Basic: Testing application_epg creation with optional parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -691,7 +671,7 @@ func CreateAccApplicationEPGConfigWithOPtionalValues(rName string) string {
 }
 
 func CreateAccApplicationEPGConfigUpdatedName(rName, longrName string) string {
-	fmt.Println("Basic: Testing application_epg creation with invalid name with long length")
+	fmt.Println("=== STEP Basic: Testing application_epg creation with invalid name with long length")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -708,8 +688,25 @@ func CreateAccApplicationEPGConfigUpdatedName(rName, longrName string) string {
 	return resource
 }
 
+func CreateAccApplicationEPGConfigUpdateWithoutRequiredParameters(rName, attribute, value string) string {
+	fmt.Println("=== STEP Basic: Testing application_epg updation without required parameters")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name = "%s"
+	}
+	resource "aci_application_profile" "test" {
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+	}
+	resource "aci_application_epg" "test"{
+		%s = "%s"
+	}
+	`, rName, rName, attribute, value)
+	return resource
+}
+
 func CreateAccApplicationEPGUpdatedAttr(rName, attribute, value string) string {
-	fmt.Println("Basic: Testing application_epg updation with attribute values updation")
+	fmt.Println("=== STEP Basic: Testing application_epg updation with attribute values updation")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -728,7 +725,7 @@ func CreateAccApplicationEPGUpdatedAttr(rName, attribute, value string) string {
 }
 
 func CreateAccApplicationEPGWithInvalidApplicationProfile(rName string) string {
-	fmt.Println("Basic: Testing application_epg updation with attribute values updation")
+	fmt.Println("=== STEP Basic: Testing application_epg updation with attribute values updation")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -742,7 +739,7 @@ func CreateAccApplicationEPGWithInvalidApplicationProfile(rName string) string {
 }
 
 func CreateAccApplicationEPGRelConfig(rName, relName string) string {
-	fmt.Println("Basic: Testing application_epg with relations")
+	fmt.Println("=== STEP Basic: Testing application_epg with relations")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -801,7 +798,7 @@ func CreateAccApplicationEPGRelConfig(rName, relName string) string {
 }
 
 func CreateAccApplicationEPGRelFinalConfig(rName, relName1, relName2 string) string {
-	fmt.Println("Basic: Testing application_epg with relations")
+	fmt.Println("=== STEP Basic: Testing application_epg with relations")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
