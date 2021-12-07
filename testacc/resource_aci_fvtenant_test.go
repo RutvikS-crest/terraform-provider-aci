@@ -373,7 +373,6 @@ func CreateAccTenantUpdatedTenantFinal(rName, tenantToMP, tenantToFilter1, tenan
 		name = "%s"
 	}
 
-
 	resource "aci_monitoring_policy" "test" {
 		tenant_dn = aci_tenant.test1.id
 		name = "%s"

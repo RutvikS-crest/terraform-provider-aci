@@ -215,9 +215,9 @@ func TestAccApplicationProfile_reltionalParameters(t *testing.T) {
 	relRes1 := makeTestVariable(acctest.RandString(5)) // randomly created name for relational resoruce
 	relRes2 := makeTestVariable(acctest.RandString(5)) // randomly created name for relational resoruce
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+
 		CheckDestroy: testAccCheckAciApplicationProfileDestroy,
 		Steps: []resource.TestStep{
 			{

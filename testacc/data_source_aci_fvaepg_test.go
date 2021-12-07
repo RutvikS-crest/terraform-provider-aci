@@ -49,7 +49,7 @@ func TestAccAciApplicationEPGDataSource_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config:      CreateAccApplicationEPGUpdatedConfigDataSource(rName, randomParameter, randomValue),
+				Config:      CreateAccApplicationEPGUpdatedConfigDataSourceRandomAttr(rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
 			{
@@ -64,6 +64,32 @@ func TestAccAciApplicationEPGDataSource_Basic(t *testing.T) {
 			},
 		},
 	})
+}
+
+func CreateAccApplicationEPGUpdatedConfigDataSourceRandomAttr(rName, attribute, value string) string {
+	fmt.Println("=== STEP  Basic: Testing application_epg data source with updated resource")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name = "%s"
+	}
+	
+	resource "aci_application_profile" "test" {
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+	}
+
+	resource "aci_application_epg" "test"{
+		application_profile_dn = aci_application_profile.test.id
+		name = "%s"
+	}
+
+	data "aci_application_epg" "test" {
+		application_profile_dn = aci_application_profile.test.id
+		name = aci_application_epg.test.name
+		%s = "%s"
+	}
+	`, rName, rName, rName, attribute, value)
+	return resource
 }
 
 func CreateAccApplicationEPGUpdatedConfigDataSource(rName, attribute, value string) string {

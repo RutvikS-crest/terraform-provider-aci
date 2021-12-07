@@ -47,7 +47,7 @@ func TestAccAciSubnetDataSource_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config:      CreateAccSubnetDataSourceUpdate(rName, ip, randomParameter, randomValue),
+				Config:      CreateAccSubnetDataSourceUpdateRandomAttr(rName, ip, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
 			{
@@ -62,6 +62,32 @@ func TestAccAciSubnetDataSource_Basic(t *testing.T) {
 			},
 		},
 	})
+}
+
+func CreateAccSubnetDataSourceUpdateRandomAttr(rName, ip, key, value string) string {
+	fmt.Printf("=== STEP  Basic: testing subnet data source update for attribute: %s = %s \n", key, value)
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name = "%s"
+	}
+
+	resource "aci_bridge_domain" "test" {
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+	}
+
+	resource "aci_subnet" "test"{
+		parent_dn = aci_bridge_domain.test.id
+		ip = "%s"
+	}
+
+	data "aci_subnet" "test" {
+		parent_dn = aci_bridge_domain.test.id
+		ip = aci_subnet.test.ip
+		%s = "%s"
+	}
+	`, rName, rName, ip, key, value)
+	return resource
 }
 
 func CreateAccSubnetDataSourceUpdate(rName, ip, key, value string) string {

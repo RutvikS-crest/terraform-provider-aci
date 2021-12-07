@@ -33,7 +33,7 @@ func TestAccAciTenantDataSource_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config:      CreateAccTenantDataSourceUpdate(rName, randomParameter, randomValue),
+				Config:      CreateAccTenantDataSourceUpdateRandomAttr(rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
 			{
@@ -66,7 +66,7 @@ func CreateAccTenantDataSource(rName string) string {
 	return resource
 }
 
-func CreateAccTenantDataSourceUpdate(rName, attribute, value string) string {
+func CreateAccTenantDataSourceUpdateRandomAttr(rName, attribute, value string) string {
 	fmt.Printf("=== STEP  testing tenant data source update for attribute: %s = %s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
@@ -75,6 +75,20 @@ func CreateAccTenantDataSourceUpdate(rName, attribute, value string) string {
 	data "aci_tenant" "test" {
 		name = "${aci_tenant.test.name}"
 		%s = "%s"
+	}
+	`, rName, attribute, value)
+	return resource
+}
+
+func CreateAccTenantDataSourceUpdate(rName, attribute, value string) string {
+	fmt.Printf("=== STEP  testing tenant data source update for attribute: %s = %s \n", attribute, value)
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name = "%s"
+		%s = "%s"
+	}
+	data "aci_tenant" "test" {
+		name = "${aci_tenant.test.name}"
 	}
 	`, rName, attribute, value)
 	return resource

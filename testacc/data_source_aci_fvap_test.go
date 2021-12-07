@@ -40,7 +40,7 @@ func TestAccAciApplicationProfileDataSource_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config:      CreateAccApplicationProfileDataSourceUpdate(rName, randomParameter, randomValue),
+				Config:      CreateAccApplicationProfileDataSourceUpdateRandomAttr(rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
 			{
@@ -57,7 +57,7 @@ func TestAccAciApplicationProfileDataSource_Basic(t *testing.T) {
 	})
 }
 
-func CreateAccApplicationProfileDataSourceUpdate(rName, attribute, value string) string {
+func CreateAccApplicationProfileDataSourceUpdateRandomAttr(rName, attribute, value string) string {
 	fmt.Printf("=== STEP  Basic: testing application profile data source update for attribute: %s = %s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
@@ -71,6 +71,25 @@ func CreateAccApplicationProfileDataSourceUpdate(rName, attribute, value string)
 		name = aci_application_profile.test.name
 		tenant_dn = aci_application_profile.test.tenant_dn
 		%s = "%s"
+	}
+	`, rName, rName, attribute, value)
+	return resource
+}
+
+func CreateAccApplicationProfileDataSourceUpdate(rName, attribute, value string) string {
+	fmt.Printf("=== STEP  Basic: testing application profile data source update for attribute: %s = %s \n", attribute, value)
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name = "%s"
+	}
+	resource "aci_application_profile" "test"{
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+		%s = "%s"
+	}
+	data "aci_application_profile" "test" {
+		name = aci_application_profile.test.name
+		tenant_dn = aci_application_profile.test.tenant_dn
 	}
 	`, rName, rName, attribute, value)
 	return resource
