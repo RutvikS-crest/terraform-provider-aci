@@ -543,6 +543,7 @@ func testAccCheckAciApplicationEPGExists(name string, application_epg *models.Ap
 }
 
 func testAccCheckAciApplicationEPGDestroy(s *terraform.State) error {
+	fmt.Println("=== STEP  testing application EPG destroy")
 	client := testAccProvider.Meta().(*client.Client)
 
 	for _, rs := range s.RootModule().Resources {

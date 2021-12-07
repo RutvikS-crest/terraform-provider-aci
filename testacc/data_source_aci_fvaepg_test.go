@@ -72,7 +72,7 @@ func CreateAccApplicationEPGUpdatedConfigDataSourceRandomAttr(rName, attribute, 
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
@@ -98,7 +98,7 @@ func CreateAccApplicationEPGUpdatedConfigDataSource(rName, attribute, value stri
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
@@ -124,7 +124,7 @@ func CreateAccApplicationEPGConfigDataSource(rName string) string {
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
@@ -150,7 +150,7 @@ func CreateAccApplicationEPGDSWithInvalidName(rName string) string {
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
@@ -175,7 +175,7 @@ func CreateAccApplicationEPGDSWithoutApplicationProfile(rName string) string {
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
@@ -199,7 +199,7 @@ func CreateAccApplicationEPGDSWithoutName(rName string) string {
 	resource "aci_tenant" "test" {
 		name = "%s"
 	}
-	
+
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
