@@ -71,6 +71,10 @@ func TestAccAciTenant_Basic(t *testing.T) {
 				),
 			},
 			{
+				Config:      CreateAccTenantConfigUpdateWithoutName(),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+			{
 				Config: CreateAccTenantConfig(rName),
 			},
 		},
@@ -208,6 +212,7 @@ func testAccCheckAciTenantExists(name string, tenant *models.Tenant) resource.Te
 }
 
 func testAccCheckAciTenantDestroy(s *terraform.State) error {
+	fmt.Println("=== STEP  testing tenant destroy")
 	client := testAccProvider.Meta().(*client.Client)
 
 	for _, rs := range s.RootModule().Resources {
@@ -253,7 +258,17 @@ func CreateAccTenantWithoutName() string {
 	`)
 	return resource
 }
-
+func CreateAccTenantConfigUpdateWithoutName() string {
+	fmt.Println("=== STEP  Basic: testing tenant update without giving Name")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		annotation = "tag"
+		description = "from terraform"
+		name_alias = "test_ap"
+	}
+	`)
+	return resource
+}
 func CreateAccTenantConfigWithName(rOther string) string {
 	fmt.Printf("=== STEP  Basic: testing tenant creation with tenant name %s \n", rOther)
 	resource := fmt.Sprintf(`

@@ -5,14 +5,11 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/ciscoecosystem/aci-go-client/models"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccAciTenantDataSource_Basic(t *testing.T) {
-	var tenant_default models.Tenant
-	var tenant_updated models.Tenant
 	resourceName := "aci_tenant.test"
 	dataSourceName := "data.aci_tenant.test"
 	rName := makeTestVariable(acctest.RandString(5))
@@ -47,7 +44,6 @@ func TestAccAciTenantDataSource_Basic(t *testing.T) {
 				Config: CreateAccTenantDataSourceUpdate(rName, "description", "test_annotation_1"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
-					testAccCheckAciTenantIdEqual(&tenant_default, &tenant_updated),
 				),
 			},
 		},
@@ -75,10 +71,10 @@ func CreateAccTenantDataSourceUpdate(rName, attribute, value string) string {
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
-		%s = "%s"
 	}
 	data "aci_tenant" "test" {
 		name = "${aci_tenant.test.name}"
+		%s = "%s"
 	}
 	`, rName, attribute, value)
 	return resource
