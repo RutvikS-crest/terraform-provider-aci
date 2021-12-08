@@ -12,7 +12,7 @@ import (
 func TestAccAciSubnetDataSource_Basic(t *testing.T) {
 	resourceName := "aci_subnet.test"
 	dataSourceName := "data.aci_subnet.test"
-	rName := acctest.RandString(5)
+	rName := makeTestVariable(acctest.RandString(5))
 	ip, _ := acctest.RandIpAddress("10.20.0.0/16")
 	ip = fmt.Sprintf("%s/16", ip)
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz") // creating random string of 5 characters (to give as random parameter)
@@ -131,7 +131,6 @@ func CreateAccSubnetConfigDataSource(rName, ip string) string {
 	resource "aci_subnet" "test"{
 		parent_dn = aci_bridge_domain.test.id
 		ip = "%s"
-		description = "description"
 	}
 
 	data "aci_subnet" "test" {

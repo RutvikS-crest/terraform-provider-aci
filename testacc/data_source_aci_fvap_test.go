@@ -14,7 +14,7 @@ func TestAccAciApplicationProfileDataSource_Basic(t *testing.T) {
 	dataSourceName := "data.aci_application_profile.test"                             // defining name of data source
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz") // creating random string of 5 characters (to give as random parameter)
 	randomValue := acctest.RandString(5)
-	rName := acctest.RandString(5)
+	rName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -105,7 +105,6 @@ func CreateAccApplicationProfileConfigDataSource(rName string) string {
 	resource "aci_application_profile" "test" {
 		tenant_dn = aci_tenant.test.id
 		name = "%s"
-		description = "description"
 	}
 
 	data "aci_application_profile" "test" {

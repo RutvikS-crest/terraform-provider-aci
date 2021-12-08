@@ -87,7 +87,7 @@ func TestAccAciSubnet_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config:      CreateAccSubnetWithInavalidIP(rName, ip),
+				Config:      CreateAccSubnetWithInvalidIP(rName, ip),
 				ExpectError: regexp.MustCompile(`unknown property value (.)+, name dn, class fvSubnet (.)+`),
 			},
 			{
@@ -119,7 +119,7 @@ func TestAccSubnet_Update(t *testing.T) {
 	var subnet_default models.Subnet
 	var subnet_updated models.Subnet
 	resourceName := "aci_subnet.test"
-	rName := acctest.RandString(5)
+	rName := makeTestVariable(acctest.RandString(5))
 	ip, _ := acctest.RandIpAddress("10.20.0.0/16")
 	ip = fmt.Sprintf("%s/16", ip)
 	resource.ParallelTest(t, resource.TestCase{
@@ -224,10 +224,6 @@ func TestAccSubnet_Update(t *testing.T) {
 				),
 			},
 			{
-				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"private", "public"})),
-				ExpectError: regexp.MustCompile(`Invalid Configuration : Subnet scope cannot be both private and public`),
-			},
-			{
 				Config: CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"public", "shared"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSubnetExists(resourceName, &subnet_updated),
@@ -246,10 +242,6 @@ func TestAccSubnet_Update(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "scope.1", "public"),
 					testAccCheckAciSubnetIdEqual(&subnet_default, &subnet_updated),
 				),
-			},
-			{
-				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"private", "public", "shared"})),
-				ExpectError: regexp.MustCompile(`Invalid Configuration : Subnet scope cannot be both private and public`),
 			},
 			{
 				Config: CreateAccSubnetConfig(rName, ip),
@@ -305,6 +297,14 @@ func TestAccSubnet_NegativeCases(t *testing.T) {
 			{
 				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"public", "public"})),
 				ExpectError: regexp.MustCompile(`duplication in list`),
+			},
+			{
+				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"private", "public"})),
+				ExpectError: regexp.MustCompile(`Invalid Configuration : Subnet scope cannot be both private and public`),
+			},
+			{
+				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"private", "public", "shared"})),
+				ExpectError: regexp.MustCompile(`Invalid Configuration : Subnet scope cannot be both private and public`),
 			},
 			{
 				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{randomValue})),
@@ -388,12 +388,10 @@ func TestAccSubnet_reltionalParameters(t *testing.T) {
 
 func TestAccSubnet_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
-	ip1, _ := acctest.RandIpAddress("10.20.0.0/16")
-	ip1 = fmt.Sprintf("%s/16", ip1)
-	ip2, _ := acctest.RandIpAddress("10.20.0.0/16")
-	ip2 = fmt.Sprintf("%s/16", ip2)
-	ip3, _ := acctest.RandIpAddress("10.20.0.0/16")
-	ip3 = fmt.Sprintf("%s/16", ip3)
+	ip, _ := acctest.RandIpAddress("10.20.0.0/16")
+	ip1 := fmt.Sprintf("%s/16", ip)
+	ip2 := fmt.Sprintf("%s/17", ip)
+	ip3 := fmt.Sprintf("%s/18", ip)
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -524,36 +522,26 @@ func CreateAccSubnetsConfig(rName, ip1, ip2, ip3 string) string {
 		name = "%s"
 	}
 
-	resource "aci_bridge_domain" "test1"{
-		name = "%s"
-		tenant_dn = aci_tenant.test.id
-	}
-
-	resource "aci_bridge_domain" "test2"{
-		name = "%s"
-		tenant_dn = aci_tenant.test.id
-	}
-
-	resource "aci_bridge_domain" "test3"{
+	resource "aci_bridge_domain" "test"{
 		name = "%s"
 		tenant_dn = aci_tenant.test.id
 	}
 
 	resource "aci_subnet" "test1"{
-		parent_dn = aci_bridge_domain.test1.id
+		parent_dn = aci_bridge_domain.test.id
 		ip = "%s"
 	}
 
 	resource "aci_subnet" "test2"{
-		parent_dn = aci_bridge_domain.test2.id
+		parent_dn = aci_bridge_domain.test.id
 		ip = "%s"
 	}
 
 	resource "aci_subnet" "test3"{
-		parent_dn = aci_bridge_domain.test3.id
+		parent_dn = aci_bridge_domain.test.id
 		ip = "%s"
 	}
-	`, rName, rName, rName, rName, ip1, ip2, ip3)
+	`, rName, rName, ip1, ip2, ip3)
 	return resource
 }
 
@@ -710,7 +698,7 @@ func CreateAccSubnetConfigWithParentDnAndName(rName, ip string) string {
 	return resource
 }
 
-func CreateAccSubnetWithInavalidIP(rName, ip string) string {
+func CreateAccSubnetWithInvalidIP(rName, ip string) string {
 	fmt.Println("=== STEP  Basic: testing subnet creation with invalid IP")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
