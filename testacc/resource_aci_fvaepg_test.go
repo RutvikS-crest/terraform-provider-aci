@@ -277,6 +277,9 @@ func TestAccAciApplicationEPG_Update(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "shutdown", "yes"),
 					testAccCheckAciApplicationEPGIdEqual(&application_epg_default, &application_epg_updated)),
 			},
+			{
+				Config: CreateAccApplicationEPGConfigWithOPtionalValues(rName),
+			},
 		},
 	})
 }
@@ -510,7 +513,7 @@ func TestAccApplicationEpg_MultipleCreateDelete(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciBridgeDomainDestroy,
+		CheckDestroy: testAccCheckAciApplicationEPGDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAcEPGsConfig(rName),
