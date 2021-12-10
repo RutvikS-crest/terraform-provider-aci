@@ -69,8 +69,8 @@ func TestAccAciBridgeDomainDataSource_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config:      CreateAccBridgeDomainDSWithInvalidName(rName),                       // data source configuration with invalid application profile profile name
-				ExpectError: regexp.MustCompile(`Error retriving Object: Object may not exists`), // test step expect error which should be match with defined regex
+				Config:      CreateAccBridgeDomainDSWithInvalidName(rName),                       
+				ExpectError: regexp.MustCompile(`Error retriving Object: Object may not exists`), 
 			},
 		},
 	})
