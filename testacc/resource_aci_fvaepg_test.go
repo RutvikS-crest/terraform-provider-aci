@@ -207,13 +207,13 @@ func TestAccAciApplicationEPG_Update(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "exception_tag", "20"),
 					testAccCheckAciApplicationEPGIdEqual(&application_epg_default, &application_epg_updated)),
 			},
-			// {
-			// 	Config: CreateAccApplicationEPGUpdatedAttr(rName, "flood_on_encap", "enabled"),
-			// 	Check: resource.ComposeTestCheckFunc(
-			// 		testAccCheckAciApplicationEPGExists(resourceName, &application_epg_updated),
-			// 		resource.TestCheckResourceAttr(resourceName, "flood_on_encap", "enabled"),
-			// 		testAccCheckAciApplicationEPGIdEqual(&application_epg_default, &application_epg_updated)),
-			// },
+			{
+				Config: CreateAccApplicationEPGUpdatedAttr(rName, "flood_on_encap", "enabled"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciApplicationEPGExists(resourceName, &application_epg_updated),
+					resource.TestCheckResourceAttr(resourceName, "flood_on_encap", "enabled"),
+					testAccCheckAciApplicationEPGIdEqual(&application_epg_default, &application_epg_updated)),
+			},
 			{
 				Config: CreateAccApplicationEPGUpdatedAttr(rName, "fwd_ctrl", "proxy-arp"),
 				Check: resource.ComposeTestCheckFunc(
