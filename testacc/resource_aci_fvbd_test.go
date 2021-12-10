@@ -670,6 +670,7 @@ func CreateAccBridgeDomainWithInvalidTenant(rName string) string {
 }
 
 func testAccCheckAciBridgeDomainDestroy(s *terraform.State) error {
+	fmt.Println("=== STEP  testing bridge domain destroy")
 	client := testAccProvider.Meta().(*client.Client)
 
 	for _, rs := range s.RootModule().Resources {

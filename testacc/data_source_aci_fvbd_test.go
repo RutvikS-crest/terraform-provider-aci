@@ -18,7 +18,7 @@ func TestAccAciBridgeDomainDataSource_Basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
-		// CheckDestroy: testAccCheckAciBridgeDomainDestroy,
+		CheckDestroy: testAccCheckAciBridgeDomainDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      CreateAccBridgeDomainDSWithoutTenant(rName),
