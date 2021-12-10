@@ -338,7 +338,6 @@ func TestAccAciBridgeDomain_RelationParameters(t *testing.T) {
 					testAccCheckAciBridgeDomainExists(resourceName, &bridge_domain_rel1),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_to_netflow_monitor_pol.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_to_fhs", ""),
-					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_to_netflow_monitor_pol.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_abd_pol_mon_pol", fmt.Sprintf("uni/tn-%s/monepg-%s", rName, randomName1)),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_flood_to.#", "1"),
 					resource.TestCheckTypeSetElemAttr(resourceName, "relation_fv_rs_bd_flood_to.*", fmt.Sprintf("uni/tn-%s/flt-%s", rName, randomName1)),
@@ -355,6 +354,8 @@ func TestAccAciBridgeDomain_RelationParameters(t *testing.T) {
 				Config: CreateAccBridgeDomainRelConfigFinal(rName, randomName1, randomName2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciBridgeDomainExists(resourceName, &bridge_domain_rel2),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_to_netflow_monitor_pol.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_to_fhs", ""),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_abd_pol_mon_pol", fmt.Sprintf("uni/tn-%s/monepg-%s", rName, randomName2)),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_bd_flood_to.#", "2"),
 					resource.TestCheckTypeSetElemAttr(resourceName, "relation_fv_rs_bd_flood_to.*", fmt.Sprintf("uni/tn-%s/flt-%s", rName, randomName1)),
