@@ -388,6 +388,46 @@ func TestAccAciBridgeDomain_RelationParameters(t *testing.T) {
 	})
 }
 
+func TestAccBridgeDomain_MultipleCreateDelete(t *testing.T) {
+	rName := makeTestVariable(acctest.RandString(5))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAciBridgeDomainDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccBDsConfig(rName),
+			},
+		},
+	})
+}
+
+func CreateAccBDsConfig(rName string) string {
+	fmt.Println("=== STEP  creating multiple bridge domains")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test"{
+		name = "%s"
+	}
+
+	resource "aci_bridge_domain" "test1"{
+		name = "%s"
+		tenant_dn = aci_tenant.test.id
+	}
+
+	resource "aci_bridge_domain" "test2"{
+		name = "%s"
+		tenant_dn = aci_tenant.test.id
+	}
+
+	resource "aci_bridge_domain" "test3"{
+		name = "%s"
+		tenant_dn = aci_tenant.test.id
+	}
+	`, rName, rName+"1", rName+"2", rName+"3")
+	return resource
+
+}
+
 func CreateAccBridgeDomainForUnicastAndType(rName string) string {
 	fmt.Println("=== STEP  testing bridge domain with unicast_route=yes and bridge_domain_type=fc")
 	resource := fmt.Sprintf(`

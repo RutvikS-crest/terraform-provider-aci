@@ -505,6 +505,51 @@ func TestAccAciApplicationEPG_RelationParameters(t *testing.T) {
 	})
 }
 
+func TestAccApplicationEpg_MultipleCreateDelete(t *testing.T) {
+	rName := makeTestVariable(acctest.RandString(5))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAciBridgeDomainDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAcEPGsConfig(rName),
+			},
+		},
+	})
+}
+
+func CreateAcEPGsConfig(rName string) string {
+	fmt.Println("=== STEP  creating multiple application epgs")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test"{
+		name = "%s"
+	}
+
+	resource "aci_application_profile" "test"{
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+	}
+
+	resource "aci_application_epg" "test1"{
+		name = "%s"
+		application_profile_dn = aci_application_profile.test.id
+	}
+
+	resource "aci_application_epg" "test2"{
+		name = "%s"
+		application_profile_dn = aci_application_profile.test.id
+	}
+
+	resource "aci_application_epg" "test3"{
+		name = "%s"
+		application_profile_dn = aci_application_profile.test.id
+	}
+	`, rName, rName, rName+"1", rName+"2", rName+"3")
+	return resource
+
+}
+
 func testAccCheckAciApplicationEPGIdNotEqual(epg1, epg2 *models.ApplicationEPG) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if epg1.DistinguishedName == epg2.DistinguishedName {
