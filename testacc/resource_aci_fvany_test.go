@@ -267,7 +267,7 @@ func testAccCheckAciAnyDestroy(s *terraform.State) error {
 
 		if rs.Type == "aci_any" {
 			cont, err := client.Get(rs.Primary.ID)
-			aci := models.TenantFromContainer(cont)
+			aci := models.AnyFromContainer(cont)
 			if err == nil {
 				return fmt.Errorf("Any %s Still exists", aci.DistinguishedName)
 			}
