@@ -139,7 +139,7 @@ func CreateAccAnyDSWithInvalidVRFdn(rName string) string {
 }
 
 func CreateAccAnyDSWithoutVRFdn(rName string) string {
-	fmt.Println("=== STEP  Basic: testing tenant data source reading without giving name")
+	fmt.Println("=== STEP  Basic: testing any data source reading without giving name")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = %s

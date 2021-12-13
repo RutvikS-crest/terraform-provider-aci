@@ -190,7 +190,7 @@ func TestAccAny_reltionalParameters(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccAnyUpdatedTenantFinal(rName, rsRelName1, rsRelName2),
+				Config: CreateAccAnyUpdatedAnyFinal(rName, rsRelName1, rsRelName2),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciAnyExists(resourceName, &any_rel2),
 					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_cons.#", "2"),
@@ -481,7 +481,7 @@ func CreateAccAnyUpdatedAnyIntial(rName, rsRelName string) string {
 
 	return resource
 }
-func CreateAccAnyUpdatedTenantFinal(rName, rsRelName1, rsRelName2 string) string {
+func CreateAccAnyUpdatedAnyFinal(rName, rsRelName1, rsRelName2 string) string {
 	fmt.Println("=== STEP  Relation Parameters: testing any creation with final relational parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
