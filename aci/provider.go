@@ -58,6 +58,12 @@ func Provider() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("ACI_PROXY_CREDS", nil),
 				Description: "Proxy server credentials in the form of username:password",
 			},
+			"validate_relation_dn": &schema.Schema{
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "Flag to validate if a object with entered relation Dn exists in the APIC.",
+			},
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -203,6 +209,61 @@ func Provider() *schema.Provider {
 			"aci_l3out_vpc_member":                         resourceAciL3outVPCMember(),
 			"aci_endpoint_security_group_selector":         resourceAciEndpointSecurityGroupSelector(),
 			"aci_endpoint_security_group":                  resourceAciEndpointSecurityGroup(),
+			"aci_endpoint_security_group_epg_selector":     resourceAciEndpointSecurityGroupEPgSelector(),
+			"aci_endpoint_security_group_tag_selector":     resourceAciEndpointSecurityGroupTagSelector(),
+			"aci_bfd_interface_policy":                     resourceAciBFDInterfacePolicy(),
+			"aci_l3_interface_policy":                      resourceAciL3InterfacePolicy(),
+			"aci_access_switch_policy_group":               resourceAciAccessSwitchPolicyGroup(),
+			"aci_managed_node_connectivity_group":          resourceAciManagedNodeConnectivityGroup(),
+			"aci_vpc_domain_policy":                        resourceAciVPCDomainPolicy(),
+			"aci_spine_switch_policy_group":                resourceAciSpineSwitchPolicyGroup(),
+			"aci_recurring_window":                         resourceAciRecurringWindow(),
+			"aci_file_remote_path":                         resourceAciRemotePathofaFile(),
+			"aci_vrf_snmp_context_community":               resourceAciSNMPCommunity(),
+			"aci_mgmt_zone":                                resourceAciManagedNodesZone(),
+			"aci_vrf_snmp_context":                         resourceAciSNMPContextProfile(),
+			"aci_endpoint_ip_aging_profile":                resourceAciIPAgingPolicy(),
+			"aci_mgmt_preference":                          resourceAciMgmtconnectivitypreference(),
+			"aci_endpoint_controls":                        resourceAciEndpointControlPolicy(),
+			"aci_fabric_node_control":                      resourceAciFabricNodeControl(),
+			"aci_coop_policy":                              resourceAciCOOPGroupPolicy(),
+			"aci_endpoint_loop_protection":                 resourceAciEPLoopProtectionPolicy(),
+			"aci_port_tracking":                            resourceAciPortTracking(),
+			"aci_user_security_domain":                     resourceAciUserDomain(),
+			"aci_encryption_key":                           resourceAciAESEncryptionPassphraseandKeysforConfigExportImport(),
+			"aci_mcp_instance_policy":                      resourceAciMiscablingProtocolInstancePolicy(),
+			"aci_qos_instance_policy":                      resourceAciQOSInstancePolicy(),
+			"aci_user_security_domain_role":                resourceAciUserRole(),
+			"aci_console_authentication":                   resourceAciConsoleAuthenticationMethod(),
+			"aci_error_disable_recovery":                   resourceAciErrorDisabledRecoveryPolicy(),
+			"aci_fabric_wide_settings":                     resourceAciFabricWideSettingsPolicy(),
+			"aci_authentication_properties":                resourceAciAAAAuthentication(),
+			"aci_duo_provider_group":                       resourceAciDuoProviderGroup(),
+			"aci_ldap_provider":                            resourceAciLDAPProvider(),
+			"aci_radius_provider_group":                    resourceAciRADIUSProviderGroup(),
+			"aci_ldap_group_map_rule":                      resourceAciLDAPGroupMapRule(),
+			"aci_tacacs_accounting_destination":            resourceAciTACACSDestination(),
+			"aci_ldap_group_map_rule_to_group_map":         resourceAciLDAPGroupMapruleref(),
+			"aci_tacacs_accounting":                        resourceAciTACACSMonitoringDestinationGroup(),
+			"aci_rsa_provider":                             resourceAciRSAProvider(),
+			"aci_saml_provider":                            resourceAciSAMLProvider(),
+			"aci_login_domain":                             resourceAciLoginDomain(),
+			"aci_default_authentication":                   resourceAciDefaultAuthenticationMethodforallLogins(),
+			"aci_tacacs_provider_group":                    resourceAciTACACSPlusProviderGroup(),
+			"aci_tacacs_provider":                          resourceAciTACACSProvider(),
+			"aci_saml_provider_group":                      resourceAciSAMLProviderGroup(),
+			"aci_ldap_group_map":                           resourceAciLDAPGroupMap(),
+			"aci_global_security":                          resourceAciUserManagement(),
+			"aci_login_domain_provider":                    resourceAciProviderGroupMember(),
+			"aci_tacacs_source":                            resourceAciTACACSSource(),
+			"aci_isis_domain_policy":                       resourceAciISISDomainPolicy(),
+			"aci_radius_provider":                          resourceAciRADIUSProvider(),
+			"aci_interface_blacklist":                      resourceAciOutofServiceFabricPath(),
+			"aci_route_control_context":                    resourceAciRouteControlContext(),
+			"aci_match_rule":                               resourceAciMatchRule(),
+			"aci_match_route_destination_rule":             resourceAciMatchRouteDestinationRule(),
+			"aci_annotation":                               resourceAciAnnotation(),
+			"aci_tag":                                      resourceAciTag(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -356,6 +417,63 @@ func Provider() *schema.Provider {
 			"aci_l3out_vpc_member":                         dataSourceAciL3outVPCMember(),
 			"aci_endpoint_security_group_selector":         dataSourceAciEndpointSecurityGroupSelector(),
 			"aci_endpoint_security_group":                  dataSourceAciEndpointSecurityGroup(),
+			"aci_endpoint_security_group_epg_selector":     dataSourceAciEndpointSecurityGroupEPgSelector(),
+			"aci_endpoint_security_group_tag_selector":     dataSourceAciEndpointSecurityGroupTagSelector(),
+			"aci_bfd_interface_policy":                     dataSourceAciBFDInterfacePolicy(),
+			"aci_l3_interface_policy":                      dataSourceAciL3InterfacePolicy(),
+			"aci_fabric_node":                              dataSourceAciFabricNodeOrg(),
+			"aci_access_switch_policy_group":               dataSourceAciAccessSwitchPolicyGroup(),
+			"aci_managed_node_connectivity_group":          dataSourceAciManagedNodeConnectivityGroup(),
+			"aci_vpc_domain_policy":                        dataSourceAciVPCDomainPolicy(),
+			"aci_spine_switch_policy_group":                dataSourceAciSpineSwitchPolicyGroup(),
+			"aci_recurring_window":                         dataSourceAciRecurringWindow(),
+			"aci_file_remote_path":                         dataSourceAciRemotePathofaFile(),
+			"aci_vrf_snmp_context_community":               dataSourceAciSNMPCommunity(),
+			"aci_mgmt_zone":                                dataSourceAciManagedNodesZone(),
+			"aci_vrf_snmp_context":                         dataSourceAciSNMPContextProfile(),
+			"aci_endpoint_ip_aging_profile":                dataSourceAciIPAgingPolicy(),
+			"aci_mgmt_preference":                          dataSourceAciMgmtconnectivitypreference(),
+			"aci_endpoint_controls":                        dataSourceAciEndpointControlPolicy(),
+			"aci_fabric_node_control":                      dataSourceAciFabricNodeControl(),
+			"aci_coop_policy":                              dataSourceAciCOOPGroupPolicy(),
+			"aci_endpoint_loop_protection":                 dataSourceAciEPLoopProtectionPolicy(),
+			"aci_port_tracking":                            dataSourceAciPortTracking(),
+			"aci_user_security_domain":                     dataSourceAciUserDomain(),
+			"aci_encryption_key":                           dataSourceAciAESEncryptionPassphraseandKeysforConfigExportImport(),
+			"aci_mcp_instance_policy":                      dataSourceAciMiscablingProtocolInstancePolicy(),
+			"aci_qos_instance_policy":                      dataSourceAciQOSInstancePolicy(),
+			"aci_user_security_domain_role":                dataSourceAciUserRole(),
+			"aci_console_authentication":                   dataSourceAciConsoleAuthenticationMethod(),
+			"aci_error_disable_recovery":                   dataSourceAciErrorDisabledRecoveryPolicy(),
+			"aci_fabric_wide_settings":                     dataSourceAciFabricWideSettingsPolicy(),
+			"aci_authentication_properties":                dataSourceAciAAAAuthentication(),
+			"aci_duo_provider_group":                       dataSourceAciDuoProviderGroup(),
+			"aci_ldap_provider":                            dataSourceAciLDAPProvider(),
+			"aci_saml_certificate":                         dataSourceAciKeypairforSAMLEncryption(),
+			"aci_radius_provider_group":                    dataSourceAciRADIUSProviderGroup(),
+			"aci_ldap_group_map_rule":                      dataSourceAciLDAPGroupMapRule(),
+			"aci_tacacs_accounting_destination":            dataSourceAciTACACSDestination(),
+			"aci_ldap_group_map_rule_to_group_map":         dataSourceAciLDAPGroupMapruleref(),
+			"aci_tacacs_accounting":                        dataSourceAciTACACSMonitoringDestinationGroup(),
+			"aci_rsa_provider":                             dataSourceAciRSAProvider(),
+			"aci_saml_provider":                            dataSourceAciSAMLProvider(),
+			"aci_login_domain":                             dataSourceAciLoginDomain(),
+			"aci_default_authentication":                   dataSourceAciDefaultAuthenticationMethodforallLogins(),
+			"aci_tacacs_provider_group":                    dataSourceAciTACACSPlusProviderGroup(),
+			"aci_tacacs_provider":                          dataSourceAciTACACSProvider(),
+			"aci_saml_provider_group":                      dataSourceAciSAMLProviderGroup(),
+			"aci_ldap_group_map":                           dataSourceAciLDAPGroupMap(),
+			"aci_global_security":                          dataSourceAciUserManagement(),
+			"aci_login_domain_provider":                    dataSourceAciProviderGroupMember(),
+			"aci_tacacs_source":                            dataSourceAciTACACSSource(),
+			"aci_isis_domain_policy":                       dataSourceAciISISDomainPolicy(),
+			"aci_radius_provider":                          dataSourceAciRADIUSProvider(),
+			"aci_interface_blacklist":                      dataSourceAciOutofServiceFabricPath(),
+			"aci_route_control_context":                    dataSourceAciRouteControlContext(),
+			"aci_match_rule":                               dataSourceAciMatchRule(),
+			"aci_match_route_destination_rule":             dataSourceAciMatchRouteDestinationRule(),
+			"aci_annotation":                               dataSourceAciAnnotation(),
+			"aci_tag":                                      dataSourceAciTag(),
 		},
 
 		ConfigureFunc: configureClient,
@@ -364,14 +482,15 @@ func Provider() *schema.Provider {
 
 func configureClient(d *schema.ResourceData) (interface{}, error) {
 	config := Config{
-		Username:   d.Get("username").(string),
-		Password:   d.Get("password").(string),
-		URL:        d.Get("url").(string),
-		IsInsecure: d.Get("insecure").(bool),
-		PrivateKey: d.Get("private_key").(string),
-		Certname:   d.Get("cert_name").(string),
-		ProxyUrl:   d.Get("proxy_url").(string),
-		ProxyCreds: d.Get("proxy_creds").(string),
+		Username:           d.Get("username").(string),
+		Password:           d.Get("password").(string),
+		URL:                d.Get("url").(string),
+		IsInsecure:         d.Get("insecure").(bool),
+		PrivateKey:         d.Get("private_key").(string),
+		Certname:           d.Get("cert_name").(string),
+		ProxyUrl:           d.Get("proxy_url").(string),
+		ProxyCreds:         d.Get("proxy_creds").(string),
+		ValidateRelationDn: d.Get("validate_relation_dn").(bool),
 	}
 
 	if err := config.Valid(); err != nil {
@@ -406,22 +525,23 @@ func (c Config) Valid() error {
 func (c Config) getClient() interface{} {
 	if c.Password != "" {
 
-		return client.GetClient(c.URL, c.Username, client.Password(c.Password), client.Insecure(c.IsInsecure), client.ProxyUrl(c.ProxyUrl), client.ProxyCreds(c.ProxyCreds))
+		return client.GetClient(c.URL, c.Username, client.Password(c.Password), client.Insecure(c.IsInsecure), client.ProxyUrl(c.ProxyUrl), client.ProxyCreds(c.ProxyCreds), client.ValidateRelationDn(c.ValidateRelationDn))
 
 	} else {
 
-		return client.GetClient(c.URL, c.Username, client.PrivateKey(c.PrivateKey), client.AdminCert(c.Certname), client.Insecure(c.IsInsecure), client.ProxyUrl(c.ProxyUrl), client.ProxyCreds(c.ProxyCreds))
+		return client.GetClient(c.URL, c.Username, client.PrivateKey(c.PrivateKey), client.AdminCert(c.Certname), client.Insecure(c.IsInsecure), client.ProxyUrl(c.ProxyUrl), client.ProxyCreds(c.ProxyCreds), client.ValidateRelationDn(c.ValidateRelationDn))
 	}
 }
 
 // Config
 type Config struct {
-	Username   string
-	Password   string
-	URL        string
-	IsInsecure bool
-	PrivateKey string
-	Certname   string
-	ProxyUrl   string
-	ProxyCreds string
+	Username           string
+	Password           string
+	URL                string
+	IsInsecure         bool
+	PrivateKey         string
+	Certname           string
+	ProxyUrl           string
+	ProxyCreds         string
+	ValidateRelationDn bool
 }

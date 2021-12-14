@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/ciscoecosystem/aci-go-client/client"
@@ -68,6 +69,11 @@ func GetMOName(dn string) string {
 }
 
 func checkTDn(client *client.Client, dns []string) error {
+
+	if !client.ValidateRelationDn {
+		return nil
+	}
+	log.Printf("relation Dns being validated: %v", dns)
 	flag := false
 	var errMessage string
 
@@ -217,7 +223,7 @@ func StripQuotes(word string) string {
 	return word
 }
 
-func checkAtleasOne() schema.SchemaValidateFunc {
+func checkAtleastOne() schema.SchemaValidateFunc {
 	return func(i interface{}, k string) (s []string, es []error) {
 		v, ok := i.(string)
 		if !ok {
@@ -282,5 +288,28 @@ func checkWhetherListContainOnlyParameter(arr []string, val string) error {
 	if vis && len(arr) > 1 {
 		return fmt.Errorf("%s should't be used along with other values", val)
 	}
-	return nil
+	return nil 
+}
+
+func validateIntRange(a, b int) schema.SchemaValidateFunc {
+	return func(i interface{}, k string) (s []string, es []error) {
+		v, ok := i.(string)
+		if !ok {
+			es = append(es, fmt.Errorf("expected type of %s to be string", k))
+			return
+		}
+
+		vint, err := strconv.Atoi(v)
+
+		if err != nil {
+			es = append(es, err)
+			return
+		}
+
+		if vint < a || vint > b {
+			es = append(es, fmt.Errorf("property is out of range"))
+			return
+		}
+		return
+	}
 }
