@@ -577,7 +577,11 @@ func setFilterEntryAttributesFromContract(vzentry *models.FilterEntry, d *schema
 	eMap["s_from_port"] = vzEntryMap["sFromPort"]
 	eMap["s_to_port"] = vzEntryMap["sToPort"]
 	eMap["stateful"] = vzEntryMap["stateful"]
-	eMap["tcp_rules"] = vzEntryMap["tcpRules"]
+	if vzEntryMap["tcpRules"] == "" {
+		eMap["tcp_rules"] = "unspecified"
+	} else {
+		eMap["tcp_rules"] = vzEntryMap["tcpRules"]
+	}
 	if v, found := constantPortMapping[vzEntryMap["dFromPort"]]; found {
 		eMap["d_from_port"] = v
 	} else {
