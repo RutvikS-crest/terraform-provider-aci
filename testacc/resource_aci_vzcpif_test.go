@@ -145,7 +145,7 @@ func TestAccAciImportedContract_MultipleCreateDelete(t *testing.T) {
 		CheckDestroy: testAccCheckAciImportedContractDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: CreateAccImportedContractConfig(rName),
+				Config: CreateAccImportedContractsConfig(rName),
 			},
 		},
 	})

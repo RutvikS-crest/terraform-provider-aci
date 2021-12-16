@@ -34,6 +34,7 @@ func TestAccAciImportedContractDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "tenant_dn", resourceName, "tenant_dn"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
 				),
 			},
