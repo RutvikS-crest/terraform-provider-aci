@@ -77,29 +77,29 @@ func TestAccAciL3Outside_Basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: CreateAccAnyConfigWithAnotherName(rName, rOther),
+				Config: CreateAccl3outsideConfigWithAnotherName(rName, rOther),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckl3OutsideExists(resourceName, &l3outside_default),
 					testAccCheckAciL3OutsideIdNotEqual(&l3outside_default, &l3outside_updated),
 				),
 			},
 			{
-				Config: CreateAccAnyConfigWithAnotherTenantDn(prOther, rName),
+				Config: CreateAccl3outsideConfigWithAnotherTenantDn(prOther, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckl3OutsideExists(resourceName, &l3outside_default),
 					testAccCheckAciL3OutsideIdNotEqual(&l3outside_default, &l3outside_updated),
 				),
 			},
 			{
-				Config:      CreateAccAnyConfigUpdateWithoutTenantdn(rName),
+				Config:      CreateAccl3outsideConfigUpdateWithoutTenantdn(rName),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config:      CreateAccAnyConfigUpdateWithoutName(rName),
+				Config:      CreateAccl3outsideConfigUpdateWithoutName(rName),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config:      CreateAccAnyConfigUpdateWithInvalidName(rName, longrName),
+				Config:      CreateAccl3outsideConfigUpdateWithInvalidName(rName, longrName),
 				ExpectError: regexp.MustCompile(fmt.Sprintf("property name of out-%s failed validation for value '%s'", longrName, longrName)),
 			},
 			{
@@ -325,7 +325,7 @@ func TestAccAciL3Outside_NegativeCases(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Invalid Configuration Unenforced Route Control is not supported for Export direction.`),
 			},
 			{
-				Config:      CreateAccAnyConfigWithInvalidTenantdn(rName),
+				Config:      CreateAccl3outsideConfigWithInvalidTenantdn(rName),
 				ExpectError: regexp.MustCompile(`unknown property value (.)+, name dn, class l3extOut (.)+`),
 			},
 			{
@@ -431,7 +431,7 @@ func TestAccAciL3Outside_reltionalParameters(t *testing.T) {
 	})
 }
 
-func TestAccL3Outside_MultipleCreateDelete(t *testing.T) {
+func TestAccAciL3Outside_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -538,7 +538,7 @@ func CreateAccL3OutsideWithoutTenantDn(rName string) string {
 	return resource
 }
 
-func CreateAccAnyConfigUpdateWithoutTenantdn(rName string) string {
+func CreateAccl3outsideConfigUpdateWithoutTenantdn(rName string) string {
 	fmt.Println("=== STEP  Basic: testing L3outside update without giving Tenant Dn")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
@@ -551,7 +551,7 @@ func CreateAccAnyConfigUpdateWithoutTenantdn(rName string) string {
 	return resource
 }
 
-func CreateAccAnyConfigUpdateWithoutName(rName string) string {
+func CreateAccl3outsideConfigUpdateWithoutName(rName string) string {
 	fmt.Println("=== STEP  Basic: testing L3outside update without giving Name")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
@@ -564,7 +564,7 @@ func CreateAccAnyConfigUpdateWithoutName(rName string) string {
 	return resource
 }
 
-func CreateAccAnyConfigUpdateWithInvalidName(parentName, rName string) string {
+func CreateAccl3outsideConfigUpdateWithInvalidName(parentName, rName string) string {
 	fmt.Println("=== STEP  Basic: testing L3outside update without giving Name")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
@@ -578,7 +578,7 @@ func CreateAccAnyConfigUpdateWithInvalidName(parentName, rName string) string {
 	return resource
 }
 
-func CreateAccAnyConfigWithAnotherName(parentName, rName string) string {
+func CreateAccl3outsideConfigWithAnotherName(parentName, rName string) string {
 	fmt.Printf("=== STEP  Basic: testing l3outside creation with different l3outside name %s \n", rName)
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
@@ -592,7 +592,7 @@ func CreateAccAnyConfigWithAnotherName(parentName, rName string) string {
 	return resource
 }
 
-func CreateAccAnyConfigWithAnotherTenantDn(parentName, rName string) string {
+func CreateAccl3outsideConfigWithAnotherTenantDn(parentName, rName string) string {
 	fmt.Printf("=== STEP  Basic: testing l3outside creation with different parent %s \n", parentName)
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
@@ -606,7 +606,7 @@ func CreateAccAnyConfigWithAnotherTenantDn(parentName, rName string) string {
 	return resource
 }
 
-func CreateAccAnyConfigWithInvalidTenantdn(rName string) string {
+func CreateAccl3outsideConfigWithInvalidTenantdn(rName string) string {
 	fmt.Printf("=== STEP  Basic: testing l3outside creation with invalid tenant dn \n")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
