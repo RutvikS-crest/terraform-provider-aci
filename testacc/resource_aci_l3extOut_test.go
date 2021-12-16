@@ -84,6 +84,9 @@ func TestAccAciL3Outside_Basic(t *testing.T) {
 				),
 			},
 			{
+				Config: CreateAccFilterConfig(rName), 
+			},
+			{
 				Config: CreateAccl3outsideConfigWithAnotherTenantDn(prOther, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckl3OutsideExists(resourceName, &l3outside_default),
