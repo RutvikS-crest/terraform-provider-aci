@@ -14,6 +14,9 @@ import (
 
 const tdn1 = "topology/pod-1/paths-101/pathep-[eth1/12]"
 const tdn2 = "topology/pod-1/paths-101/pathep-[eth1/6]"
+const multdn1 = "topology/pod-1/paths-101/pathep-[eth1/21]"
+const multdn2 = "topology/pod-1/paths-101/pathep-[eth1/30]"
+const multdn3 = "topology/pod-1/paths-101/pathep-[eth1/1]"
 
 func TestAccAciStaticPath_Basic(t *testing.T) {
 	var static_path_default models.StaticPath
@@ -134,7 +137,7 @@ func TestAccAciStaticPath_Update(t *testing.T) {
 func TestAccAciStaticPath_NegativCases(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 	longDescAnnotation := acctest.RandString(129)
-	// randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
+	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(5)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -153,18 +156,90 @@ func TestAccAciStaticPath_NegativCases(t *testing.T) {
 				ExpectError: regexp.MustCompile(`unknown property value (.)+, name dn, class fvRsPathAtt (.)+,`),
 			},
 			{
-				Config:      CreateAccStaticPathUpdatedNegative(rName, "annotation",longDescAnnotation),
+				Config:      CreateAccStaticPathUpdatedNegative(rName, "annotation", longDescAnnotation),
 				ExpectError: regexp.MustCompile(`property annotation of (.)+ failed validation for value '(.)+'`),
 			},
 			{
-				Config:      CreateAccStaticPathUpdatedNegative(rName, "description",longDescAnnotation),
+				Config:      CreateAccStaticPathUpdatedNegative(rName, "description", longDescAnnotation),
 				ExpectError: regexp.MustCompile(`property descr of (.)+ failed validation for value '(.)+'`),
+			},
+			{
+				Config:      CreateAccStaticPathUpdatedNegativeEncap(rName, randomValue),
+				ExpectError: regexp.MustCompile(`unknown property value (.)+, name encap, class fvRsPathAtt (.)+`),
+			},
+			{
+				Config:      CreateAccStaticPathUpdatedNegative(rName, "instr_imedcy", randomValue),
+				ExpectError: regexp.MustCompile(`expected instr_imedcy to be one of (.)+, got (.)+`),
+			},
+			{
+				Config:      CreateAccStaticPathUpdatedNegative(rName, "mode", randomValue),
+				ExpectError: regexp.MustCompile(`expected mode to be one of (.)+, got (.)+`),
+			},
+			{
+				Config:      CreateAccStaticPathUpdatedNegative(rName, "primary_encap", randomValue),
+				ExpectError: regexp.MustCompile(`unknown property value (.)+, name primaryEncap, class fvRsPathAtt (.)+`),
+			},
+			{
+				Config:      CreateAccStaticPathUpdatedNegative(rName, randomParameter, randomValue),
+				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
 			{
 				Config: CreateAccStaticPathConfigNegative(rName),
 			},
 		},
 	})
+}
+
+func TestAccAciStaticPath_MultipleCreateDelete(t *testing.T) {
+	rName := makeTestVariable(acctest.RandString(5))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAciSubnetDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccStaticPathsConfig(rName),
+			},
+		},
+	})
+}
+
+func CreateAccStaticPathsConfig(rName string) string {
+	fmt.Println("=== STEP  Basic: testing epg_to_static_path multiple creation")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test"{
+		name = "%s"
+	}
+
+	resource "aci_application_profile" "test"{
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+	}
+
+	resource "aci_application_epg" "test"{
+		application_profile_dn = aci_application_profile.test.id
+		name = "%s"
+	}
+
+	resource "aci_epg_to_static_path" "test1" {
+		application_epg_dn  = aci_application_epg.test.id
+		tdn  = "%s"
+		encap = "vlan-101"
+	}
+
+	resource "aci_epg_to_static_path" "test2" {
+		application_epg_dn  = aci_application_epg.test.id
+		tdn  = "%s"
+		encap = "vlan-102"
+	}
+
+	resource "aci_epg_to_static_path" "test3" {
+		application_epg_dn  = aci_application_epg.test.id
+		tdn  = "%s"
+		encap = "vlan-103"
+	}
+	`, rName, rName, rName, multdn1, multdn2, multdn3)
+	return resource
 }
 
 func CreateAccStaticPathConfigWithEpgAndTdn(rName, tdn string) string {
@@ -278,6 +353,32 @@ func CreateAccStaticPathWithInvalidEpgDn(rName string) string {
 		encap = "vlan-27"
 	}
 	`, rName, tdn1)
+	return resource
+}
+
+func CreateAccStaticPathUpdatedNegativeEncap(rName, encap string) string {
+	fmt.Printf("=== STEP  Negative cases: testing epg_to_static_path creation with encap = %s\n", encap)
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test"{
+		name = "%s"
+	}
+
+	resource "aci_application_profile" "test"{
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+	}
+
+	resource "aci_application_epg" "test"{
+		application_profile_dn = aci_application_profile.test.id
+		name = "%s"
+	}
+
+	resource "aci_epg_to_static_path" "test" {
+		application_epg_dn = aci_application_epg.test.id
+		tdn = "%s"
+		encap = "%s"
+	}
+	`, rName, rName, rName, tdn1, encap)
 	return resource
 }
 
