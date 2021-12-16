@@ -102,7 +102,7 @@ func setStaticPathAttributes(fvRsPathAtt *models.StaticPath, d *schema.ResourceD
 	}
 
 	d.Set("tdn", fvRsPathAttMap["tDn"])
-
+	d.Set("description", fvRsPathAttMap["descr"])
 	d.Set("annotation", fvRsPathAttMap["annotation"])
 	d.Set("encap", fvRsPathAttMap["encap"])
 	d.Set("instr_imedcy", fvRsPathAttMap["instrImedcy"])
