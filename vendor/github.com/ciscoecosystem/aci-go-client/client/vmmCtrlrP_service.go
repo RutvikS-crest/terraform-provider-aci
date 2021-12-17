@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/ciscoecosystem/aci-go-client/container"
 	"github.com/ciscoecosystem/aci-go-client/models"
@@ -12,7 +13,7 @@ import (
 func (sm *ServiceManager) CreateVMMController(name string, vmm_domain string, provider_profile_vendor string, description string, nameAlias string, vmmCtrlrPAttr models.VMMControllerAttributes) (*models.VMMController, error) {
 	rn := fmt.Sprintf(models.RnvmmCtrlrP, name)
 	parentDn := fmt.Sprintf(models.ParentDnvmmCtrlrP, provider_profile_vendor, vmm_domain)
-	vmmCtrlrP := models.NewVMMController(rn, parentDn, description, nameAlias, vmmCtrlrPAttr)
+	vmmCtrlrP := models.NewVMMController(rn, parentDn, nameAlias, vmmCtrlrPAttr)
 	err := sm.Save(vmmCtrlrP)
 	return vmmCtrlrP, err
 }
@@ -35,7 +36,7 @@ func (sm *ServiceManager) DeleteVMMController(name string, vmm_domain string, pr
 func (sm *ServiceManager) UpdateVMMController(name string, vmm_domain string, provider_profile_vendor string, description string, nameAlias string, vmmCtrlrPAttr models.VMMControllerAttributes) (*models.VMMController, error) {
 	rn := fmt.Sprintf(models.RnvmmCtrlrP, name)
 	parentDn := fmt.Sprintf(models.ParentDnvmmCtrlrP, provider_profile_vendor, vmm_domain)
-	vmmCtrlrP := models.NewVMMController(rn, parentDn, description, nameAlias, vmmCtrlrPAttr)
+	vmmCtrlrP := models.NewVMMController(rn, parentDn, nameAlias, vmmCtrlrPAttr)
 	vmmCtrlrP.Status = "modified"
 	err := sm.Save(vmmCtrlrP)
 	return vmmCtrlrP, err
@@ -72,7 +73,7 @@ func (sm *ServiceManager) CreateRelationvmmRsAcc(parentDn, annotation, tDn strin
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%+v", cont)
+	log.Printf("%+v", cont)
 	return nil
 }
 
@@ -118,7 +119,7 @@ func (sm *ServiceManager) CreateRelationvmmRsCtrlrPMonPol(parentDn, annotation, 
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%+v", cont)
+	log.Printf("%+v", cont)
 	return nil
 }
 
@@ -164,7 +165,7 @@ func (sm *ServiceManager) CreateRelationvmmRsMcastAddrNs(parentDn, annotation, t
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%+v", cont)
+	log.Printf("%+v", cont)
 	return nil
 }
 
@@ -210,7 +211,7 @@ func (sm *ServiceManager) CreateRelationvmmRsMgmtEPg(parentDn, annotation, tDn s
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%+v", cont)
+	log.Printf("%+v", cont)
 	return nil
 }
 
@@ -256,7 +257,7 @@ func (sm *ServiceManager) CreateRelationvmmRsToExtDevMgr(parentDn, annotation, t
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%+v", cont)
+	log.Printf("%+v", cont)
 	return nil
 }
 
@@ -332,7 +333,7 @@ func (sm *ServiceManager) CreateRelationvmmRsVmmCtrlrP(parentDn, annotation, epg
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%+v", cont)
+	log.Printf("%+v", cont)
 	return nil
 }
 
@@ -380,7 +381,7 @@ func (sm *ServiceManager) CreateRelationvmmRsVxlanNs(parentDn, annotation, tDn s
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%+v", cont)
+	log.Printf("%+v", cont)
 	return nil
 }
 
@@ -426,7 +427,7 @@ func (sm *ServiceManager) CreateRelationvmmRsVxlanNsDef(parentDn, annotation, tD
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%+v", cont)
+	log.Printf("%+v", cont)
 	return nil
 }
 
