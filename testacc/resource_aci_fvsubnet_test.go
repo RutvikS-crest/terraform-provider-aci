@@ -250,7 +250,7 @@ func TestAccAciSubnet_Update(t *testing.T) {
 	})
 }
 
-func TestAccAiSubnet_NegativeCases(t *testing.T) {
+func TestAccAciSubnet_NegativeCases(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 	ip, _ := acctest.RandIpAddress("10.20.0.0/16")
 	ip = fmt.Sprintf("%s/16", ip)
