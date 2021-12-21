@@ -23,7 +23,11 @@ func TestAccAciEndpointSecurityGroupSelectorDataSource_Basic(t *testing.T) {
 		CheckDestroy: testAccCheckAciEndpointSecurityGroupSelectorDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      CreateEndpointSecurityGroupSelectorDSWithoutRequired(rName, ip),
+				Config:      CreateEndpointSecurityGroupSelectorDSWithoutRequired(rName, ip, "endpoint_security_group_dn"),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+			{
+				Config:      CreateEndpointSecurityGroupSelectorDSWithoutRequired(rName, ip, "matchExpression"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
@@ -181,9 +185,9 @@ func CreateAccEndpointSecurityGroupSelectorDSConfig(rName, ip string) string {
 	return resource
 }
 
-func CreateEndpointSecurityGroupSelectorDSWithoutRequired(rName, ip string) string {
-	fmt.Println("=== STEP  testing endpoint_security_group_selector data source creation with required arguements only")
-	resource := fmt.Sprintf(`
+func CreateEndpointSecurityGroupSelectorDSWithoutRequired(rName, ip, attrName string) string {
+	fmt.Println("=== STEP  Basic: testing endpoint_security_group_selector data source creation without ", attrName)
+	rBlock := `
 	
 	resource "aci_tenant" "test" {
 		name 		= "%s"
@@ -198,15 +202,28 @@ func CreateEndpointSecurityGroupSelectorDSWithoutRequired(rName, ip string) stri
 		name 		= "%s"
 		application_profile_dn = aci_application_profile.test.id
 	}
-	
+
 	resource "aci_endpoint_security_group_selector" "test" {
 		endpoint_security_group_dn  = aci_endpoint_security_group.test.id
 		match_expression  = "ip=='%s'"
 	}
-
+	
+	`
+	switch attrName {
+	case "endpoint_security_group_dn":
+		rBlock += `
 	data "aci_endpoint_security_group_selector" "test" {
-		depends_on = [aci_endpoint_security_group_selector.test]
+	#	endpoint_security_group_dn  = aci_endpoint_security_group_selector.test.endpoint_security_group_dn
+		match_expression  = aci_endpoint_security_group_selector.test.match_expression
 	}
-	`, rName, rName, rName, ip)
-	return resource
+		`
+	case "matchExpression":
+		rBlock += `
+	data "aci_endpoint_security_group_selector" "test" {
+		endpoint_security_group_dn  = aci_endpoint_security_group_selector.test.endpoint_security_group_dn
+	#	match_expression  = aci_endpoint_security_group_selector.test.match_expression
+	}
+		`
+	}
+	return fmt.Sprintf(rBlock, rName, rName, rName, ip)
 }
