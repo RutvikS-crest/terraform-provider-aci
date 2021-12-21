@@ -18,12 +18,11 @@ func dataSourceAciEndpointSecurityGroupSelector() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"annotation": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-			},
 			"match_expression": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+			"annotation": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,

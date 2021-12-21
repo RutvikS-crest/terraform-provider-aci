@@ -31,7 +31,7 @@ data "aci_endpoint_security_group_selector" "example" {
 ## Argument Reference ##
 
 * `endpoint_security_group_dn` - (Required) Distinguished name of parent Endpoint Security Group object.
-* `match_expression` - (Optional) Expression used to define matching tags.
+* `match_expression` - (Required) Expression used to define matching tags.
 
 ## Attribute Reference ##
 
