@@ -1,4 +1,4 @@
-package acctest
+package testacc
 
 import (
 	"fmt"
@@ -43,6 +43,7 @@ func TestAccAciLogicalNodeProfile_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 					resource.TestCheckResourceAttrSet(resourceName, "tag"),
+					resource.TestCheckResourceAttrSet(resourceName, "config_issues"),
 					resource.TestCheckResourceAttr(resourceName, "target_dscp", "unspecified"),
 					resource.TestCheckResourceAttr(resourceName, "l3_outside_dn", fmt.Sprintf("uni/tn-%s/out-%s", rName, rName)),
 				),
@@ -56,6 +57,7 @@ func TestAccAciLogicalNodeProfile_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "alias_node"),
 					resource.TestCheckResourceAttr(resourceName, "tag", "black"),
+					resource.TestCheckResourceAttrSet(resourceName, "config_issues"),
 					resource.TestCheckResourceAttr(resourceName, "target_dscp", "CS0"),
 					resource.TestCheckResourceAttr(resourceName, "l3_outside_dn", fmt.Sprintf("uni/tn-%s/out-%s", rName, rName)),
 
@@ -70,7 +72,7 @@ func TestAccAciLogicalNodeProfile_Basic(t *testing.T) {
 			{
 				Config: CreateAccLogicalNodeProfileConfigWithAnotherName(rName, rOther),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLogicalNodeProfileExists(resourceName, &LogicalNodeProfile_default),
+					testAccCheckLogicalNodeProfileExists(resourceName, &LogicalNodeProfile_updated),
 					testAccCheckAciLogicalNodeProfileIdNotEqual(&LogicalNodeProfile_default, &LogicalNodeProfile_updated),
 				),
 			},
@@ -78,9 +80,9 @@ func TestAccAciLogicalNodeProfile_Basic(t *testing.T) {
 				Config: CreateAccLogicalNodeProfileConfig(rName),
 			},
 			{
-				Config: CreateAccLogicalNodeProfileConfigWithAnotherTenantDn(prOther, rName),
+				Config: CreateAccLogicalNodeProfileConfigWithAnotherParentDn(prOther, rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckLogicalNodeProfileExists(resourceName, &LogicalNodeProfile_default),
+					testAccCheckLogicalNodeProfileExists(resourceName, &LogicalNodeProfile_updated),
 					testAccCheckAciLogicalNodeProfileIdNotEqual(&LogicalNodeProfile_default, &LogicalNodeProfile_updated),
 				),
 			},
@@ -103,33 +105,6 @@ func TestAccAciLogicalNodeProfile_Basic(t *testing.T) {
 	})
 }
 
-func testAccCheckLogicalNodeProfileExists(name string, LogicalNodeProfile *models.LogicalNodeProfile) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[name]
-
-		if !ok {
-			return fmt.Errorf("LogicalNodeProfile %s not found", name)
-		}
-
-		if rs.Primary.ID == "" {
-			return fmt.Errorf("No LogicalNodeProfile dn was set")
-		}
-
-		client := testAccProvider.Meta().(*client.Client)
-
-		cont, err := client.Get(rs.Primary.ID)
-		if err != nil {
-			return err
-		}
-
-		LogicalNodeProfileFound := models.LogicalNodeProfileFromContainer(cont)
-		if LogicalNodeProfileFound.DistinguishedName != rs.Primary.ID {
-			return fmt.Errorf("LogicalNodeProfile %s not found", rs.Primary.ID)
-		}
-		*LogicalNodeProfile = *LogicalNodeProfileFound
-		return nil
-	}
-}
 func TestAccAciLogicalNodeProfile_NegativeCases(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 	longDescAnnotation := acctest.RandString(129)
@@ -319,6 +294,34 @@ func TestAccAciLogicalNodeProfile_Update(t *testing.T) {
 		},
 	})
 }
+
+func testAccCheckLogicalNodeProfileExists(name string, LogicalNodeProfile *models.LogicalNodeProfile) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[name]
+
+		if !ok {
+			return fmt.Errorf("LogicalNodeProfile %s not found", name)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No LogicalNodeProfile dn was set")
+		}
+
+		client := testAccProvider.Meta().(*client.Client)
+
+		cont, err := client.Get(rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+
+		LogicalNodeProfileFound := models.LogicalNodeProfileFromContainer(cont)
+		if LogicalNodeProfileFound.DistinguishedName != rs.Primary.ID {
+			return fmt.Errorf("LogicalNodeProfile %s not found", rs.Primary.ID)
+		}
+		*LogicalNodeProfile = *LogicalNodeProfileFound
+		return nil
+	}
+}
 func CreateAccLogicalNodeProfileConfigMultiple(rName string) string {
 	fmt.Println("=== STEP  creating multiple LogicalNodeProfiles")
 	resource := fmt.Sprintf(`
@@ -418,7 +421,7 @@ func CreateAccLogicalNodeProfileWithoutParentDn(rName string) string {
 }
 
 func CreateAccLogicalNodeProfileConfigUpdateWithoutParentdn(rName string) string {
-	fmt.Println("=== STEP  Basic: testing LogicalNodeProfile update without giving Tenant Dn")
+	fmt.Println("=== STEP  Basic: testing LogicalNodeProfile update without giving Parent Dn")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name        = "%s"
@@ -428,6 +431,10 @@ func CreateAccLogicalNodeProfileConfigUpdateWithoutParentdn(rName string) string
 	  }
 	  resource "aci_logical_interface_profile" "test" {
 		name    = "%s"
+		annotation    = "tag"
+        name_alias    = "alias_node"
+        tag           = "black"
+        target_dscp   = "CS0"
 	  }
 	`, rName, rName, rName)
 	return resource
@@ -445,6 +452,10 @@ func CreateAccLogicalNodeProfileConfigUpdateWithoutName(rName string) string {
 	  }
 	  resource "aci_logical_node_profile" "test" {
         l3_outside_dn = aci_l3_outside.test.id
+		annotation    = "tag"
+        name_alias    = "alias_node"
+        tag           = "black"
+        target_dscp   = "CS0"
 	  }
 	`, rName, rName)
 	return resource
@@ -486,7 +497,7 @@ func CreateAccLogicalNodeProfileConfigWithAnotherName(parentName, rName string) 
 	return resource
 }
 
-func CreateAccLogicalNodeProfileConfigWithAnotherTenantDn(parentName, rName string) string {
+func CreateAccLogicalNodeProfileConfigWithAnotherParentDn(parentName, rName string) string {
 	fmt.Printf("=== STEP  Basic: testing LogicalNodeProfile creation with different parent %s \n", parentName)
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
@@ -505,7 +516,7 @@ func CreateAccLogicalNodeProfileConfigWithAnotherTenantDn(parentName, rName stri
 }
 
 func CreateAccLogicalNodeProfileConfig(rName string) string {
-	fmt.Println("=== STEP testing LogicalNodeProfile creation with required attributes")
+	fmt.Println("=== STEP  testing LogicalNodeProfile creation with required attributes")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name        = "%s"

@@ -1,4 +1,4 @@
-package acctest
+package testacc
 
 import (
 	"fmt"
@@ -21,11 +21,11 @@ func TestAccAciLogicalNodeProfileDataSource_Basic(t *testing.T) {
 		CheckDestroy: testAccCheckAciLogicalNodeProfileDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      CreateAccLogicalNodeProfileWithoutName(rName),
+				Config:      CreateAccLogicalNodeProfileDSWithoutName(rName),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config:      CreateAccLogicalNodeProfileWithoutParentDn(rName),
+				Config:      CreateAccLogicalNodeProfileDSWithoutParentDn(rName),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
@@ -37,6 +37,8 @@ func TestAccAciLogicalNodeProfileDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "tag", resourceName, "tag"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "target_dscp", resourceName, "target_dscp"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "l3_outside_dn", resourceName, "l3_outside_dn"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "config_issues", resourceName, "config_issues"),
 				),
 			},
 			{
@@ -56,6 +58,28 @@ func TestAccAciLogicalNodeProfileDataSource_Basic(t *testing.T) {
 		},
 	})
 }
+
+func CreateAccLogicalNodeProfileDSWithoutName(rName string) string {
+	fmt.Println("=== STEP  Basic: testing LogicalNodeProfile data source creation without giving Name")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name        = "%s"
+	  }
+	  resource "aci_l3_outside" "test" {
+			tenant_dn      = aci_tenant.test.id
+			name 		= "%s"
+	  }
+	  resource "aci_logical_node_profile" "test" {
+        l3_outside_dn = aci_l3_outside.test.id
+		name = "%s"
+	  }
+	  data "aci_logical_node_profile" "test" {
+        l3_outside_dn = aci_l3_outside.test.id
+	  }
+	`, rName, rName,rName)
+	return resource
+}
+
 
 func CreateAccLogicalNodeProfileDataSourceUpdate(rName, attribute, value string) string {
 	fmt.Printf("=== STEP  testing any data source update for attribute: %s = %s \n", attribute, value)
