@@ -328,14 +328,6 @@ func TestAccAciContract_Update(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccContractUpdatedAttrFilterEntry(rName, "arp_opc", "reply"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciContractExists(resourceName, &contract_updated),
-					resource.TestCheckResourceAttr(resourceName, "filter.0.filter_entry.0.arp_opc", "reply"),
-					testAccCheckAciContractdEqual(&contract_default, &contract_updated),
-				),
-			},
-			{
 				Config: CreateAccContractUpdatedAttrFilterEntry(rName, "arp_opc", "unspecified"),
 			},
 			{
@@ -587,6 +579,14 @@ func TestAccAciContract_Update(t *testing.T) {
 				),
 			},
 			{
+				Config: CreateAccContractUpdatedAttrFilterEntry(rName, "prot", "udp"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciContractExists(resourceName, &contract_updated),
+					resource.TestCheckResourceAttr(resourceName, "filter.0.filter_entry.0.prot", "udp"),
+					testAccCheckAciContractdEqual(&contract_default, &contract_updated),
+				),
+			},
+			{
 				Config: CreateAccContractUpdatedAttrFilterEntry(rName, "prot", "tcp"),
 			},
 			{
@@ -625,7 +625,6 @@ func TestAccAciContract_Update(t *testing.T) {
 				Config: CreateAccContractUpdatedAttrFilterEntryForPortAttr(rName, "ftpData"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciContractExists(resourceName, &contract_updated),
-					resource.TestCheckResourceAttr(resourceName, "filter.0.filter_entry.0.prot", "udp"),
 					resource.TestCheckResourceAttr(resourceName, "filter.0.filter_entry.0.d_from_port", "20"),
 					resource.TestCheckResourceAttr(resourceName, "filter.0.filter_entry.0.d_to_port", "20"),
 					resource.TestCheckResourceAttr(resourceName, "filter.0.filter_entry.0.s_from_port", "20"),
@@ -938,7 +937,7 @@ func CreateAccContractFilterWithInvalidName(rName, longrName string) string {
 }
 
 func CreateAccContractUpdatedFilterAttr(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing contract's filter with %s = %s\n", attribute, value)
+	fmt.Printf("=== STEP  testing contract's filter updation with %s = %s\n", attribute, value)
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test"{
 		name = "%s"
@@ -991,7 +990,7 @@ func CreateAccContractUpdatedAttrFilterEntryForPortAttr(rName, value string) str
 			filter_name = "%s"
 			filter_entry {
 				filter_entry_name = "%s"
-				prot = "udp"
+				prot = "tcp"
 				d_from_port = "%s"
 				d_to_port = "%s"
 				s_from_port = "%s"
@@ -1005,7 +1004,7 @@ func CreateAccContractUpdatedAttrFilterEntryForPortAttr(rName, value string) str
 }
 
 func CreateAccContractUpdatedAttrFilterEntry(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing contract by updating filter_entry attribute with %s = %s\n", attribute, value)
+	fmt.Printf("=== STEP  testing contract by updating filter_entry's attribute with %s = %s\n", attribute, value)
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test"{
 		name = "%s"
@@ -1028,7 +1027,7 @@ func CreateAccContractUpdatedAttrFilterEntry(rName, attribute, value string) str
 }
 
 func CreateAccContractUpdatedAttr(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing contract with %s = %s\n", attribute, value)
+	fmt.Printf("=== STEP  testing contract updation with %s = %s\n", attribute, value)
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test"{
 		name = "%s"
@@ -1103,7 +1102,7 @@ func CreateAccContractRemovingRequiredField() string {
 	fmt.Println("=== STEP  Basic: testing contract updation without required fields")
 	resource := fmt.Sprintln(`
 	resource "aci_contract" "test" {
-		annotation = "test_annotation"
+		annotation = "tag"
 		description = "test_description"
 		name_alias = "test_alias"
 		prio = "level1"
