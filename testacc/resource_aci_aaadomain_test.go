@@ -205,7 +205,7 @@ func CreateAAADomainWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccAAADomainConfigMultiple(rName string) string {
-	fmt.Println("=== STEP  testing aaa_domain creation with required arguements only")
+	fmt.Println("=== STEP  testing multiple aaa_domain creation with required arguements only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_aaa_domain" "test1" {
