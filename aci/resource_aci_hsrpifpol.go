@@ -123,7 +123,6 @@ func resourceAciHSRPInterfacePolicyImport(d *schema.ResourceData, m interface{})
 	if err != nil {
 		return nil, err
 	}
-	fmt.Sprintf("%s", hsrpIfPol.Name)
 	d.Set("tenant_dn", GetParentDn(dn, fmt.Sprintf("/hsrpIfPol-%s", hsrpIfPol.Name)))
 	log.Printf("[DEBUG] %s: Import finished successfully", d.Id())
 
