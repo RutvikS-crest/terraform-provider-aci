@@ -109,6 +109,20 @@ func TestAccAciAAADomain_Negative(t *testing.T) {
 	})
 }
 
+func TestAccAciAAADomain_MultipleCreateDelete(t *testing.T) {
+	rName := makeTestVariable(acctest.RandString(5))
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAciAAADomainDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccAAADomainConfigMultiple(rName),
+			},
+		},
+	})
+}
+
 func testAccCheckAciAAADomainExists(name string, aaa_domain *models.SecurityDomain) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
@@ -188,6 +202,25 @@ func CreateAAADomainWithoutRequired(rName, attrName string) string {
 		`
 	}
 	return fmt.Sprintf(rBlock, rName)
+}
+
+func CreateAccAAADomainConfigMultiple(rName string) string {
+	fmt.Println("=== STEP  testing aaa_domain creation with required arguements only")
+	resource := fmt.Sprintf(`
+	
+	resource "aci_aaa_domain" "test1" {
+		name  = "%s"
+	}
+
+	resource "aci_aaa_domain" "test2" {
+		name  = "%s"
+	}
+
+	resource "aci_aaa_domain" "test3" {
+		name  = "%s"
+	}
+	`, rName+"1", rName+"2", rName+"3")
+	return resource
 }
 
 func CreateAccAAADomainConfig(rName string) string {

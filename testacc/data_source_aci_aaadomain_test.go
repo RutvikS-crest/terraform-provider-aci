@@ -22,7 +22,7 @@ func TestAccAciAAADomainDataSource_Basic(t *testing.T) {
 		Steps: []resource.TestStep{
 
 			{
-				Config:      CreateAAADomainWithoutRequired(rName, "name"),
+				Config:      CreateAAADomainDSWithoutRequired(rName, "name"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
@@ -53,7 +53,7 @@ func TestAccAciAAADomainDataSource_Basic(t *testing.T) {
 }
 
 func CreateAAADomainDSWithoutRequired(rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing aaa_domain data source creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing aaa_domain data source without ", attrName)
 	rBlock := `
 	resource "aci_aaa_domain" "test" {
 	
@@ -64,7 +64,7 @@ func CreateAAADomainDSWithoutRequired(rName, attrName string) string {
 	switch attrName {
 	case "name":
 		rBlock += `
-	resource "aci_aaa_domain" "test" {
+	data "aci_aaa_domain" "test" {
 	
 	#	name  = "%s"
 		description = "created while acceptance testing"
@@ -75,7 +75,7 @@ func CreateAAADomainDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccAAADomainDSConfigWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing aaa_domain data source creation with invalid name")
+	fmt.Println("=== STEP  testing aaa_domain data source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_aaa_domain" "test" {
@@ -90,7 +90,7 @@ func CreateAccAAADomainDSConfigWithInvalidName(rName string) string {
 }
 
 func CreateAccAAADomainDSConfigWithUpdatedResource(rName, key, value string) string {
-	fmt.Println("=== STEP  testing aaa_domain data source creation with updated resource")
+	fmt.Println("=== STEP  testing aaa_domain data source with updated resource")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_aaa_domain" "test" {
@@ -106,7 +106,7 @@ func CreateAccAAADomainDSConfigWithUpdatedResource(rName, key, value string) str
 }
 
 func CreateAccAAADomainDSConfigWithRandomAttr(rName, key, value string) string {
-	fmt.Println("=== STEP  testing aaa_domain data source creation with random attribute")
+	fmt.Println("=== STEP  testing aaa_domain data source with random attribute")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_aaa_domain" "test" {
@@ -122,7 +122,7 @@ func CreateAccAAADomainDSConfigWithRandomAttr(rName, key, value string) string {
 }
 
 func CreateAccAAADomainDSConfig(rName string) string {
-	fmt.Println("=== STEP  testing aaa_domain data source creation with required arguements only")
+	fmt.Println("=== STEP  testing aaa_domain data source with required arguements only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_aaa_domain" "test" {
