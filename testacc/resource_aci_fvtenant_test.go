@@ -3,15 +3,32 @@ package testacc
 import (
 	"fmt"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/ciscoecosystem/aci-go-client/client"
 	"github.com/ciscoecosystem/aci-go-client/models"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
+
+func aciTenantSweeper(_ string) error {
+	aciClient := sharedAciClient()
+	cont, _ := aciClient.GetViaURL("/api/node/class/fvTenant.json")
+	instances := models.TenantListFromContainer(cont)
+	for _, instance := range instances {
+		dn := instance.DistinguishedName
+		if strings.HasPrefix(GetMOName(dn), "acctest") {
+			fmt.Printf("dn: %v\n", dn)
+			err := aciClient.DeleteByDn(dn, "fvTenant")
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
 
 func TestAccAciTenant_Basic(t *testing.T) {
 	var tenant_default models.Tenant
@@ -21,9 +38,9 @@ func TestAccAciTenant_Basic(t *testing.T) {
 	rOther := makeTestVariable(acctest.RandString(5))
 	longrName := acctest.RandString(65)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciTenantDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciTenantDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      CreateAccTenantWithoutName(),
@@ -88,9 +105,9 @@ func TestAccAciTenant_NegativeCases(t *testing.T) {
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(5)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciTenantDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciTenantDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccTenantConfig(rName),
@@ -127,9 +144,9 @@ func TestAccAciTenant_reltionalParameters(t *testing.T) {
 	rsRelName1 := acctest.RandString(5)
 	rsRelName2 := acctest.RandString(5)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciTenantDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciTenantDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccTenantConfig(rName),
@@ -172,9 +189,9 @@ func TestAccAciTenant_reltionalParameters(t *testing.T) {
 func TestAccAciTenant_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciTenantDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciTenantDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccTenantsConfig(rName),

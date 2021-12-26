@@ -378,10 +378,10 @@ func configureClient(d *schema.ResourceData) (interface{}, error) {
 		return nil, err
 	}
 
-	return config.getClient(), nil
+	return config.GetClient(), nil
 }
 
-func (c Config) Valid() error {
+func (c *Config) Valid() error {
 
 	if c.Username == "" {
 		return fmt.Errorf("Username must be provided for the ACI provider")
@@ -403,13 +403,12 @@ func (c Config) Valid() error {
 	return nil
 }
 
-func (c Config) getClient() interface{} {
+func (c *Config) GetClient() interface{} {
 	if c.Password != "" {
 
 		return client.GetClient(c.URL, c.Username, client.Password(c.Password), client.Insecure(c.IsInsecure), client.ProxyUrl(c.ProxyUrl), client.ProxyCreds(c.ProxyCreds))
 
 	} else {
-
 		return client.GetClient(c.URL, c.Username, client.PrivateKey(c.PrivateKey), client.AdminCert(c.Certname), client.Insecure(c.IsInsecure), client.ProxyUrl(c.ProxyUrl), client.ProxyCreds(c.ProxyCreds))
 	}
 }
