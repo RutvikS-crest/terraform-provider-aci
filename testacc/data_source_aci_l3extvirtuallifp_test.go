@@ -121,7 +121,7 @@ func CreateAccL3outFloatingSVIConfigDataSource(fvTenantName, l3extOutName, l3ext
 }
 
 func CreateAccL3outFloatingSVIConfigDataSourceWithoutParentDn(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, node_dn, encap string) string {
-	fmt.Println("=== STEP  testing l3out_floating_svi creation with required arguements only")
+	fmt.Println("=== STEP  testing l3out_floating_svi creation without logical_interface_profile_dn")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -167,7 +167,7 @@ func CreateAccL3outFloatingSVIConfigDataSourceWithoutParentDn(fvTenantName, l3ex
 }
 
 func CreateAccL3outFloatingSVIConfigDataSourceWithoutNodeDn(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, node_dn, encap string) string {
-	fmt.Println("=== STEP  testing l3out_floating_svi creation with required arguements only")
+	fmt.Println("=== STEP  testing l3out_floating_svi creation without node_dn")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -213,7 +213,7 @@ func CreateAccL3outFloatingSVIConfigDataSourceWithoutNodeDn(fvTenantName, l3extO
 }
 
 func CreateAccL3outFloatingSVIConfigDataSourceWithoutEncap(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, node_dn, encap string) string {
-	fmt.Println("=== STEP  testing l3out_floating_svi creation with required arguements only")
+	fmt.Println("=== STEP  testing l3out_floating_svi creation without encap")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -305,7 +305,7 @@ func CreateAccL3outFloatingSVIDSWithInvalidParentDn(fvTenantName, l3extOutName, 
 }
 
 func CreateAccL3outFloatingSVIDataSourceUpdate(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, node_dn, encap, key, value string) string {
-	fmt.Println("=== STEP  testing l3out_floating_svi creation with required arguements only")
+	fmt.Println("=== STEP  testing l3out_floating_svi updation with required arguements only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {

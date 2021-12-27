@@ -62,8 +62,7 @@ func TestAccAciL3outFloatingSVI_Basic(t *testing.T) {
 				),
 			},
 			{
-				// in this step all optional attribute expect realational attribute are given for the same resource and then compared
-				Config: CreateAccL3outFloatingSVIConfigWithOptionalValues(rName, rName, rName, rName, nodeDn, encap), // configuration to update optional filelds
+				Config: CreateAccL3outFloatingSVIConfigWithOptionalValues(rName, rName, rName, rName, nodeDn, encap),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
@@ -104,7 +103,7 @@ func TestAccAciL3outFloatingSVI_Basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
 					resource.TestCheckResourceAttr(resourceName, "logical_interface_profile_dn", fmt.Sprintf("uni/tn-%s/out-%s/lnodep-%s/lifp-%s", rName, rName, rName, rName)),
-					resource.TestCheckResourceAttr(resourceName, "node_dn", nodeDnUpdated), //check here
+					resource.TestCheckResourceAttr(resourceName, "node_dn", nodeDnUpdated),
 					testAccCheckAciL3outFloatingSVIIdNotEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
 				),
 			},
@@ -629,7 +628,7 @@ func CreateAccL3outFloatingSVIConfig(fvTenantName, l3extOutName, l3extLNodePName
 }
 
 func CreateAccL3outFloatingSVIsConfig(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, nodeDn, encap string) string {
-	fmt.Println("=== STEP  testing l3out_floating_svi creation with required arguements only")
+	fmt.Println("=== STEP  testing Multiple l3out_floating_svi creation with required arguements only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
