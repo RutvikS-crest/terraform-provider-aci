@@ -40,17 +40,6 @@ func TestAccAciBgpRouteControlProfileDS_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccBgpRouteControlProfileDSConfigL3Outside(rName, rName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair(dataSourceName, "parent_dn", resourceName, "parent_dn"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "route_control_profile_type", resourceName, "route_control_profile_type"),
-				),
-			},
-			{
 				Config:      CreateAccBgpRouteControlProfileDSUpdateRandomAttr(rName, rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},

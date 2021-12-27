@@ -124,7 +124,7 @@ func TestAccAciBgpRouteControlProfile_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccBgpRouteControlProfileWithInValidParentDn(rName, rName),
-				ExpectError: regexp.MustCompile(`configured object (.)+ not found (.)+,`),
+				ExpectError: regexp.MustCompile(`unknown property value (.)+, name dn, class rtctrlProfile (.)+`),
 			},
 			{
 				Config:      CreateAccBgpRouteControlProfileUpdatedAttr(rName, rName, "description", acctest.RandString(129)),
@@ -360,20 +360,23 @@ func CreateAccBgpRouteControlProfileConfigUpdatedName(fvTenantName, rName string
 	return resource
 }
 
-func CreateAccBgpRouteControlProfileWithInValidParentDn(fvTenantName, rName string) string {
+func CreateAccBgpRouteControlProfileWithInValidParentDn(ParentName, rName string) string {
 	fmt.Println("=== STEP  Negative Case: Testing bgp_route_control_profile creation with invalid parent Dn")
 	resource := fmt.Sprintf(`
-	
 	resource "aci_tenant" "test" {
 		name 		= "%s"
 	
 	}
+	resource "aci_application_profile" "test" {
+		tenant_dn  = aci_tenant.test.id
+		name       = "%s"
+	}
 	
 	resource "aci_bgp_route_control_profile" "test" {
-		parent_dn  = "${aci_tenant.test.id}invalid"
+		parent_dn  = aci_application_profile.test.id
 		name  = "%s" 
 	}
-	`, fvTenantName, rName)
+	`, ParentName, ParentName, rName)
 	return resource
 }
 
