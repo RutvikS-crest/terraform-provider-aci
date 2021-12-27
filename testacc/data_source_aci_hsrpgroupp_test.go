@@ -52,7 +52,7 @@ func TestAccAciL3outHsrpInterfaceGroupDataSource_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`An argument named(.)+ is not expected here.`),
 			},
 			{
-				Config:      CreateAccL3outHsrpInterfaceGroupDSConfigUpdatedResource(rName, rName, rName, rName, rName, "description", randomValue),
+				Config: CreateAccL3outHsrpInterfaceGroupDSConfigUpdatedResource(rName, rName, rName, rName, rName, "description", randomValue),
 				Check: resource.ComposeTestCheckFunc(
 					resource.ComposeTestCheckFunc(
 						resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
@@ -190,7 +190,7 @@ func CreateAccL3outHsrpInterfaceGroupDSConfigRandomAttr(fvTenantName, l3extOutNa
 }
 
 func CreateAccL3outHsrpInterfaceGroupDSConfig(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName string) string {
-	fmt.Println("=== STEP  testing l3out_hsrp_interface_group Data Source with required arguements")
+	fmt.Println("=== STEP  testing l3out_hsrp_interface_group Data Source with required arguments")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name 		= "%s"
