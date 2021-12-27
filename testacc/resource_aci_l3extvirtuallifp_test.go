@@ -78,6 +78,7 @@ func TestAccAciL3outFloatingSVI_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "mode", "native"),
 					resource.TestCheckResourceAttr(resourceName, "mtu", "577"),
 					resource.TestCheckResourceAttr(resourceName, "target_dscp", "CS0"),
+					resource.TestCheckResourceAttr(resourceName, "relation_l3ext_rs_dyn_path_att.#", "0"),
 				),
 			},
 			{
@@ -137,9 +138,7 @@ func TestAccAciL3outFloatingSVI_Update(t *testing.T) {
 	resourceName := "aci_l3out_floating_svi.test"
 	rName := makeTestVariable(acctest.RandString(5))
 	nodeDn := "topology/pod-1/node-111"
-	// nodeDnUpdated := "topology/pod-1/node-101"
 	encap := "vlan-20"
-	// encapUpdated := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -152,26 +151,178 @@ func TestAccAciL3outFloatingSVI_Update(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "ifInstT", "l3-port"),
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "mode", "untagged"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
-					resource.TestCheckResourceAttr(resourceName, "ifInstT", "l3-port"),
+					resource.TestCheckResourceAttr(resourceName, "mode", "untagged"),
 					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
 				),
 			},
 			{
-				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "ifInstT", "sub-interface"),
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "CS1"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
-					resource.TestCheckResourceAttr(resourceName, "ifInstT", "sub-interface"),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "CS1"),
 					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
 				),
 			},
 			{
-				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "ifInstT", "unspecified"),
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "CS2"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
-					resource.TestCheckResourceAttr(resourceName, "ifInstT", "unspecified"),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "CS2"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "CS3"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "CS3"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "CS4"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "CS4"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "CS5"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "CS5"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "CS6"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "CS6"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "CS7"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "CS7"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "EF"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "EF"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "VA"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "VA"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "AF11"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "AF11"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "AF12"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "AF12"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "AF13"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "AF13"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "AF21"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "AF21"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "AF22"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "AF22"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "AF23"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "AF23"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "AF31"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "AF31"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "AF32"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "AF32"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "AF33"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "AF33"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "AF41"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "AF41"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "AF42"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "AF42"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "target_dscp", "AF43"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "target_dscp", "AF43"),
 					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
 				),
 			},
@@ -185,7 +336,6 @@ func TestAccAciL3outFloatingSVI_Update(t *testing.T) {
 func TestAccAciL3outFloatingSVI_Negative(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 	nodeDn := "topology/pod-1/node-111"
-	// nodeDnUpdated := "topology/pod-1/node-101"
 	encap := "vlan-20"
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := makeTestVariable(acctest.RandString(5))
@@ -226,20 +376,12 @@ func TestAccAciL3outFloatingSVI_Negative(t *testing.T) {
 				Config:      CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "encap_scope", randomValue),
 				ExpectError: regexp.MustCompile(`expected(.)*to be one of(.)*, got(.)*`),
 			},
-			// {
-			// 	Config:      CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "if_inst_t", randomValue),
-			// 	ExpectError: regexp.MustCompile(`Only External SVI (ext-svi) is supported as Interface Instantiation Type for floating SVI`),
-			// },
 			{
 				Config:      CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "ipv6_dad", randomValue),
 				ExpectError: regexp.MustCompile(`expected(.)*to be one of(.)*, got(.)*`),
 			},
 			{
 				Config:      CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "ll_addr", randomValue),
-				ExpectError: regexp.MustCompile(`unknown property value`),
-			},
-			{
-				Config:      CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "mac", randomValue),
 				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
@@ -279,7 +421,7 @@ func TestAccAciL3outFloatingSVI_MultipleCreateDelete(t *testing.T) {
 		CheckDestroy: testAccCheckAciL3outFloatingSVIDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: CreateAccL3outFloatingSVIConfig(rName, rName, rName, rName, node_dn, encap),
+				Config: CreateAccL3outFloatingSVIsConfig(rName, rName, rName, rName, node_dn, encap),
 			},
 		},
 	})

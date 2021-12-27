@@ -105,6 +105,7 @@ func CreateAccL3outFloatingSVIConfigDataSource(fvTenantName, l3extOutName, l3ext
 		logical_interface_profile_dn  = aci_logical_interface_profile.test.id
 		node_dn  = "%s"
 		encap  = "%s"
+		if_inst_t = "ext-svi"
 	}
 
 	data "aci_l3out_floating_svi" "test" {
@@ -151,6 +152,7 @@ func CreateAccL3outFloatingSVIConfigDataSourceWithoutParentDn(fvTenantName, l3ex
 		logical_interface_profile_dn  = aci_logical_interface_profile.test.id
 		node_dn  = "%s"
 		encap  = "%s"
+		if_inst_t = "ext-svi"
 	}
 
 	data "aci_l3out_floating_svi" "test" {
@@ -196,6 +198,7 @@ func CreateAccL3outFloatingSVIConfigDataSourceWithoutNodeDn(fvTenantName, l3extO
 		logical_interface_profile_dn  = aci_logical_interface_profile.test.id
 		node_dn  = "%s"
 		encap  = "%s"
+		if_inst_t = "ext-svi"
 	}
 
 	data "aci_l3out_floating_svi" "test" {
@@ -241,6 +244,7 @@ func CreateAccL3outFloatingSVIConfigDataSourceWithoutEncap(fvTenantName, l3extOu
 		logical_interface_profile_dn  = aci_logical_interface_profile.test.id
 		node_dn  = "%s"
 		encap  = "%s"
+		if_inst_t = "ext-svi"
 	}
 
 	data "aci_l3out_floating_svi" "test" {
@@ -285,12 +289,13 @@ func CreateAccL3outFloatingSVIDSWithInvalidParentDn(fvTenantName, l3extOutName, 
 		logical_interface_profile_dn  = aci_logical_interface_profile.test.id
 		node_dn  = "%s"
 		encap  = "%s"
+		if_inst_t = "ext-svi"
 	}
 
 	data "aci_l3out_floating_svi" "test" {
-		logical_interface_profile_dn  = aci_logical_interface_profile.test.id
-		node_dn  = "${aci_l3out_floating_svi.test.node_dn}_invalid"
-		encap  = "${aci_l3out_floating_svi.test.encap}_invalid"
+		logical_interface_profile_dn  = "${aci_logical_interface_profile.test.id}invalid"
+		node_dn  = aci_l3out_floating_svi.test.node_dn
+		encap  = aci_l3out_floating_svi.test.encap
 		depends_on = [
 			aci_l3out_floating_svi.test
 		]
@@ -331,6 +336,7 @@ func CreateAccL3outFloatingSVIDataSourceUpdate(fvTenantName, l3extOutName, l3ext
 		logical_interface_profile_dn  = aci_logical_interface_profile.test.id
 		node_dn  = "%s"
 		encap  = "%s"
+		if_inst_t = "ext-svi"
 	}
 
 	data "aci_l3out_floating_svi" "test" {
