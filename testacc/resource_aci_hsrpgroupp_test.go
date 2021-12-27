@@ -12,93 +12,94 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-
 func TestAccAciL3outHsrpInterfaceGroup_Basic(t *testing.T) {
-	var l3out_hsrp_interface_group_default models.L3outHsrpInterfaceGroup
-	var l3out_hsrp_interface_group_updated models.L3outHsrpInterfaceGroup
-	resourceName := "aci_l3out_hsrp_interface_group.testacc"
+	var l3out_hsrp_interface_group_default models.HSRPGroupProfile
+	var l3out_hsrp_interface_group_updated models.HSRPGroupProfile
+	resourceName := "aci_l3out_hsrp_interface_group.test"
 	rName := makeTestVariable(acctest.RandString(5))
 	rNameUpdated := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckAciL3outHsrpInterfaceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      CreateL3outHsrpInterfaceGroupWithoutRequired(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName,"logical_interface_profile_dn"),
+				Config:      CreateL3outHsrpInterfaceGroupWithoutRequired(rName, rName, rName, rName, rName, "l3out_hsrp_interface_profile_dn"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config:      CreateL3outHsrpInterfaceGroupWithoutRequired(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "name"),
+				Config:      CreateL3outHsrpInterfaceGroupWithoutRequired(rName, rName, rName, rName, rName, "name"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccL3outHsrpInterfaceGroupConfig(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName),
+				Config: CreateAccL3outHsrpInterfaceGroupConfig(rName, rName, rName, rName, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_default),
-					resource.TestCheckResourceAttr(resourceName, "logical_interface_profile_dn", GetParentDn(l3out_hsrp_interface_group_default.DistinguishedName, fmt.Sprintf("/hsrpGroupP-%s", name))),
-					resource.TestCheckResourceAttr(resourceName, "name",""),
-					resource.TestCheckResourceAttr(resourceName, "annotation","orchestrator:terraform"),
-					resource.TestCheckResourceAttr(resourceName, "description",""),
-					resource.TestCheckResourceAttr(resourceName, "name_alias",""),
-					resource.TestCheckResourceAttr(resourceName, "config_issues.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "config_issues.0", "none"),
+					resource.TestCheckResourceAttr(resourceName, "l3out_hsrp_interface_profile_dn", fmt.Sprintf("uni/tn-%s/out-%s/lnodep-%s/lifp-%s/hsrpIfP", rName, rName, rName, rName)),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
+					resource.TestCheckResourceAttr(resourceName, "config_issues", "none"),
 					resource.TestCheckResourceAttr(resourceName, "group_af", "ipv4"),
 					resource.TestCheckResourceAttr(resourceName, "group_id", "0"),
 					resource.TestCheckResourceAttr(resourceName, "group_name", ""),
-					resource.TestCheckResourceAttr(resourceName, "ip", ""),
+					resource.TestCheckResourceAttr(resourceName, "ip", "10.20.30.40"),
 					resource.TestCheckResourceAttr(resourceName, "ip_obtain_mode", "admin"),
-					resource.TestCheckResourceAttr(resourceName, "mac", ""),
-					
+					resource.TestCheckResourceAttr(resourceName, "mac", "00:00:00:00:00:00"),
 				),
 			},
 			{
-				// in this step all optional attribute expect realational attribute are given for the same resource and then compared
-				Config: CreateAccL3outHsrpInterfaceGroupConfigWithOptionalValues(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName), // configuration to update optional filelds
+				Config: CreateAccL3outHsrpInterfaceGroupConfigWithOptionalValues(rName, rName, rName, rName, rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_default),
+					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_l3out_hsrp_interface_group"),
-					resource.TestCheckResourceAttr(resourceName, "config_issues.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "config_issues.0", "GroupMac-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "group_af", "ipv6"),
-					resource.TestCheckResourceAttr(resourceName, "group_id", "1"),resource.TestCheckResourceAttr(resourceName, "group_id", ""),
-					resource.TestCheckResourceAttr(resourceName, "group_name", ""),
-					resource.TestCheckResourceAttr(resourceName, "ip", ""),
-					resource.TestCheckResourceAttr(resourceName, "ip_obtain_mode", "auto"),
-					resource.TestCheckResourceAttr(resourceName, "mac", ""),
-					
+					resource.TestCheckResourceAttr(resourceName, "config_issues", "GroupMac-Conflicts-Other-Group"),
+					resource.TestCheckResourceAttr(resourceName, "group_af", "ipv4"),
+					resource.TestCheckResourceAttr(resourceName, "group_id", "125"),
+					resource.TestCheckResourceAttr(resourceName, "group_name", "test"),
+					resource.TestCheckResourceAttr(resourceName, "ip", "10.20.30.50"),
+					resource.TestCheckResourceAttr(resourceName, "ip_obtain_mode", "admin"),
+					resource.TestCheckResourceAttr(resourceName, "mac", "02:10:45:00:00:56"),
+					resource.TestCheckResourceAttr(resourceName, "l3out_hsrp_interface_profile_dn", fmt.Sprintf("uni/tn-%s/out-%s/lnodep-%s/lifp-%s/hsrpIfP", rName, rName, rName, rName)),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					testAccCheckAciL3outHsrpInterfaceGroupIdEqual(&l3out_hsrp_interface_group_default, &l3out_hsrp_interface_group_updated),
 				),
-			},  
+			},
 			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
 			{
-				Config:      CreateAccL3outHsrpInterfaceGroupConfigUpdatedName(acctest.RandString(65)),
-				ExpectError: regexp.MustCompile(`property name of (.)* failed validation`),
+				Config:      CreateAccL3outHsrpInterfaceGroupRemovingRequiredField(),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
-			
 			{
-				Config: CreateAccL3outHsrpInterfaceGroupConfigWithRequiredParams(rNameUpdated,rName),
+				Config:      CreateAccL3outHsrpInterfaceGroupConfigWithRequiredParams(rName, acctest.RandString(65)),
+				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
+			},
+
+			{
+				Config: CreateAccL3outHsrpInterfaceGroupConfigWithRequiredParams(rNameUpdated, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "logical_interface_profile_dn", GetParentDn(l3out_hsrp_interface_group_default.DistinguishedName, fmt.Sprintf("/hsrpGroupP-%s", name))),
-					resource.TestCheckResourceAttr(resourceName, "name",rName),
+					resource.TestCheckResourceAttr(resourceName, "l3out_hsrp_interface_profile_dn", fmt.Sprintf("uni/tn-%s/out-%s/lnodep-%s/lifp-%s/hsrpIfP", rNameUpdated, rNameUpdated, rNameUpdated, rNameUpdated)),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					testAccCheckAciL3outHsrpInterfaceGroupIdNotEqual(&l3out_hsrp_interface_group_default, &l3out_hsrp_interface_group_updated),
 				),
 			},
 			{
-				Config: CreateAccL3outHsrpInterfaceGroupConfig(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName),
+				Config: CreateAccL3outHsrpInterfaceGroupConfig(rName, rName, rName, rName, rName),
 			},
 			{
-				Config: CreateAccL3outHsrpInterfaceGroupConfigWithRequiredParams(rName,rNameUpdated),
+				Config: CreateAccL3outHsrpInterfaceGroupConfigWithRequiredParams(rName, rNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "logical_interface_profile_dn", GetParentDn(l3out_hsrp_interface_group_default.DistinguishedName, fmt.Sprintf("/hsrpGroupP-%s", name))),
-					resource.TestCheckResourceAttr(resourceName, "name",rNameUpdated),
+					resource.TestCheckResourceAttr(resourceName, "l3out_hsrp_interface_profile_dn", fmt.Sprintf("uni/tn-%s/out-%s/lnodep-%s/lifp-%s/hsrpIfP", rName, rName, rName, rName)),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdated),
 					testAccCheckAciL3outHsrpInterfaceGroupIdNotEqual(&l3out_hsrp_interface_group_default, &l3out_hsrp_interface_group_updated),
 				),
 			},
@@ -107,636 +108,198 @@ func TestAccAciL3outHsrpInterfaceGroup_Basic(t *testing.T) {
 }
 
 func TestAccAciL3outHsrpInterfaceGroup_Update(t *testing.T) {
-	var l3out_hsrp_interface_group_default models.L3outHsrpInterfaceGroup
-	var l3out_hsrp_interface_group_updated models.L3outHsrpInterfaceGroup
-	resourceName := "aci_l3out_hsrp_interface_group.testacc"
-	rName := makeTestVariable(acctest.RandString(5))
-	
-	fvTenantName := makeTestVariable(acctest.RandString(5))
-	l3extOutName := makeTestVariable(acctest.RandString(5))
-	l3extLNodePName := makeTestVariable(acctest.RandString(5))
-	l3extLIfPName := makeTestVariable(acctest.RandString(5))
+	var l3out_hsrp_interface_group_default models.HSRPGroupProfile
+	var l3out_hsrp_interface_group_updated models.HSRPGroupProfile
+	resourceName := "aci_l3out_hsrp_interface_group.test"
+	rName1 := makeTestVariable(acctest.RandString(5))
+	rName2 := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckAciL3outHsrpInterfaceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: CreateAccL3outHsrpInterfaceGroupConfig(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName),
+				Config: CreateAccL3outHsrpInterfaceGroupConfigWithIPObtainModeLearn(rName1, rName1, rName1, rName1, rName1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_default),
+					resource.TestCheckResourceAttr(resourceName, "ip_obtain_mode", "learn"),
 				),
 			},
-			
 			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupMac-Conflicts-Other-Group"})),
+				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "config_issues", "GroupName-Conflicts-Other-Group"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupMac-Conflicts-Other-Group"),
+					resource.TestCheckResourceAttr(resourceName, "config_issues", "GroupName-Conflicts-Other-Group"),
+					testAccCheckAciL3outHsrpInterfaceGroupIdEqual(&l3out_hsrp_interface_group_default, &l3out_hsrp_interface_group_updated),
 				),
 			},
 			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupMac-Conflicts-Other-Group","GroupName-Conflicts-Other-Group"})),
+				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "config_issues", "GroupVIP-Conflicts-Other-Group"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupMac-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "GroupName-Conflicts-Other-Group"),
+					resource.TestCheckResourceAttr(resourceName, "config_issues", "GroupVIP-Conflicts-Other-Group"),
+					testAccCheckAciL3outHsrpInterfaceGroupIdEqual(&l3out_hsrp_interface_group_default, &l3out_hsrp_interface_group_updated),
 				),
 			},
 			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupName-Conflicts-Other-Group"})),
+				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "config_issues", "Multiple-Version-On-Interface"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupName-Conflicts-Other-Group"),
+					resource.TestCheckResourceAttr(resourceName, "config_issues", "Multiple-Version-On-Interface"),
+					testAccCheckAciL3outHsrpInterfaceGroupIdEqual(&l3out_hsrp_interface_group_default, &l3out_hsrp_interface_group_updated),
 				),
 			},
 			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupMac-Conflicts-Other-Group","GroupName-Conflicts-Other-Group","GroupVIP-Conflicts-Other-Group"})),
+				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "config_issues", "Secondary-vip-conflicts-if-ip"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupMac-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "GroupName-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "GroupVIP-Conflicts-Other-Group"),
+					resource.TestCheckResourceAttr(resourceName, "config_issues", "Secondary-vip-conflicts-if-ip"),
+					testAccCheckAciL3outHsrpInterfaceGroupIdEqual(&l3out_hsrp_interface_group_default, &l3out_hsrp_interface_group_updated),
 				),
 			},
 			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupName-Conflicts-Other-Group","GroupVIP-Conflicts-Other-Group"})),
+				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "config_issues", "Secondary-vip-subnet-mismatch"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupName-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "GroupVIP-Conflicts-Other-Group"),
+					resource.TestCheckResourceAttr(resourceName, "config_issues", "Secondary-vip-subnet-mismatch"),
+					testAccCheckAciL3outHsrpInterfaceGroupIdEqual(&l3out_hsrp_interface_group_default, &l3out_hsrp_interface_group_updated),
 				),
 			},
 			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupVIP-Conflicts-Other-Group"})),
+				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "config_issues", "group-vip-conflicts-if-ip"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupVIP-Conflicts-Other-Group"),
+					resource.TestCheckResourceAttr(resourceName, "config_issues", "group-vip-conflicts-if-ip"),
+					testAccCheckAciL3outHsrpInterfaceGroupIdEqual(&l3out_hsrp_interface_group_default, &l3out_hsrp_interface_group_updated),
 				),
 			},
 			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupMac-Conflicts-Other-Group","GroupName-Conflicts-Other-Group","GroupVIP-Conflicts-Other-Group","Multiple-Version-On-Interface"})),
+				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "config_issues", "group-vip-subnet-mismatch"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "4"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupMac-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "GroupName-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "GroupVIP-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "Multiple-Version-On-Interface"),
+					resource.TestCheckResourceAttr(resourceName, "config_issues", "group-vip-subnet-mismatch"),
+					testAccCheckAciL3outHsrpInterfaceGroupIdEqual(&l3out_hsrp_interface_group_default, &l3out_hsrp_interface_group_updated),
 				),
 			},
 			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupName-Conflicts-Other-Group","GroupVIP-Conflicts-Other-Group","Multiple-Version-On-Interface"})),
+				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "group_id", "2025"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupName-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "GroupVIP-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "Multiple-Version-On-Interface"),
+					resource.TestCheckResourceAttr(resourceName, "group_id", "2025"),
+					testAccCheckAciL3outHsrpInterfaceGroupIdEqual(&l3out_hsrp_interface_group_default, &l3out_hsrp_interface_group_updated),
 				),
 			},
 			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupVIP-Conflicts-Other-Group","Multiple-Version-On-Interface"})),
+				Config: CreateAccL3outHsrpInterfaceGroupConfigWithIPObtainModeAuto(rName2, rName2, rName2, rName2, rName2),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupVIP-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "Multiple-Version-On-Interface"),
+					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_default),
+					resource.TestCheckResourceAttr(resourceName, "ip_obtain_mode", "auto"),
+					resource.TestCheckResourceAttr(resourceName, "group_af", "ipv6"),
 				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"Multiple-Version-On-Interface"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "Multiple-Version-On-Interface"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupMac-Conflicts-Other-Group","GroupName-Conflicts-Other-Group","GroupVIP-Conflicts-Other-Group","Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "5"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupMac-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "GroupName-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "GroupVIP-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.4", "Secondary-vip-conflicts-if-ip"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupName-Conflicts-Other-Group","GroupVIP-Conflicts-Other-Group","Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "4"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupName-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "GroupVIP-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "Secondary-vip-conflicts-if-ip"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupVIP-Conflicts-Other-Group","Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupVIP-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "Secondary-vip-conflicts-if-ip"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "Secondary-vip-conflicts-if-ip"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"Secondary-vip-conflicts-if-ip"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "Secondary-vip-conflicts-if-ip"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupMac-Conflicts-Other-Group","GroupName-Conflicts-Other-Group","GroupVIP-Conflicts-Other-Group","Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "6"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupMac-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "GroupName-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "GroupVIP-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.4", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.5", "Secondary-vip-subnet-mismatch"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupName-Conflicts-Other-Group","GroupVIP-Conflicts-Other-Group","Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "5"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupName-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "GroupVIP-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.4", "Secondary-vip-subnet-mismatch"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupVIP-Conflicts-Other-Group","Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "4"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupVIP-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "Secondary-vip-subnet-mismatch"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "Secondary-vip-subnet-mismatch"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "Secondary-vip-subnet-mismatch"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"Secondary-vip-subnet-mismatch"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "Secondary-vip-subnet-mismatch"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupMac-Conflicts-Other-Group","GroupName-Conflicts-Other-Group","GroupVIP-Conflicts-Other-Group","Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch","group-vip-conflicts-if-ip"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "7"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupMac-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "GroupName-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "GroupVIP-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.4", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.5", "Secondary-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.6", "group-vip-conflicts-if-ip"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupName-Conflicts-Other-Group","GroupVIP-Conflicts-Other-Group","Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch","group-vip-conflicts-if-ip"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "6"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupName-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "GroupVIP-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.4", "Secondary-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.5", "group-vip-conflicts-if-ip"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupVIP-Conflicts-Other-Group","Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch","group-vip-conflicts-if-ip"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "5"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupVIP-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "Secondary-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.4", "group-vip-conflicts-if-ip"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch","group-vip-conflicts-if-ip"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "4"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "Secondary-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "group-vip-conflicts-if-ip"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch","group-vip-conflicts-if-ip"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "Secondary-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "group-vip-conflicts-if-ip"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"Secondary-vip-subnet-mismatch","group-vip-conflicts-if-ip"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "Secondary-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "group-vip-conflicts-if-ip"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"group-vip-conflicts-if-ip"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "group-vip-conflicts-if-ip"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupMac-Conflicts-Other-Group","GroupName-Conflicts-Other-Group","GroupVIP-Conflicts-Other-Group","Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch","group-vip-conflicts-if-ip","group-vip-subnet-mismatch"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "8"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupMac-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "GroupName-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "GroupVIP-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.4", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.5", "Secondary-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.6", "group-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.7", "group-vip-subnet-mismatch"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupName-Conflicts-Other-Group","GroupVIP-Conflicts-Other-Group","Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch","group-vip-conflicts-if-ip","group-vip-subnet-mismatch"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "7"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupName-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "GroupVIP-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.4", "Secondary-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.5", "group-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.6", "group-vip-subnet-mismatch"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupVIP-Conflicts-Other-Group","Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch","group-vip-conflicts-if-ip","group-vip-subnet-mismatch"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "6"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupVIP-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "Secondary-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.4", "group-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.5", "group-vip-subnet-mismatch"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch","group-vip-conflicts-if-ip","group-vip-subnet-mismatch"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "5"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "Secondary-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "group-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.4", "group-vip-subnet-mismatch"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch","group-vip-conflicts-if-ip","group-vip-subnet-mismatch"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "4"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "Secondary-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "group-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "group-vip-subnet-mismatch"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"Secondary-vip-subnet-mismatch","group-vip-conflicts-if-ip","group-vip-subnet-mismatch"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "Secondary-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "group-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "group-vip-subnet-mismatch"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"group-vip-conflicts-if-ip","group-vip-subnet-mismatch"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "group-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "group-vip-subnet-mismatch"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"group-vip-subnet-mismatch"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "group-vip-subnet-mismatch"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupMac-Conflicts-Other-Group","GroupName-Conflicts-Other-Group","GroupVIP-Conflicts-Other-Group","Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch","group-vip-conflicts-if-ip","group-vip-subnet-mismatch","none"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "9"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupMac-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "GroupName-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "GroupVIP-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.4", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.5", "Secondary-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.6", "group-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.7", "group-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.8", "none"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupName-Conflicts-Other-Group","GroupVIP-Conflicts-Other-Group","Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch","group-vip-conflicts-if-ip","group-vip-subnet-mismatch","none"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "8"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupName-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "GroupVIP-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.4", "Secondary-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.5", "group-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.6", "group-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.7", "none"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"GroupVIP-Conflicts-Other-Group","Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch","group-vip-conflicts-if-ip","group-vip-subnet-mismatch","none"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "7"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "GroupVIP-Conflicts-Other-Group"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "Secondary-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.4", "group-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.5", "group-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.6", "none"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"Multiple-Version-On-Interface","Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch","group-vip-conflicts-if-ip","group-vip-subnet-mismatch","none"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "6"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "Multiple-Version-On-Interface"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "Secondary-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "group-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.4", "group-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.5", "none"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"Secondary-vip-conflicts-if-ip","Secondary-vip-subnet-mismatch","group-vip-conflicts-if-ip","group-vip-subnet-mismatch","none"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "5"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "Secondary-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "Secondary-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "group-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "group-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.4", "none"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"Secondary-vip-subnet-mismatch","group-vip-conflicts-if-ip","group-vip-subnet-mismatch","none"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "4"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "Secondary-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "group-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "group-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.3", "none"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"group-vip-conflicts-if-ip","group-vip-subnet-mismatch","none"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "group-vip-conflicts-if-ip"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "group-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.2", "none"),
-				),
-			},
-			{
-				
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"group-vip-subnet-mismatch","none"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciL3outHsrpInterfaceGroupExists(resourceName, &l3out_hsrp_interface_group_updated),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.0", "group-vip-subnet-mismatch"),
-					resource.TestCheckResourceAttr(resourceName, "configIssues.1", "none"),
-				),
-			},
-			{
-				Config: CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "configIssues", StringListtoString([]string{"none"})),
-			},
-			{
-				Config: CreateAccL3outHsrpInterfaceGroupConfig(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName),
 			},
 		},
 	})
 }
 
 func TestAccAciL3outHsrpInterfaceGroup_Negative(t *testing.T) {
-	var l3out_hsrp_interface_group_default models.L3outHsrpInterfaceGroup
-	var l3out_hsrp_interface_group_updated models.L3outHsrpInterfaceGroup
-	resourceName := "aci_l3out_hsrp_interface_group.testacc"
-	rName := makeTestVariable(acctest.RandString(5))
-	
-	fvTenantName := makeTestVariable(acctest.RandString(5))
-	l3extOutName := makeTestVariable(acctest.RandString(5))
-	l3extLNodePName := makeTestVariable(acctest.RandString(5))
-	l3extLIfPName := makeTestVariable(acctest.RandString(5))
+	rName1 := makeTestVariable(acctest.RandString(5))
+	rName2 := makeTestVariable(acctest.RandString(5))
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := makeTestVariable(acctest.RandString(5))
-
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
+		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
 		CheckDestroy: testAccCheckAciL3outHsrpInterfaceGroupDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: CreateAccL3outHsrpInterfaceGroupConfig(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName),
+				Config: CreateAccL3outHsrpInterfaceGroupConfig(rName1, rName1, rName1, rName1, rName1),
 			},
 			{
-				Config:      CreateAccL3outHsrpInterfaceGroupWithInValidParentDn(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName),
-				ExpectError: regexp.MustCompile(`configured object (.)+ not found (.)+,`),
+				Config:      CreateAccL3outHsrpInterfaceGroupWithInValidParentDn(rName1),
+				ExpectError: regexp.MustCompile(`unknown property value (.)+, name dn, class hsrpGroupP (.)+`),
 			},
 			{
-				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "description", acctest.RandString(129)),
+				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "description", acctest.RandString(129)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
 			{
-				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "annotation", acctest.RandString(129)),
+				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "annotation", acctest.RandString(129)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
 			{
-				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "name_alias", acctest.RandString(64)),
+				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "name_alias", acctest.RandString(64)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
 			{
-				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "config_issues", StringListtoString([]string{randomValue})),
-				ExpectError: regexp.MustCompile(`expected(.*)to be one of(.)*, got(.)*`),
+				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "config_issues", randomValue),
+				ExpectError: regexp.MustCompile(`expected (.)+ to be one of(.)+, got(.)+`),
 			},
 			{
-				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "config_issues", StringListtoString([]string{"GroupMac-Conflicts-Other-Group", "GroupMac-Conflicts-Other-Group"})),
-				ExpectError: regexp.MustCompile(`duplication is not supported in list`),
-			},
-			// TODO: add unspecified case for "config_issues" if applicable
-			{
-				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "group_af", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)*to be one of(.)*, got(.)*`),
+				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "group_af", randomValue),
+				ExpectError: regexp.MustCompile(`expected (.)+ to be one of(.)+, got(.)+`),
 			},
 			{
-				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "group_id", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)*to be one of(.)*, got(.)*`),
+				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "ip_obtain_mode", randomValue),
+				ExpectError: regexp.MustCompile(`expected(.)+ to be one of(.)+, got(.)+`),
 			},
 			{
-				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "group_name", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)*to be one of(.)*, got(.)*`),
+				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "group_name", acctest.RandString(513)),
+				ExpectError: regexp.MustCompile(`property groupName of (.)+ failed validation`),
 			},
 			{
-				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "ip", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)*to be one of(.)*, got(.)*`),
+				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "ip", randomValue),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
-				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "ip_obtain_mode", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)*to be one of(.)*, got(.)*`),
+				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "group_id", "-1"),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
-				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, "mac", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)*to be one of(.)*, got(.)*`),
-			},
-			
-			{
-				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, randomParameter, randomValue),
-				ExpectError: regexp.MustCompile(`An argument named(.)*is not expected here.`),
+				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "group_id", "256"),
+				ExpectError: regexp.MustCompile(`Invalid Configuration HSRP V1 group id range is 0-255`),
 			},
 			{
-				Config: CreateAccL3outHsrpInterfaceGroupConfig(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName),
+				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, "group_id", "4096"),
+				ExpectError: regexp.MustCompile(`Property (.)+ of (.)+ is out of range`),
+			},
+			{
+				Config:      CreateAccL3outHsrpInterfaceGroupUpdatedAttr(rName1, rName1, rName1, rName1, rName1, randomParameter, randomValue),
+				ExpectError: regexp.MustCompile(`An argument named(.)+ is not expected here.`),
+			},
+			{
+				Config:      CreateAccL3outHsrpInterfaceGroupForAdmin(rName2, rName2, rName2, rName1, rName1),
+				ExpectError: regexp.MustCompile(`Invalid Configuration VIP Address cannot be empty with Admin Mode`),
+			},
+			{
+				Config:      CreateAccL3outHsrpInterfaceGroupForAuto(rName2, rName2, rName2, rName1, rName1),
+				ExpectError: regexp.MustCompile(`Invalid Configuration VIP configuration should be NULL, if learn/auto configuration is enabled.`),
+			},
+			{
+				Config:      CreateAccL3outHsrpInterfaceGroupForLearn(rName2, rName2, rName2, rName2, rName2),
+				ExpectError: regexp.MustCompile(`Invalid Configuration VIP configuration should be NULL, if learn/auto configuration is enabled.`),
+			},
+			{
+				Config: CreateAccL3outHsrpInterfaceGroupConfig(rName1, rName1, rName1, rName1, rName1),
 			},
 		},
 	})
 }
 
-func testAccCheckAciL3outHsrpInterfaceGroupExists(name string, l3out_hsrp_interface_group *models.L3outHsrpInterfaceGroup) resource.TestCheckFunc {
+func TestAccAciL3outHsrpInterfaceGroup_MultipleCreateDelete(t *testing.T) {
+	rName := makeTestVariable(acctest.RandString(5))
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAciL3outHsrpInterfaceGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccL3outHsrpInterfaceGroupConfigs(rName),
+			},
+		},
+	})
+}
+
+func testAccCheckAciL3outHsrpInterfaceGroupExists(name string, l3out_hsrp_interface_group *models.HSRPGroupProfile) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
 
@@ -755,7 +318,7 @@ func testAccCheckAciL3outHsrpInterfaceGroupExists(name string, l3out_hsrp_interf
 			return err
 		}
 
-		l3out_hsrp_interface_groupFound := models.L3outHsrpInterfaceGroupFromContainer(cont)
+		l3out_hsrp_interface_groupFound := models.HSRPGroupProfileFromContainer(cont)
 		if l3out_hsrp_interface_groupFound.DistinguishedName != rs.Primary.ID {
 			return fmt.Errorf("L3out Hsrp Interface Group %s not found", rs.Primary.ID)
 		}
@@ -764,24 +327,24 @@ func testAccCheckAciL3outHsrpInterfaceGroupExists(name string, l3out_hsrp_interf
 	}
 }
 
-func testAccCheckAciL3outHsrpInterfaceGroupDestroy(s *terraform.State) error {	
+func testAccCheckAciL3outHsrpInterfaceGroupDestroy(s *terraform.State) error {
 	fmt.Println("=== STEP  testing l3out_hsrp_interface_group destroy")
 	client := testAccProvider.Meta().(*client.Client)
 	for _, rs := range s.RootModule().Resources {
-		 if rs.Type == "aci_l3out_hsrp_interface_group" {
-			cont,err := client.Get(rs.Primary.ID)
-			l3out_hsrp_interface_group := models.L3outHsrpInterfaceGroupFromContainer(cont)
+		if rs.Type == "aci_l3out_hsrp_interface_group" {
+			cont, err := client.Get(rs.Primary.ID)
+			l3out_hsrp_interface_group := models.HSRPGroupProfileFromContainer(cont)
 			if err == nil {
-				return fmt.Errorf("L3out Hsrp Interface Group %s Still exists",l3out_hsrp_interface_group.DistinguishedName)
+				return fmt.Errorf("L3out Hsrp Interface Group %s Still exists", l3out_hsrp_interface_group.DistinguishedName)
 			}
-		}else{
+		} else {
 			continue
 		}
 	}
 	return nil
 }
 
-func testAccCheckAciL3outHsrpInterfaceGroupIdEqual(m1, m2 *models.L3outHsrpInterfaceGroup) resource.TestCheckFunc {
+func testAccCheckAciL3outHsrpInterfaceGroupIdEqual(m1, m2 *models.HSRPGroupProfile) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if m1.DistinguishedName != m2.DistinguishedName {
 			return fmt.Errorf("l3out_hsrp_interface_group DNs are not equal")
@@ -790,7 +353,7 @@ func testAccCheckAciL3outHsrpInterfaceGroupIdEqual(m1, m2 *models.L3outHsrpInter
 	}
 }
 
-func testAccCheckAciL3outHsrpInterfaceGroupIdNotEqual(m1, m2 *models.L3outHsrpInterfaceGroup) resource.TestCheckFunc {
+func testAccCheckAciL3outHsrpInterfaceGroupIdNotEqual(m1, m2 *models.HSRPGroupProfile) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if m1.DistinguishedName == m2.DistinguishedName {
 			return fmt.Errorf("l3out_hsrp_interface_group DNs are equal")
@@ -800,200 +363,298 @@ func testAccCheckAciL3outHsrpInterfaceGroupIdNotEqual(m1, m2 *models.L3outHsrpIn
 }
 
 func CreateL3outHsrpInterfaceGroupWithoutRequired(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing l3out_hsrp_interface_group creation without ",attrName)
+	fmt.Println("=== STEP  Basic: testing l3out_hsrp_interface_group creation without ", attrName)
 	rBlock := `
-	
 	resource "aci_tenant" "test" {
 		name 		= "%s"
-		description = "tenant created while acceptance testing"
-		
 	}
 	
 	resource "aci_l3_outside" "test" {
 		name 		= "%s"
-		description = "l3_outside created while acceptance testing"
 		tenant_dn = aci_tenant.test.id
 	}
 	
 	resource "aci_logical_node_profile" "test" {
 		name 		= "%s"
-		description = "logical_node_profile created while acceptance testing"
 		l3_outside_dn = aci_l3_outside.test.id
 	}
+
+  	resource "aci_logical_interface_profile" "test" {
+    	logical_node_profile_dn = aci_logical_node_profile.test.id
+    	name = "%s"
+  	}
 	
-	resource "aci_logical_interface_profile" "test" {
-		name 		= "%s"
-		description = "logical_interface_profile created while acceptance testing"
-		logical_node_profile_dn = aci_logical_node_profile.test.id
+	resource "aci_l3out_hsrp_interface_profile" "test" {
+		logical_interface_profile_dn = aci_logical_interface_profile.test.id
 	}
 	
 	`
 	switch attrName {
-	case "logical_interface_profile_dn":
+	case "l3out_hsrp_interface_profile_dn":
 		rBlock += `
 	resource "aci_l3out_hsrp_interface_group" "test" {
-	#	logical_interface_profile_dn  = aci_logical_interface_profile.test.id
+	#	l3out_hsrp_interface_profile_dn  = aci_l3out_hsrp_interface_profile.test.id
 		name  = "%s"
-		description = "created while acceptance testing"
 	}
 		`
 	case "name":
 		rBlock += `
 	resource "aci_l3out_hsrp_interface_group" "test" {
-		logical_interface_profile_dn  = aci_logical_interface_profile.test.id
+		l3out_hsrp_interface_profile_dn  = aci_l3out_hsrp_interface_profile.test.id
 	#	name  = "%s"
-		description = "created while acceptance testing"
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock,fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName)
+	return fmt.Sprintf(rBlock, fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName)
 }
 
-func CreateAccL3outHsrpInterfaceGroupConfigWithRequiredParams(rName,rName string) string {
-	fmt.Println("=== STEP  testing l3out_hsrp_interface_group creation with required arguements only")
+func CreateAccL3outHsrpInterfaceGroupConfigWithRequiredParams(prName, rName string) string {
+	fmt.Printf("=== STEP  testing l3out_hsrp_interface_group creation with parent resources name %s and resource name %s \n", prName, rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
 		name 		= "%s"
-		description = "tenant created while acceptance testing"
-	
 	}
 	
 	resource "aci_l3_outside" "test" {
 		name 		= "%s"
-		description = "l3_outside created while acceptance testing"
 		tenant_dn = aci_tenant.test.id
 	}
 	
 	resource "aci_logical_node_profile" "test" {
 		name 		= "%s"
-		description = "logical_node_profile created while acceptance testing"
 		l3_outside_dn = aci_l3_outside.test.id
 	}
+
+  	resource "aci_logical_interface_profile" "test" {
+    	logical_node_profile_dn = aci_logical_node_profile.test.id
+    	name = "%s"
+  	}
 	
-	resource "aci_logical_interface_profile" "test" {
-		name 		= "%s"
-		description = "logical_interface_profile created while acceptance testing"
-		logical_node_profile_dn = aci_logical_node_profile.test.id
+	resource "aci_l3out_hsrp_interface_profile" "test" {
+		logical_interface_profile_dn = aci_logical_interface_profile.test.id
 	}
 	
 	resource "aci_l3out_hsrp_interface_group" "test" {
-		logical_interface_profile_dn  = aci_logical_interface_profile.test.id
+		l3out_hsrp_interface_profile_dn  = aci_l3out_hsrp_interface_profile.test.id
 		name  = "%s"
+		ip = "10.20.30.50"
 	}
-	`, rName,rName)
+	`, prName, prName, prName, prName, rName)
 	return resource
 }
 
-
-func CreateAccL3outHsrpInterfaceGroupConfig(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName string) string {
-	fmt.Println("=== STEP  testing l3out_hsrp_interface_group creation with required arguements only")
+func CreateAccL3outHsrpInterfaceGroupConfigs(rName string) string {
+	fmt.Println("=== STEP  testing l3out_hsrp_interface_group muliple creation")
 	resource := fmt.Sprintf(`
-	
 	resource "aci_tenant" "test" {
 		name 		= "%s"
-		description = "tenant created while acceptance testing"
-	
 	}
 	
 	resource "aci_l3_outside" "test" {
 		name 		= "%s"
-		description = "l3_outside created while acceptance testing"
 		tenant_dn = aci_tenant.test.id
 	}
 	
 	resource "aci_logical_node_profile" "test" {
 		name 		= "%s"
-		description = "logical_node_profile created while acceptance testing"
 		l3_outside_dn = aci_l3_outside.test.id
 	}
+
+  	resource "aci_logical_interface_profile" "test" {
+    	logical_node_profile_dn = aci_logical_node_profile.test.id
+    	name = "%s"
+  	}
 	
-	resource "aci_logical_interface_profile" "test" {
+	resource "aci_l3out_hsrp_interface_profile" "test" {
+		logical_interface_profile_dn = aci_logical_interface_profile.test.id
+	}
+	
+	resource "aci_l3out_hsrp_interface_group" "test1" {
+		l3out_hsrp_interface_profile_dn  = aci_l3out_hsrp_interface_profile.test.id
+		name  = "%s"
+		ip = "10.20.30.50"
+	}
+
+	resource "aci_l3out_hsrp_interface_group" "test2" {
+		l3out_hsrp_interface_profile_dn  = aci_l3out_hsrp_interface_profile.test.id
+		name  = "%s"
+		ip = "10.20.30.50"
+	}
+
+	resource "aci_l3out_hsrp_interface_group" "test3" {
+		l3out_hsrp_interface_profile_dn  = aci_l3out_hsrp_interface_profile.test.id
+		name  = "%s"
+		ip = "10.20.30.50"
+	}
+	`, rName, rName, rName, rName, rName+"1", rName+"2", rName+"3")
+	return resource
+}
+
+func CreateAccL3outHsrpInterfaceGroupConfig(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName string) string {
+	fmt.Println("=== STEP  testing l3out_hsrp_interface_group creation with required arguements and ip")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
 		name 		= "%s"
-		description = "logical_interface_profile created while acceptance testing"
-		logical_node_profile_dn = aci_logical_node_profile.test.id
+	}
+	
+	resource "aci_l3_outside" "test" {
+		name 		= "%s"
+		tenant_dn = aci_tenant.test.id
+	}
+	
+	resource "aci_logical_node_profile" "test" {
+		name 		= "%s"
+		l3_outside_dn = aci_l3_outside.test.id
+	}
+
+  	resource "aci_logical_interface_profile" "test" {
+    	logical_node_profile_dn = aci_logical_node_profile.test.id
+    	name = "%s"
+  	}
+	
+	resource "aci_l3out_hsrp_interface_profile" "test" {
+		logical_interface_profile_dn = aci_logical_interface_profile.test.id
 	}
 	
 	resource "aci_l3out_hsrp_interface_group" "test" {
-		logical_interface_profile_dn  = aci_logical_interface_profile.test.id
+		l3out_hsrp_interface_profile_dn  = aci_l3out_hsrp_interface_profile.test.id
 		name  = "%s"
+    	ip = "10.20.30.40"
 	}
 	`, fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName)
 	return resource
 }
 
-func CreateAccL3outHsrpInterfaceGroupWithInValidParentDn(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName string) string {
+func CreateAccL3outHsrpInterfaceGroupWithInValidParentDn(rName string) string {
 	fmt.Println("=== STEP  Negative Case: testing l3out_hsrp_interface_group creation with invalid parent Dn")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
 		name 		= "%s"
-		description = "tenant created while acceptance testing"
-	
-	}
-	
-	resource "aci_l3_outside" "test" {
-		name 		= "%s"
-		description = "l3_outside created while acceptance testing"
-		tenant_dn = aci_tenant.test.id
-	}
-	
-	resource "aci_logical_node_profile" "test" {
-		name 		= "%s"
-		description = "logical_node_profile created while acceptance testing"
-		l3_outside_dn = aci_l3_outside.test.id
-	}
-	
-	resource "aci_logical_interface_profile" "test" {
-		name 		= "%s"
-		description = "logical_interface_profile created while acceptance testing"
-		logical_node_profile_dn = aci_logical_node_profile.test.id
 	}
 	
 	resource "aci_l3out_hsrp_interface_group" "test" {
-		logical_interface_profile_dn  = "${aci_logical_interface_profile.test.id}invalid"
-		name  = "%s"	}
-	`, fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName)
+		l3out_hsrp_interface_profile_dn  = aci_tenant.test.id
+		name  = "%s"	
+	}
+	`, rName, rName)
 	return resource
 }
-
 
 func CreateAccL3outHsrpInterfaceGroupConfigWithOptionalValues(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName string) string {
 	fmt.Println("=== STEP  Basic: testing l3out_hsrp_interface_group creation with optional parameters")
 	resource := fmt.Sprintf(`
-	
 	resource "aci_tenant" "test" {
-		name 		= "%s"
-		description = "tenant created while acceptance testing"
-	
+		name 		= "%s"	
 	}
 	
 	resource "aci_l3_outside" "test" {
 		name 		= "%s"
-		description = "l3_outside created while acceptance testing"
 		tenant_dn = aci_tenant.test.id
 	}
 	
 	resource "aci_logical_node_profile" "test" {
 		name 		= "%s"
-		description = "logical_node_profile created while acceptance testing"
 		l3_outside_dn = aci_l3_outside.test.id
 	}
+
+  	resource "aci_logical_interface_profile" "test" {
+    	logical_node_profile_dn = aci_logical_node_profile.test.id
+    	name = "%s"
+  	}
 	
-	resource "aci_logical_interface_profile" "test" {
-		name 		= "%s"
-		description = "logical_interface_profile created while acceptance testing"
-		logical_node_profile_dn = aci_logical_node_profile.test.id
+	resource "aci_l3out_hsrp_interface_profile" "test" {
+		logical_interface_profile_dn = aci_logical_interface_profile.test.id
 	}
 	
 	resource "aci_l3out_hsrp_interface_group" "test" {
-		logical_interface_profile_dn  = "${aci_logical_interface_profile.test.id}"
+		l3out_hsrp_interface_profile_dn  = aci_l3out_hsrp_interface_profile.test.id
 		name  = "%s"
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_l3out_hsrp_interface_group"
-		config_issues = ["GroupMac-Conflicts-Other-Group"]
-		group_af = "ipv6"group_id = "1"group_id = ""group_name = ""ip = ""ip_obtain_mode = "auto"mac = ""
+		config_issues = "GroupMac-Conflicts-Other-Group"
+		group_af = "ipv4"
+		group_id = "125"
+		group_name = "test"
+		ip = "10.20.30.50"
+		ip_obtain_mode = "admin"
+		mac = "02:10:45:00:00:56"
+	}
+	`, fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName)
+
+	return resource
+}
+
+func CreateAccL3outHsrpInterfaceGroupConfigWithIPObtainModeAuto(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName string) string {
+	fmt.Println("=== STEP  Basic: testing l3out_hsrp_interface_group creation with  ip_obtain_mode = auto and group_af = ipv6")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name 		= "%s"	
+	}
+	
+	resource "aci_l3_outside" "test" {
+		name 		= "%s"
+		tenant_dn = aci_tenant.test.id
+	}
+	
+	resource "aci_logical_node_profile" "test" {
+		name 		= "%s"
+		l3_outside_dn = aci_l3_outside.test.id
+	}
+
+  	resource "aci_logical_interface_profile" "test" {
+    	logical_node_profile_dn = aci_logical_node_profile.test.id
+    	name = "%s"
+  	}
+	
+	resource "aci_l3out_hsrp_interface_profile" "test" {
+		logical_interface_profile_dn = aci_logical_interface_profile.test.id
+	}
+	
+	resource "aci_l3out_hsrp_interface_group" "test" {
+		l3out_hsrp_interface_profile_dn  = aci_l3out_hsrp_interface_profile.test.id
+		name  = "%s"
+		ip_obtain_mode = "auto"
+		group_af = "ipv6"
+	}
+	`, fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName)
+
+	return resource
+}
+
+func CreateAccL3outHsrpInterfaceGroupConfigWithIPObtainModeLearn(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName string) string {
+	fmt.Println("=== STEP  Basic: testing l3out_hsrp_interface_group creation with  ip_obtain_mode = learn and required arguements")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name 		= "%s"	
+	}
+	
+	resource "aci_l3_outside" "test" {
+		name 		= "%s"
+		tenant_dn = aci_tenant.test.id
+	}
+	
+	resource "aci_logical_node_profile" "test" {
+		name 		= "%s"
+		l3_outside_dn = aci_l3_outside.test.id
+	}
+
+  	resource "aci_logical_interface_profile" "test" {
+    	logical_node_profile_dn = aci_logical_node_profile.test.id
+    	name = "%s"
+  	}
+	
+	resource "aci_l3out_hsrp_interface_profile" "test" {
+		logical_interface_profile_dn = aci_logical_interface_profile.test.id
+		version = "v2"
+	}
+	
+	resource "aci_l3out_hsrp_interface_group" "test" {
+		l3out_hsrp_interface_profile_dn  = aci_l3out_hsrp_interface_profile.test.id
+		name  = "%s"
+		ip_obtain_mode = "learn"
 	}
 	`, fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName)
 
@@ -1001,24 +662,26 @@ func CreateAccL3outHsrpInterfaceGroupConfigWithOptionalValues(fvTenantName, l3ex
 }
 
 func CreateAccL3outHsrpInterfaceGroupRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing l3out_hsrp_interface_group creation with optional parameters")
-	resource := fmt.Sprintf(`
+	fmt.Println("=== STEP  Basic: testing l3out_hsrp_interface_group updation without required parameters")
+	resource := fmt.Sprintln(`
 	resource "aci_l3out_hsrp_interface_group" "test" {
 		description = "created while acceptance testing"
-		annotation = "orchestrator:terraform_testacc"
+		annotation = "tag"
 		name_alias = "test_l3out_hsrp_interface_group"
-		config_issues = ["GroupMac-Conflicts-Other-Group"]
-		group_af = "ipv6"group_id = "1"group_id = ""group_name = ""ip = ""ip_obtain_mode = "auto"mac = ""
+		config_issues = "GroupMac-Conflicts-Other-Group"
+		group_af = "ipv6"
+		group_id = "1"
+		group_name = "test"
+		ip_obtain_mode = "auto"
 	}
 	`)
 
 	return resource
 }
 
-func CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName,attribute,value string) string {
-	fmt.Printf("=== STEP  testing l3out_hsrp_interface_group attribute: %s=%s \n", attribute, value)
+func CreateAccL3outHsrpInterfaceGroupForLearn(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName string) string {
+	fmt.Println("=== STEP  testing l3out_hsrp_interface_group when ip_obtain_mode is learn and ip provided")
 	resource := fmt.Sprintf(`
-	
 	resource "aci_tenant" "test" {
 		name 		= "%s"
 		description = "tenant created while acceptance testing"
@@ -1027,27 +690,141 @@ func CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3e
 	
 	resource "aci_l3_outside" "test" {
 		name 		= "%s"
-		description = "l3_outside created while acceptance testing"
 		tenant_dn = aci_tenant.test.id
 	}
 	
 	resource "aci_logical_node_profile" "test" {
 		name 		= "%s"
-		description = "logical_node_profile created while acceptance testing"
 		l3_outside_dn = aci_l3_outside.test.id
 	}
+
+  	resource "aci_logical_interface_profile" "test" {
+    	logical_node_profile_dn = aci_logical_node_profile.test.id
+    	name = "%s"
+  	}
 	
-	resource "aci_logical_interface_profile" "test" {
-		name 		= "%s"
-		description = "logical_interface_profile created while acceptance testing"
-		logical_node_profile_dn = aci_logical_node_profile.test.id
+	resource "aci_l3out_hsrp_interface_profile" "test" {
+		logical_interface_profile_dn = aci_logical_interface_profile.test.id
 	}
 	
 	resource "aci_l3out_hsrp_interface_group" "test" {
-		logical_interface_profile_dn  = aci_logical_interface_profile.test.id
+		l3out_hsrp_interface_profile_dn  = aci_l3out_hsrp_interface_profile.test.id
+		name  = "%s"
+		ip_obtain_mode = "learn"
+		ip = "1.2.3.4"
+	}
+	`, fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName)
+	return resource
+}
+
+func CreateAccL3outHsrpInterfaceGroupForAuto(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName string) string {
+	fmt.Println("=== STEP  testing l3out_hsrp_interface_group when ip_obtain_mode is admin and ip provided")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name 		= "%s"
+		description = "tenant created while acceptance testing"
+	
+	}
+	
+	resource "aci_l3_outside" "test" {
+		name 		= "%s"
+		tenant_dn = aci_tenant.test.id
+	}
+	
+	resource "aci_logical_node_profile" "test" {
+		name 		= "%s"
+		l3_outside_dn = aci_l3_outside.test.id
+	}
+
+  	resource "aci_logical_interface_profile" "test" {
+    	logical_node_profile_dn = aci_logical_node_profile.test.id
+    	name = "%s"
+  	}
+	
+	resource "aci_l3out_hsrp_interface_profile" "test" {
+		logical_interface_profile_dn = aci_logical_interface_profile.test.id
+	}
+	
+	resource "aci_l3out_hsrp_interface_group" "test" {
+		l3out_hsrp_interface_profile_dn  = aci_l3out_hsrp_interface_profile.test.id
+		name  = "%s"
+		ip_obtain_mode = "auto"
+		ip = "1.2.3.4"
+	}
+	`, fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName)
+	return resource
+}
+
+func CreateAccL3outHsrpInterfaceGroupForAdmin(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName string) string {
+	fmt.Println("=== STEP  testing l3out_hsrp_interface_group when ip_obtain_mode is admin and no ip provided")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name 		= "%s"
+		description = "tenant created while acceptance testing"
+	
+	}
+	
+	resource "aci_l3_outside" "test" {
+		name 		= "%s"
+		tenant_dn = aci_tenant.test.id
+	}
+	
+	resource "aci_logical_node_profile" "test" {
+		name 		= "%s"
+		l3_outside_dn = aci_l3_outside.test.id
+	}
+
+  	resource "aci_logical_interface_profile" "test" {
+    	logical_node_profile_dn = aci_logical_node_profile.test.id
+    	name = "%s"
+  	}
+	
+	resource "aci_l3out_hsrp_interface_profile" "test" {
+		logical_interface_profile_dn = aci_logical_interface_profile.test.id
+	}
+	
+	resource "aci_l3out_hsrp_interface_group" "test" {
+		l3out_hsrp_interface_profile_dn  = aci_l3out_hsrp_interface_profile.test.id
+		name  = "%s"
+		ip_obtain_mode = "admin"
+	}
+	`, fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName)
+	return resource
+}
+
+func CreateAccL3outHsrpInterfaceGroupUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, attribute, value string) string {
+	fmt.Printf("=== STEP  testing l3out_hsrp_interface_group attribute: %s=%s \n", attribute, value)
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name 		= "%s"
+		description = "tenant created while acceptance testing"
+	
+	}
+	
+	resource "aci_l3_outside" "test" {
+		name 		= "%s"
+		tenant_dn = aci_tenant.test.id
+	}
+	
+	resource "aci_logical_node_profile" "test" {
+		name 		= "%s"
+		l3_outside_dn = aci_l3_outside.test.id
+	}
+
+  	resource "aci_logical_interface_profile" "test" {
+    	logical_node_profile_dn = aci_logical_node_profile.test.id
+    	name = "%s"
+  	}
+	
+	resource "aci_l3out_hsrp_interface_profile" "test" {
+		logical_interface_profile_dn = aci_logical_interface_profile.test.id
+	}
+	
+	resource "aci_l3out_hsrp_interface_group" "test" {
+		l3out_hsrp_interface_profile_dn  = aci_l3out_hsrp_interface_profile.test.id
 		name  = "%s"
 		%s = "%s"
 	}
-	`, fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName)
+	`, fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName, attribute, value)
 	return resource
 }
