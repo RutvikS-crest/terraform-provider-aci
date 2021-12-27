@@ -492,7 +492,7 @@ func CreateAccL3outHsrpInterfaceGroupConfigs(rName string) string {
 }
 
 func CreateAccL3outHsrpInterfaceGroupConfig(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName string) string {
-	fmt.Println("=== STEP  testing l3out_hsrp_interface_group creation with required arguements and ip")
+	fmt.Println("=== STEP  testing l3out_hsrp_interface_group creation with required arguments and ip")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name 		= "%s"
@@ -625,7 +625,7 @@ func CreateAccL3outHsrpInterfaceGroupConfigWithIPObtainModeAuto(fvTenantName, l3
 }
 
 func CreateAccL3outHsrpInterfaceGroupConfigWithIPObtainModeLearn(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, rName string) string {
-	fmt.Println("=== STEP  Basic: testing l3out_hsrp_interface_group creation with  ip_obtain_mode = learn and required arguements")
+	fmt.Println("=== STEP  Basic: testing l3out_hsrp_interface_group creation with  ip_obtain_mode = learn and required arguments")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name 		= "%s"	
