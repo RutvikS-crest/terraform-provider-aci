@@ -19,9 +19,9 @@ func TestAccAciFVDomain_Basic(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 	rother := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciFVDomainDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciFVDomainDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      CreateAccFVDomainWithoutTdn(rName),
@@ -132,9 +132,9 @@ func TestAccAciFVDomain_Update(t *testing.T) {
 	resourceName := "aci_epg_to_domain.test"
 	rName := acctest.RandString(5)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciFVDomainDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciFVDomainDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccFVDomainConfig(rName),
@@ -263,9 +263,9 @@ func TestAccAciFVDomain_NegativeCases(t *testing.T) {
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(5)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciFVDomainDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciFVDomainDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccFVDomainConfig(rName),
@@ -390,9 +390,9 @@ func TestAccAciFVDomain_NegativeCases(t *testing.T) {
 func TestAccAciFVDomain_MultipleCreateDelete(t *testing.T) {
 	rName := acctest.RandString(5)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciFVDomainDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciFVDomainDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccFVDomainConfigs(rName),
