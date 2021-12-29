@@ -75,7 +75,7 @@ func TestAccAciFVDomain_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "epg_cos", "Cos5"),
 					resource.TestCheckResourceAttr(resourceName, "epg_cos_pref", "enabled"),
 					resource.TestCheckResourceAttr(resourceName, "instr_imedcy", "immediate"),
-					resource.TestCheckResourceAttr(resourceName, "lag_policy_name", "0"),
+					resource.TestCheckResourceAttr(resourceName, "lag_policy_name", "lag_policy_name"),
 					resource.TestCheckResourceAttr(resourceName, "netflow_dir", "ingress"),
 					resource.TestCheckResourceAttr(resourceName, "netflow_pref", "enabled"),
 					resource.TestCheckResourceAttr(resourceName, "num_ports", "3"),
@@ -143,12 +143,6 @@ func TestAccAciFVDomain_Update(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccFVDomainConfigFCDomain(rName),
-				Check: resource.ComposeAggregateTestCheckFunc(
-					testAccCheckAciFVDomainExists(resourceName, &epg_to_domain_default_fc_domain),
-				),
-			},
-			{
 				Config: CreateAccFVDomainUpdatedAttr(rName, "binding_type", "staticBinding"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciFVDomainExists(resourceName, &epg_to_domain_updated),
@@ -162,22 +156,6 @@ func TestAccAciFVDomain_Update(t *testing.T) {
 					testAccCheckAciFVDomainExists(resourceName, &epg_to_domain_updated),
 					resource.TestCheckResourceAttr(resourceName, "binding_type", "ephemeral"),
 					testAccCheckAciFVDomainIdEqual(&epg_to_domain_default, &epg_to_domain_updated),
-				),
-			},
-			{
-				Config: CreateAccFVDomainUpdatedAttrFCDomain(rName, "encap_mode", "vxlan"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciFVDomainExists(resourceName, &epg_to_domain_updated_fc_domain),
-					resource.TestCheckResourceAttr(resourceName, "encap_mode", "vxlan"),
-					testAccCheckAciFVDomainIdEqual(&epg_to_domain_default_fc_domain, &epg_to_domain_updated_fc_domain),
-				),
-			},
-			{
-				Config: CreateAccFVDomainUpdatedAttrFCDomain(rName, "encap_mode", "vlan"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciFVDomainExists(resourceName, &epg_to_domain_updated_fc_domain),
-					resource.TestCheckResourceAttr(resourceName, "encap_mode", "vlan"),
-					testAccCheckAciFVDomainIdEqual(&epg_to_domain_default_fc_domain, &epg_to_domain_updated_fc_domain),
 				),
 			},
 			{
@@ -251,6 +229,30 @@ func TestAccAciFVDomain_Update(t *testing.T) {
 					testAccCheckAciFVDomainIdEqual(&epg_to_domain_default, &epg_to_domain_updated),
 				),
 			},
+			{
+				Config: CreateAccFVDomainConfigFCDomain(rName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckAciFVDomainExists(resourceName, &epg_to_domain_default_fc_domain),
+					resource.TestCheckResourceAttr(resourceName, "application_epg_dn", fmt.Sprintf("uni/tn-%s/ap-%s/epg-%s", rName, rName, rName)),
+					resource.TestCheckResourceAttr(resourceName, "tdn", fmt.Sprintf("uni/fc-%s", rName)),
+				),
+			},
+			{
+				Config: CreateAccFVDomainUpdatedAttrFCDomain(rName, "encap_mode", "vlan"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciFVDomainExists(resourceName, &epg_to_domain_updated_fc_domain),
+					resource.TestCheckResourceAttr(resourceName, "encap_mode", "vlan"),
+					testAccCheckAciFVDomainIdEqual(&epg_to_domain_default_fc_domain, &epg_to_domain_updated_fc_domain),
+				),
+			},
+			{
+				Config: CreateAccFVDomainUpdatedAttrFCDomain(rName, "encap_mode", "vxlan"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciFVDomainExists(resourceName, &epg_to_domain_updated_fc_domain),
+					resource.TestCheckResourceAttr(resourceName, "encap_mode", "vxlan"),
+					testAccCheckAciFVDomainIdEqual(&epg_to_domain_default_fc_domain, &epg_to_domain_updated_fc_domain),
+				),
+			},
 		},
 	})
 }
@@ -271,6 +273,24 @@ func TestAccAciFVDomain_NegativeCases(t *testing.T) {
 			{
 				Config:      CreateAccFVDomainWithInvalidApplicationEPG(rName),
 				ExpectError: regexp.MustCompile(`unknown property value (.)+, name dn, class fvRsDomAtt (.)+`),
+			},
+			{
+				Config:      CreateAccFVDomainWithInvalidTDn(rName),
+				ExpectError: regexp.MustCompile(`Invalid target DN`),
+			},
+			{
+				Config: CreateAccFVDomainUpdatedAttr(rName, "switching_mode", "AVE"),
+			},
+			{
+				Config:      CreateAccFVDomainUpdatedAttr(rName, "encap_mode", "vlan"),
+				ExpectError: regexp.MustCompile(`VLAN encap mode is not allowed for AVE Non-Local switching domain`),
+			},
+			{
+				Config: CreateAccFVDomainUpdatedAttr(rName, "encap", "vlan-5"),
+			},
+			{
+				Config:      CreateAccFVDomainUpdatedAttr(rName, "encap_mode", "vxlan"),
+				ExpectError: regexp.MustCompile(`static vlan setting is only allowed when encap mode is vlan.`),
 			},
 			{
 				Config:      CreateAccFVDomainUpdatedAttr(rName, "annotation", longAnnotation),
@@ -313,6 +333,10 @@ func TestAccAciFVDomain_NegativeCases(t *testing.T) {
 				ExpectError: regexp.MustCompile(`expected netflow_pref to be one of (.)+, got (.)+`),
 			},
 			{
+				Config:      CreateAccFVDomainUpdatedAttr(rName, "lag_policy_name", acctest.RandString(513)),
+				ExpectError: regexp.MustCompile(`failed validation for value`),
+			},
+			{
 				Config:      CreateAccFVDomainUpdatedAttr(rName, "num_ports", randomValue),
 				ExpectError: regexp.MustCompile(`unknown property value (.)+, name numPorts, class fvRsDomAtt (.)+`),
 			},
@@ -342,15 +366,15 @@ func TestAccAciFVDomain_NegativeCases(t *testing.T) {
 			},
 			{
 				Config:      CreateAccFVDomainUpdatedAttr(rName, "vmm_allow_promiscuous", randomValue),
-				ExpectError: regexp.MustCompile(`unknown property value (.), name allowPromiscuous, class vmmSecP (.)+`),
+				ExpectError: regexp.MustCompile(`unknown property value (.)+, name allowPromiscuous, class vmmSecP (.)+`),
 			},
 			{
 				Config:      CreateAccFVDomainUpdatedAttr(rName, "vmm_forged_transmits", randomValue),
-				ExpectError: regexp.MustCompile(`unknown property value (.), name forgedTransmits, class vmmSecP (.)+`),
+				ExpectError: regexp.MustCompile(`unknown property value (.)+, name forgedTransmits, class vmmSecP (.)+`),
 			},
 			{
 				Config:      CreateAccFVDomainUpdatedAttr(rName, "vmm_mac_changes", randomValue),
-				ExpectError: regexp.MustCompile(`unknown property value (.), name macChanges, class vmmSecP (.)+`),
+				ExpectError: regexp.MustCompile(`unknown property value (.)+, name macChanges, class vmmSecP (.)+`),
 			},
 			{
 				Config:      CreateAccFVDomainUpdatedAttr(rName, randomParameter, randomValue),
@@ -358,6 +382,20 @@ func TestAccAciFVDomain_NegativeCases(t *testing.T) {
 			},
 			{
 				Config: CreateAccFVDomainConfig(rName),
+			},
+		},
+	})
+}
+
+func TestAccAciFVDomain_MultipleCreateDelete(t *testing.T) {
+	rName := acctest.RandString(5)
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:     func() { testAccPreCheck(t) },
+		Providers:    testAccProviders,
+		CheckDestroy: testAccCheckAciFVDomainDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccFVDomainConfigs(rName),
 			},
 		},
 	})
@@ -380,6 +418,32 @@ func testAccCheckAciFVDomainDestroy(s *terraform.State) error {
 		}
 	}
 	return nil
+}
+
+func CreateAccFVDomainWithInvalidTDn(rName string) string {
+	fmt.Println("=== STEP  testing epg_to_domain creation with invalid tdn")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name = "%s"
+	}
+
+	resource "aci_application_profile" "test" {
+		name = "%s"
+		tenant_dn = aci_tenant.test.id
+	}
+
+	resource "aci_application_epg" "test" {
+		name = "%s"
+		application_profile_dn = aci_application_profile.test.id
+	}
+
+	resource "aci_epg_to_domain" "test" {
+		application_epg_dn = aci_application_epg.test.id
+		tdn = aci_tenant.test.id
+	}
+
+	`, rName, rName, rName)
+	return resource
 }
 
 func CreateAccFVDomainWithInvalidApplicationEPG(rName string) string {
@@ -472,6 +536,56 @@ func CreateAccFVDomainConfigFCDomain(rName string) string {
 	return resource
 }
 
+func CreateAccFVDomainConfigs(rName string) string {
+	fmt.Println("=== STEP  testing mutiple epg_to_domain creation")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name        = "%s"
+	  }
+	  
+	  resource "aci_application_profile" "test" {
+		tenant_dn = aci_tenant.test.id
+		name      = "%s"
+	  }
+
+	  resource "aci_application_epg" "test" {
+		application_profile_dn = aci_application_profile.test.id
+		name                   = "%s"
+	  }
+
+	  resource "aci_vmm_domain" "test1" {
+		name = "%s"
+		provider_profile_dn = "uni/vmmp-VMware"
+	  }
+
+	  resource "aci_vmm_domain" "test2" {
+		name = "%s"
+		provider_profile_dn = "uni/vmmp-VMware"
+	  }
+
+	  resource "aci_vmm_domain" "test3" {
+		name = "%s"
+		provider_profile_dn = "uni/vmmp-VMware"
+	  }
+	  
+	 resource "aci_epg_to_domain" "test1" {
+		application_epg_dn    = aci_application_epg.test.id
+		tdn                   = aci_vmm_domain.test1.id
+	  }
+
+	  resource "aci_epg_to_domain" "test2" {
+		application_epg_dn    = aci_application_epg.test.id
+		tdn                   = aci_vmm_domain.test2.id
+	  }
+
+	  resource "aci_epg_to_domain" "test3" {
+		application_epg_dn    = aci_application_epg.test.id
+		tdn                   = aci_vmm_domain.test3.id
+	  }
+	`, rName, rName, rName, rName+"1", rName+"2", rName+"3")
+	return resource
+}
+
 func CreateAccFVDomainConfig(rName string) string {
 	fmt.Println("=== STEP  testing epg_to_domain creation with required parameters only")
 	resource := fmt.Sprintf(`
@@ -492,6 +606,7 @@ func CreateAccFVDomainConfig(rName string) string {
 	  resource "aci_vmm_domain" "test" {
 		name = "%s"
 		provider_profile_dn = "uni/vmmp-VMware"
+		enable_ave = "yes"
 	  }
 	  
 	 resource "aci_epg_to_domain" "test" {
@@ -566,7 +681,7 @@ func CreateAccFVDomainConfigWithOptionalValues(rName string) string {
   		epg_cos               = "Cos5"
   		epg_cos_pref          = "enabled"
   		instr_imedcy          = "immediate"
-  		lag_policy_name       = "0"
+  		lag_policy_name       = "lag_policy_name"
   		netflow_dir           = "ingress"
   		netflow_pref          = "enabled"
   		num_ports             = "3"
@@ -650,6 +765,7 @@ func CreateAccFVDomainUpdatedAttr(rName, attribute, value string) string {
 	  resource "aci_vmm_domain" "test" {
 		name = "%s"
 		provider_profile_dn = "uni/vmmp-VMware"
+		enable_ave = "yes"
 	  }
 	  
 	 resource "aci_epg_to_domain" "test" {
