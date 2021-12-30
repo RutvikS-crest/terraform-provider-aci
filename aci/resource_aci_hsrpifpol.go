@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"reflect"
 	"sort"
 	"strings"
 
@@ -106,11 +107,22 @@ func setHSRPInterfacePolicyAttributes(hsrpIfPol *models.HSRPInterfacePolicy, d *
 	d.Set("annotation", hsrpIfPolMap["annotation"])
 	ctrlGet := make([]string, 0, 1)
 	for _, val := range strings.Split(hsrpIfPolMap["ctrl"], ",") {
-		ctrlGet = append(ctrlGet, strings.Trim(val, " "))
+		if val != "" {
+			ctrlGet = append(ctrlGet, strings.Trim(val, " "))
+		}
 	}
 	sort.Strings(ctrlGet)
-	if len(ctrlGet) == 1 && ctrlGet[0] == "" {
-		d.Set("ctrl", make([]string, 0, 1))
+	if ctrlInp, ok := d.GetOk("ctrl"); ok {
+		ctrlAct := make([]string, 0, 1)
+		for _, val := range ctrlInp.([]interface{}) {
+			ctrlAct = append(ctrlAct, val.(string))
+		}
+		sort.Strings(ctrlAct)
+		if reflect.DeepEqual(ctrlAct, ctrlGet) {
+			d.Set("ctrl", d.Get("ctrl").([]interface{}))
+		} else {
+			d.Set("ctrl", ctrlGet)
+		}
 	} else {
 		d.Set("ctrl", ctrlGet)
 	}
@@ -162,8 +174,14 @@ func resourceAciHSRPInterfacePolicyCreate(ctx context.Context, d *schema.Resourc
 		for _, val := range ctrl.([]interface{}) {
 			ctrlList = append(ctrlList, val.(string))
 		}
+		err := checkDuplicate(ctrlList)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 		ctrl := strings.Join(ctrlList, ",")
 		hsrpIfPolAttr.Ctrl = ctrl
+	} else {
+		hsrpIfPolAttr.Ctrl = ""
 	}
 	if Delay, ok := d.GetOk("delay"); ok {
 		hsrpIfPolAttr.Delay = Delay.(string)
@@ -208,8 +226,14 @@ func resourceAciHSRPInterfacePolicyUpdate(ctx context.Context, d *schema.Resourc
 		for _, val := range ctrl.([]interface{}) {
 			ctrlList = append(ctrlList, val.(string))
 		}
+		err := checkDuplicate(ctrlList)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 		ctrl := strings.Join(ctrlList, ",")
 		hsrpIfPolAttr.Ctrl = ctrl
+	} else {
+		hsrpIfPolAttr.Ctrl = ""
 	}
 	if Delay, ok := d.GetOk("delay"); ok {
 		hsrpIfPolAttr.Delay = Delay.(string)

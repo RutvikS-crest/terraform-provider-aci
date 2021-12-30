@@ -40,7 +40,7 @@ func TestAccAciHsrpInterfacePolicy_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
-					resource.TestCheckResourceAttr(resourceName, "ctrl", ""),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "delay", "0"),
 					resource.TestCheckResourceAttr(resourceName, "reload_delay", "0"),
 				),
@@ -49,12 +49,16 @@ func TestAccAciHsrpInterfacePolicy_Basic(t *testing.T) {
 				Config: CreateAccHsrpInterfacePolicyConfigWithOptionalValues(rName, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciHsrpInterfacePolicyExists(resourceName, &hsrp_interface_policy_updated),
+					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rName)),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_hsrp_interface_policy"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl", "bfd"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "bfd"),
 					resource.TestCheckResourceAttr(resourceName, "delay", "1"),
 					resource.TestCheckResourceAttr(resourceName, "reload_delay", "1"),
+					testAccCheckAciHsrpInterfacePolicyIdEqual(&hsrp_interface_policy_default, &hsrp_interface_policy_updated),
 				),
 			},
 			{
@@ -63,12 +67,12 @@ func TestAccAciHsrpInterfacePolicy_Basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config:      CreateAccHsrpInterfacePolicyConfigInvalidName(acctest.RandString(65)),
+				Config:      CreateAccHsrpInterfacePolicyConfigInvalidName(rName, acctest.RandString(65)),
 				ExpectError: regexp.MustCompile(`property name of (.)* failed validation`),
 			},
 
 			{
-				Config: CreateAccHsrpInterfacePolicyConfigUpdatedRequiredParams(rNameUpdated, rName),
+				Config: CreateAccHsrpInterfacePolicyConfigWithUpdatedRequiredParams(rNameUpdated, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciHsrpInterfacePolicyExists(resourceName, &hsrp_interface_policy_updated),
 					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rNameUpdated)),
@@ -80,7 +84,7 @@ func TestAccAciHsrpInterfacePolicy_Basic(t *testing.T) {
 				Config: CreateAccHsrpInterfacePolicyConfig(rName, rName),
 			},
 			{
-				Config: CreateAccHsrpInterfacePolicyConfigUpdatedRequiredParams(rName, rNameUpdated),
+				Config: CreateAccHsrpInterfacePolicyConfigWithUpdatedRequiredParams(rName, rNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciHsrpInterfacePolicyExists(resourceName, &hsrp_interface_policy_updated),
 					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rName)),
@@ -115,35 +119,27 @@ func TestAccAciHsrpInterfacePolicy_Update(t *testing.T) {
 					testAccCheckAciHsrpInterfacePolicyExists(resourceName, &hsrp_interface_policy_default),
 				),
 			},
-
 			{
-
-				Config: CreateAccHsrpInterfacePolicyUpdatedAttr(rName, rName, "ctrl", "bia"),
+				Config: CreateAccHsrpInterfacePolicyUpdatedAttrList(rName, rName, "ctrl", StringListtoString([]string{"bia"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciHsrpInterfacePolicyExists(resourceName, &hsrp_interface_policy_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl", "bia"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "bia"),
 					testAccCheckAciHsrpInterfacePolicyIdEqual(&hsrp_interface_policy_default, &hsrp_interface_policy_updated),
 				),
 			},
 			{
-
-				Config: CreateAccHsrpInterfacePolicyUpdatedAttr(rName, rName, "ctrl", "bfd,bia"),
+				Config: CreateAccHsrpInterfacePolicyUpdatedAttrList(rName, rName, "ctrl", StringListtoString([]string{"bia", "bfd"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciHsrpInterfacePolicyExists(resourceName, &hsrp_interface_policy_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl", "bfd,bia"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "bia"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "bfd"),
 					testAccCheckAciHsrpInterfacePolicyIdEqual(&hsrp_interface_policy_default, &hsrp_interface_policy_updated),
 				),
 			},
 			{
-				Config: CreateAccHsrpInterfacePolicyUpdatedAttr(rName, rName, "ctrl", ""),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciHsrpInterfacePolicyExists(resourceName, &hsrp_interface_policy_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl", ""),
-					testAccCheckAciHsrpInterfacePolicyIdEqual(&hsrp_interface_policy_default, &hsrp_interface_policy_updated),
-				),
-			},
-			{
-				Config: CreateAccHsrpInterfacePolicyConfig(rName, rName),
+				Config: CreateAccHsrpInterfacePolicyUpdatedAttrList(rName, rName, "ctrl", StringListtoString([]string{"bia"})),
 			},
 		},
 	})
@@ -179,12 +175,12 @@ func TestAccAciHsrpInterfacePolicy_Negative(t *testing.T) {
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
 			{
-				Config:      CreateAccHsrpInterfacePolicyUpdatedAttr(rName, rName, "ctrl", randomValue),
+				Config:      CreateAccHsrpInterfacePolicyUpdatedAttrList(rName, rName, "ctrl", StringListtoString([]string{randomValue})),
 				ExpectError: regexp.MustCompile(`expected(.*)to be one of(.)*, got(.)*`),
 			},
 			{
-				Config:      CreateAccHsrpInterfacePolicyUpdatedAttr(rName, rName, "ctrl", "bfd,bfd"),
-				ExpectError: regexp.MustCompile(`unexpected duplicate values in ctrl`),
+				Config:      CreateAccHsrpInterfacePolicyUpdatedAttrList(rName, rName, "ctrl", StringListtoString([]string{"bfd", "bfd"})),
+				ExpectError: regexp.MustCompile(`duplication is not supported in list`),
 			},
 			{
 				Config:      CreateAccHsrpInterfacePolicyUpdatedAttr(rName, rName, "delay", randomValue),
@@ -313,7 +309,7 @@ func CreateAccAciHsrpInterfaceProfilesConfig(rName string) string {
 
 }
 func CreateHsrpInterfacePolicyWithoutRequired(fvTenantName, rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing hsrp_interface_policy creation without Requierd Parameters ", attrName)
+	fmt.Println("=== STEP  Basic: testing hsrp_interface_policy creation without Required Parameters ", attrName)
 	rBlock := `
 	
 	resource "aci_tenant" "test" {
@@ -327,7 +323,6 @@ func CreateHsrpInterfacePolicyWithoutRequired(fvTenantName, rName, attrName stri
 	resource "aci_hsrp_interface_policy" "test" {
 	#	tenant_dn  = aci_tenant.test.id
 		name  = "%s"
-		description = "created while acceptance testing"
 	}
 		`
 	case "name":
@@ -335,15 +330,14 @@ func CreateHsrpInterfacePolicyWithoutRequired(fvTenantName, rName, attrName stri
 	resource "aci_hsrp_interface_policy" "test" {
 		tenant_dn  = aci_tenant.test.id
 	#	name  = "%s"
-		description = "created while acceptance testing"
 	}
 		`
 	}
 	return fmt.Sprintf(rBlock, fvTenantName, rName)
 }
 
-func CreateAccHsrpInterfacePolicyConfigUpdatedRequiredParams(rName, rName2 string) string {
-	fmt.Println("=== STEP  testing hsrp_interface_policy updation using required arguments")
+func CreateAccHsrpInterfacePolicyConfigWithUpdatedRequiredParams(rName, rName2 string) string {
+	fmt.Println("=== STEP  testing hsrp_interface_policy updation of required arguments")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -374,7 +368,7 @@ func CreateAccHsrpInterfacePolicyConfigUpdateWithoutRequiredArguments(rName, att
 	return resource
 }
 
-func CreateAccHsrpInterfacePolicyConfigInvalidName(rName string) string {
+func CreateAccHsrpInterfacePolicyConfigInvalidName(prName, rName string) string {
 	fmt.Println("=== STEP  testing hsrp_interface_policy creation with Invalid Name")
 	resource := fmt.Sprintf(`
 	
@@ -387,7 +381,7 @@ func CreateAccHsrpInterfacePolicyConfigInvalidName(rName string) string {
 		tenant_dn  = aci_tenant.test.id
 		name  = "%s"
 	}
-	`, rName, rName)
+	`, prName, rName)
 	return resource
 }
 
@@ -440,7 +434,7 @@ func CreateAccHsrpInterfacePolicyConfigWithOptionalValues(fvTenantName, rName st
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_hsrp_interface_policy"
-		ctrl = "bfd"
+		ctrl = ["bfd"]
 		delay = "1"
 		reload_delay = "1"
 	}
@@ -462,6 +456,24 @@ func CreateAccHsrpInterfacePolicyUpdatedAttr(fvTenantName, rName, attribute, val
 		tenant_dn  = aci_tenant.test.id
 		name  = "%s"
 		%s = "%s"
+	}
+	`, fvTenantName, rName, attribute, value)
+	return resource
+}
+
+func CreateAccHsrpInterfacePolicyUpdatedAttrList(fvTenantName, rName, attribute, value string) string {
+	fmt.Printf("=== STEP  testing hsrp_interface_policy attribute: %s=%s \n", attribute, value)
+	resource := fmt.Sprintf(`
+	
+	resource "aci_tenant" "test" {
+		name 		= "%s"
+		description = "tenant created while acceptance testing"
+	}
+	
+	resource "aci_hsrp_interface_policy" "test" {
+		tenant_dn  = aci_tenant.test.id
+		name  = "%s"
+		%s = %s
 	}
 	`, fvTenantName, rName, attribute, value)
 	return resource

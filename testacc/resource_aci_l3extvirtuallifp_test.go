@@ -65,6 +65,9 @@ func TestAccAciL3outFloatingSVI_Basic(t *testing.T) {
 				Config: CreateAccL3outFloatingSVIConfigWithOptionalValues(rName, rName, rName, rName, nodeDn, encap),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "logical_interface_profile_dn", fmt.Sprintf("uni/tn-%s/out-%s/lnodep-%s/lifp-%s", rName, rName, rName, rName)),
+					resource.TestCheckResourceAttr(resourceName, "node_dn", nodeDn),
+					resource.TestCheckResourceAttr(resourceName, "encap", encap),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "addr", "1.2.1.1/16"),
@@ -78,6 +81,7 @@ func TestAccAciL3outFloatingSVI_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "mtu", "577"),
 					resource.TestCheckResourceAttr(resourceName, "target_dscp", "CS0"),
 					resource.TestCheckResourceAttr(resourceName, "relation_l3ext_rs_dyn_path_att.#", "0"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
 				),
 			},
 			{
@@ -326,6 +330,22 @@ func TestAccAciL3outFloatingSVI_Update(t *testing.T) {
 				),
 			},
 			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "mtu", "576"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "mtu", "576"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
+				Config: CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "mtu", "9216"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
+					resource.TestCheckResourceAttr(resourceName, "mtu", "9216"),
+					testAccCheckAciL3outFloatingSVIIdEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
+				),
+			},
+			{
 				Config: CreateAccL3outFloatingSVIConfig(rName, rName, rName, rName, nodeDn, encap),
 			},
 		},
@@ -349,7 +369,15 @@ func TestAccAciL3outFloatingSVI_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccL3outFloatingSVIWithInValidParentDn(rName, rName, rName, rName, nodeDn, encap),
-				ExpectError: regexp.MustCompile(`configured object (.)+ not found (.)+,`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
+			},
+			{
+				Config:      CreateAccL3outFloatingSVIConfig(rName, rName, rName, rName, nodeDn, randomValue),
+				ExpectError: regexp.MustCompile(`unknown property value`),
+			},
+			{
+				Config:      CreateAccL3outFloatingSVIConfig(rName, rName, rName, rName, randomValue, encap),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
 				Config:      CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "description", acctest.RandString(129)),
@@ -387,6 +415,11 @@ func TestAccAciL3outFloatingSVI_Negative(t *testing.T) {
 				Config:      CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "mode", randomValue),
 				ExpectError: regexp.MustCompile(`expected(.)*to be one of(.)*, got(.)*`),
 			},
+			// mac attribute negative test case not possible due to server side issue
+			// {
+			// 	Config:      CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "if_inst_t", randomValue),
+			// 	ExpectError: regexp.MustCompile(`expected(.)*to be one of(.)*, got(.)*`),
+			// },
 			{
 				Config:      CreateAccL3outFloatingSVIUpdatedAttr(rName, rName, rName, rName, nodeDn, encap, "mtu", randomValue),
 				ExpectError: regexp.MustCompile(`unknown property value`),
@@ -524,7 +557,6 @@ func CreateL3outFloatingSVIWithoutRequired(fvTenantName, l3extOutName, l3extLNod
 	#	logical_interface_profile_dn  = aci_logical_interface_profile.test.id
 		node_dn  = "%s"	
 		encap  = "%s"
-		description = "created while acceptance testing"
 		if_inst_t = "ext-svi"
 	}
 	`
@@ -534,7 +566,6 @@ func CreateL3outFloatingSVIWithoutRequired(fvTenantName, l3extOutName, l3extLNod
 		logical_interface_profile_dn  = aci_logical_interface_profile.test.id
 	#	node_dn  = "%s"
 		encap  = "%s"
-		description = "created while acceptance testing"
 		if_inst_t = "ext-svi"
 	}
 		`
@@ -544,7 +575,6 @@ func CreateL3outFloatingSVIWithoutRequired(fvTenantName, l3extOutName, l3extLNod
 		logical_interface_profile_dn  = aci_logical_interface_profile.test.id
 		node_dn  = "%s"
 	#	encap  = "%s"
-		description = "created while acceptance testing"
 		if_inst_t = "ext-svi"
 	}
 		`
@@ -715,7 +745,7 @@ func CreateAccL3outFloatingSVIWithInValidParentDn(fvTenantName, l3extOutName, l3
 	}
 	
 	resource "aci_l3out_floating_svi" "test" {
-		logical_interface_profile_dn  = "${aci_logical_interface_profile.test.id}invalid"
+		logical_interface_profile_dn  = "aci_logical_node_profile.test.id"
 		node_dn  = "%s"
 		encap  = "%s"
 		if_inst_t = "ext-svi"
@@ -811,7 +841,7 @@ func CreateAccL3outFloatingSVIUpdatedAttr(fvTenantName, l3extOutName, l3extLNode
 }
 
 func CreateAccL3outFloatingSVIConfigUpdateWithoutRequiredParameters(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing l3out_floating_svi updation with attribute: %s=%s \n", attribute, value)
+	fmt.Printf("=== STEP  testing l3out_floating_svi updation with attribute: %s=%s without required arguments\n", attribute, value)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {

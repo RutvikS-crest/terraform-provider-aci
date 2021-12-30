@@ -60,7 +60,7 @@ func TestAccAciL3outBfdInterfaceProfile_Basic(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"key"},
 			},
 			{
-				Config: CreateAccL3outBfdInterfaceProfileConfigWithRequiredParams(rName, pNameUpdated),
+				Config: CreateAccL3outBfdInterfaceProfileConfigUpdatedWithRequiredParams(rName, pNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outBfdInterfaceProfileExists(resourceName, &l3out_bfd_interface_profile_updated),
 					resource.TestCheckResourceAttr(resourceName, "logical_interface_profile_dn", fmt.Sprintf("uni/tn-%s/out-%s/lnodep-%s/lifp-%s", rName, rName, rName, pNameUpdated)),
@@ -300,8 +300,8 @@ func CreateL3outBfdInterfaceProfileWithoutRequired() string {
 	return resource
 }
 
-func CreateAccL3outBfdInterfaceProfileConfigWithRequiredParams(rName, pNameupdated string) string {
-	fmt.Println("=== STEP Testing l3out_bfd_interface_profile creation with different logical_interface_profile")
+func CreateAccL3outBfdInterfaceProfileConfigUpdatedWithRequiredParams(rName, pNameupdated string) string {
+	fmt.Println("=== STEP Testing l3out_bfd_interface_profile updation of required arguments")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
