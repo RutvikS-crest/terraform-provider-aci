@@ -44,8 +44,7 @@ func TestAccAciTabooContract_Basic(t *testing.T) {
 				),
 			},
 			{
-				// in this step all optional attribute expect realational attribute are given for the same resource and then compared
-				Config: CreateAccTabooContractConfigWithOptionalValues(rName, rName), // configuration to update optional filelds
+				Config: CreateAccTabooContractConfigWithOptionalValues(rName, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciTabooContractExists(resourceName, &taboo_contract_updated),
 					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rName)),
@@ -61,7 +60,7 @@ func TestAccAciTabooContract_Basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config:      CreateAccTabooContractConfigUpdatedName(acctest.RandString(65)),
+				Config:      CreateAccTabooContractConfigUpdatedName(rName, acctest.RandString(65)),
 				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
 			},
 
@@ -90,35 +89,7 @@ func TestAccAciTabooContract_Basic(t *testing.T) {
 	})
 }
 
-func TestAccAciTabooContract_Update(t *testing.T) {
-	var taboo_contract_default models.TabooContract
-	//var taboo_contract_updated models.TabooContract
-	resourceName := "aci_taboo_contract.test"
-	rName := makeTestVariable(acctest.RandString(5))
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
-		CheckDestroy:      testAccCheckAciTabooContractDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: CreateAccTabooContractConfig(rName, rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTabooContractExists(resourceName, &taboo_contract_default),
-				),
-			},
-
-			{
-				Config: CreateAccTabooContractConfig(rName, rName),
-			},
-		},
-	})
-}
-
 func TestAccAciTabooContract_Negative(t *testing.T) {
-	//var taboo_contract_default models.TabooContract
-	//var taboo_contract_updated models.TabooContract
-	//resourceName := "aci_taboo_contract.test"
 	rName := makeTestVariable(acctest.RandString(5))
 
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
@@ -170,7 +141,7 @@ func TestAccAciTabooContract_MultipleCreateDelete(t *testing.T) {
 		Steps: []resource.TestStep{
 
 			{
-				Config: CreateAccTabooContractConfig(rName, rName),
+				Config: CreateAccTabooContractConfigs(rName),
 			},
 		},
 	})
@@ -272,7 +243,7 @@ func CreateTabooContractWithoutRequired(fvTenantName, rName, attrName string) st
 }
 
 func CreateAccTabooContractConfigWithRequiredParams(fvTenantName, rName string) string {
-	fmt.Println("=== STEP  testing taboo_contract creation with required arguements only")
+	fmt.Println("=== STEP  testing taboo_contract creation with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -290,7 +261,7 @@ func CreateAccTabooContractConfigWithRequiredParams(fvTenantName, rName string) 
 }
 
 func CreateAccTabooContractConfig(fvTenantName, rName string) string {
-	fmt.Println("=== STEP  testing taboo_contract creation with required arguements only")
+	fmt.Println("=== STEP  testing taboo_contract creation with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -393,11 +364,11 @@ func CreateAccTabooContractRemovingRequiredField() string {
 	return resource
 }
 
-func CreateAccTabooContractConfigUpdatedName(longerName string) string {
-	fmt.Println("=== STEP  Basic: testing Tabboo Contract creation with invalid name with long length")
+func CreateAccTabooContractConfigUpdatedName(rName, longerName string) string {
+	fmt.Println("=== STEP  Basic: testing Tabboo Contract Updation with invalid name of long length")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
-		name 		= "aci_tenant"
+		name 		= "%s"
 		description = "tenant created while acceptance testing"
 	
 	}
@@ -406,7 +377,7 @@ func CreateAccTabooContractConfigUpdatedName(longerName string) string {
 		tenant_dn  = aci_tenant.test.id
 		name  = "%s"
 	}
-	`, longerName)
+	`, rName, longerName)
 	return resource
 }
 
