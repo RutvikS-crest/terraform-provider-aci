@@ -52,6 +52,7 @@ func TestAccAciTabooContract_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_taboo_contract"),
+					testAccCheckAciTabooContractIdEqual(&taboo_contract_default, &taboo_contract_updated),
 				),
 			},
 			{
