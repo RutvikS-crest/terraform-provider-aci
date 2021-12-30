@@ -29,11 +29,13 @@ func resourceAciFabricNode() *schema.Resource {
 			"logical_node_profile_dn": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 
 			"tdn": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 
 			"config_issues": &schema.Schema{

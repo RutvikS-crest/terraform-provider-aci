@@ -98,6 +98,7 @@ func CreateAccTabooContractDSWithInvalidParentDn(fvTenantName, rName string) str
 	}
 
 	data "aci_taboo_contract" "test" {
+
 		tenant_dn  = "${aci_tenant.test.id}_invalid"
 		name  = aci_taboo_contract.test.name
 		depends_on = [

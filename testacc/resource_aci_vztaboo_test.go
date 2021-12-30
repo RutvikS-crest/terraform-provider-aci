@@ -44,7 +44,6 @@ func TestAccAciTabooContract_Basic(t *testing.T) {
 				),
 			},
 			{
-
 				Config: CreateAccTabooContractConfigWithOptionalValues(rName, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciTabooContractExists(resourceName, &taboo_contract_updated),
