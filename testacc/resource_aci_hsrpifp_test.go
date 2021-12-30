@@ -166,6 +166,20 @@ func TestAccAciL3outHSRPInterfaceProfile_RelationParameters(t *testing.T) {
 	})
 }
 
+func TestAccAciL3outHSRPInterfaceProfile_MultipleCreateDelete(t *testing.T) {
+	rName := makeTestVariable(acctest.RandString(5))
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciL3outHSRPInterfaceProfileDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccL3outHSRPInterfaceProfileConfigs(rName),
+			},
+		},
+	})
+}
+
 func testAccCheckAciL3outHSRPInterfaceProfileExists(name string, l3out_hsrp_interface_profile *models.L3outHSRPInterfaceProfile) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
@@ -266,7 +280,7 @@ func CreateL3outHSRPInterfaceProfileWithoutRequired(fvTenantName, l3extOutName, 
 }
 
 func CreateAccL3outHSRPInterfaceProfileConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing l3out_hsrp_interface_profile creation with resource name", rName)
+	fmt.Println("=== STEP  testing l3out_hsrp_interface_profile creation with updated resource name", rName)
 	resource := fmt.Sprintf(`
 
 	resource "aci_tenant" "test" {
@@ -295,8 +309,8 @@ func CreateAccL3outHSRPInterfaceProfileConfigWithRequiredParams(rName string) st
 	return resource
 }
 
-func CreateAccL3outHSRPInterfaceProfileConfig(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName string) string {
-	fmt.Println("=== STEP  testing l3out_hsrp_interface_profile creation with required arguments only")
+func CreateAccL3outHSRPInterfaceProfileConfigs(rName string) string {
+	fmt.Println("=== STEP  testing l3out_hsrp_interface_profile multiple creation with required arguments")
 	resource := fmt.Sprintf(`
 
 	resource "aci_tenant" "test" {
@@ -307,19 +321,64 @@ func CreateAccL3outHSRPInterfaceProfileConfig(fvTenantName, l3extOutName, l3extL
 
 	resource "aci_l3_outside" "test" {
 		name 		= "%s"
-		description = "l3_outside created while acceptance testing"
 		tenant_dn = aci_tenant.test.id
 	}
 
 	resource "aci_logical_node_profile" "test" {
 		name 		= "%s"
-		description = "logical_node_profile created while acceptance testing"
+		l3_outside_dn = aci_l3_outside.test.id
+	}
+
+	resource "aci_logical_interface_profile" "test1" {
+		name 		= "%s"
+		logical_node_profile_dn = aci_logical_node_profile.test.id
+	}
+
+	resource "aci_logical_interface_profile" "test2" {
+		name 		= "%s"
+		logical_node_profile_dn = aci_logical_node_profile.test.id
+	}
+
+	resource "aci_logical_interface_profile" "test3" {
+		name 		= "%s"
+		logical_node_profile_dn = aci_logical_node_profile.test.id
+	}
+
+	resource "aci_l3out_hsrp_interface_profile" "test1" {
+		logical_interface_profile_dn  = aci_logical_interface_profile.test1.id
+	}
+
+	resource "aci_l3out_hsrp_interface_profile" "test2" {
+		logical_interface_profile_dn  = aci_logical_interface_profile.test2.id
+	}
+
+	resource "aci_l3out_hsrp_interface_profile" "test3" {
+		logical_interface_profile_dn  = aci_logical_interface_profile.test3.id
+	}
+	`, rName, rName, rName, rName+"1", rName+"2", rName+"3")
+	return resource
+}
+
+func CreateAccL3outHSRPInterfaceProfileConfig(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName string) string {
+	fmt.Println("=== STEP  testing l3out_hsrp_interface_profile creation with required arguments only")
+	resource := fmt.Sprintf(`
+
+	resource "aci_tenant" "test" {
+		name 		= "%s"
+	}
+
+	resource "aci_l3_outside" "test" {
+		name 		= "%s"
+		tenant_dn = aci_tenant.test.id
+	}
+
+	resource "aci_logical_node_profile" "test" {
+		name 		= "%s"
 		l3_outside_dn = aci_l3_outside.test.id
 	}
 
 	resource "aci_logical_interface_profile" "test" {
 		name 		= "%s"
-		description = "logical_interface_profile created while acceptance testing"
 		logical_node_profile_dn = aci_logical_node_profile.test.id
 	}
 
