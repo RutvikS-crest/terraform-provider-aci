@@ -49,7 +49,7 @@ func resourceAciL3outHSRPInterfaceProfile() *schema.Resource {
 			},
 
 			"relation_hsrp_rs_if_pol": &schema.Schema{
-				Type:     schema.TypeString,
+				Type: schema.TypeString,
 
 				Optional: true,
 			},
