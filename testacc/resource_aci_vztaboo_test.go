@@ -106,7 +106,7 @@ func TestAccAciTabooContract_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccTabooContractWithInValidParentDn(rName, rName),
-				ExpectError: regexp.MustCompile(`configured object (.)+ not found (.)+,`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
 				Config:      CreateAccTabooContractUpdatedAttr(rName, rName, "description", acctest.RandString(129)),
@@ -309,22 +309,20 @@ func CreateAccTabooContractConfigs(rName string) string {
 	return resource
 }
 
-func CreateAccTabooContractWithInValidParentDn(fvTenantName, rName string) string {
+func CreateAccTabooContractWithInValidParentDn(rName, prName string) string {
 	fmt.Println("=== STEP  Negative Case: testing taboo_contract creation with invalid parent Dn")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-		description = "tenant created while acceptance testing"
-	
+	resource "aci_aaa_domain" "test" {
+		name        = "%s"
 	}
 	
 	resource "aci_taboo_contract" "test" {
-		tenant_dn  = "${aci_tenant.test.id}invalid"
+		tenant_dn  = aci_aaa_domain.test.id
 		name  = "%s"	
 	
 	}
-	`, fvTenantName, rName)
+	`, prName, rName)
 	return resource
 }
 
