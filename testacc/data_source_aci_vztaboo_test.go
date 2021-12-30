@@ -58,7 +58,7 @@ func TestAccAciTabooContractDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccTabooContractConfigDataSource(fvTenantName, rName string) string {
-	fmt.Println("=== STEP  testing taboo_contract creation with required arguements only")
+	fmt.Println("=== STEP  testing taboo_contract creation with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -98,8 +98,8 @@ func CreateAccTabooContractDSWithInvalidParentDn(fvTenantName, rName string) str
 	}
 
 	data "aci_taboo_contract" "test" {
-		tenant_dn  = aci_tenant.test.id
-		name  = "${aci_taboo_contract.test.name}_invalid"
+		tenant_dn  = "${aci_tenant.test.id}_invalid"
+		name  = aci_taboo_contract.test.name
 		depends_on = [
 			aci_taboo_contract.test
 		]
@@ -109,7 +109,7 @@ func CreateAccTabooContractDSWithInvalidParentDn(fvTenantName, rName string) str
 }
 
 func CreateAccTabooContractDataSourceUpdate(fvTenantName, rName, key, value string) string {
-	fmt.Println("=== STEP  testing taboo_contract creation with required arguements only")
+	fmt.Println("=== STEP  testing taboo_contract Updation with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -160,7 +160,7 @@ func CreateTabooContractDSWithoutName(rName string) string {
 }
 
 func CreateTabooContractDSWithoutTenantdn(rName string) string {
-	fmt.Println("=== STEP  Basic: testing Taboo Contract data source reading without giving name")
+	fmt.Println("=== STEP  Basic: testing Taboo Contract data source reading without giving Tenant Dn")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name 		= "%s"
