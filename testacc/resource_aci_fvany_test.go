@@ -66,7 +66,7 @@ func TestAccAciAny_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config:      CreateAccAnyConfigUpdateWithoutVRFdn(rName),
+				Config:      CreateAccAnyConfigUpdateWithoutVRFdn(),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
@@ -315,7 +315,7 @@ func CreateAccAnyWithoutVRFdn(rName string) string {
 	`, rName, rName)
 	return resource
 }
-func CreateAccAnyConfigUpdateWithoutVRFdn(rName string) string {
+func CreateAccAnyConfigUpdateWithoutVRFdn() string {
 	fmt.Println("=== STEP  Basic: testing any update without required argument")
 	resource := fmt.Sprintln(`
 	resource "aci_any" "test" {
@@ -325,7 +325,7 @@ func CreateAccAnyConfigUpdateWithoutVRFdn(rName string) string {
 		name_alias   = "alias_any"
 		pref_gr_memb = "enabled"
 	}
-	`, rName, rName)
+	`)
 	return resource
 }
 func CreateAccAnyConfigWithAnotherVRFdn(rName, rOther string) string {
@@ -361,7 +361,7 @@ func CreateAccAnyConfigWithInvaliVRFdn(rName string) string {
 	return resource
 }
 func CreateAccAnyConfig(rName string) string {
-	fmt.Println("=== STEP testing any creation with required argument")
+	fmt.Println("=== STEP  testing any creation with required argument")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"

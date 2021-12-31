@@ -36,11 +36,9 @@ func TestAccAciEndpointSecurityGroupDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "flood_on_encap", resourceName, "flood_on_encap"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "match_t", resourceName, "match_t"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "pc_enf_pref", resourceName, "pc_enf_pref"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "pref_gr_memb", resourceName, "pref_gr_memb"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "prio", resourceName, "prio"),
 				),
 			},
 			{

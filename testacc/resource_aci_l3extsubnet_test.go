@@ -44,7 +44,7 @@ func TestAccAciL3ExtSubnet_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
-					resource.TestCheckResourceAttr(resourceName, "aggregate", ""),
+					resource.TestCheckResourceAttr(resourceName, "aggregate", "none"),
 					resource.TestCheckResourceAttr(resourceName, "scope.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "scope.0", "import-security"),
 					resource.TestCheckResourceAttr(resourceName, "relation_l3ext_rs_subnet_to_profile.#", "0"),

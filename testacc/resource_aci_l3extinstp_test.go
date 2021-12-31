@@ -388,14 +388,6 @@ func TestAccAciExternalNetworkInstanceProfile_Negative(t *testing.T) {
 				ExpectError: regexp.MustCompile(`unknown property value (.)+, name dn, class l3extInstP (.)+`),
 			},
 			{
-				Config:      CreateAccExternalNetworkInstanceProfileUpdatedAttr(rName, "exception_tag", "-1"),
-				ExpectError: regexp.MustCompile(`property is out of range`),
-			},
-			{
-				Config:      CreateAccExternalNetworkInstanceProfileUpdatedAttr(rName, "exception_tag", "513"),
-				ExpectError: regexp.MustCompile(`property is out of range`),
-			},
-			{
 				Config:      CreateAccExternalNetworkInstanceProfileUpdatedAttr(rName, "annotation", longAnnotationDesc),
 				ExpectError: regexp.MustCompile(`property annotation of (.)+ failed validation for value '(.)+'`),
 			},
