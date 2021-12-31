@@ -55,7 +55,6 @@ func TestAccAciL3outFloatingSVI_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "if_inst_t", "ext-svi"),
 					resource.TestCheckResourceAttr(resourceName, "ipv6_dad", "enabled"),
 					resource.TestCheckResourceAttr(resourceName, "ll_addr", "::"),
-					resource.TestCheckResourceAttr(resourceName, "mac", "00:22:BD:F8:19:FF"),
 					resource.TestCheckResourceAttr(resourceName, "mode", "regular"),
 					resource.TestCheckResourceAttr(resourceName, "mtu", "inherit"),
 					resource.TestCheckResourceAttr(resourceName, "target_dscp", "unspecified"),
@@ -523,7 +522,7 @@ func testAccCheckAciL3outFloatingSVIIdNotEqual(m1, m2 *models.VirtualLogicalInte
 }
 
 func CreateL3outFloatingSVIWithoutRequired(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, nodeDn, encap, attrName string) string {
-	fmt.Printf("=== STEP  Basic: testing l3out_floating_svi creation without required parameter %s", attrName)
+	fmt.Println("=== STEP  Basic: testing l3out_floating_svi creation without required parameter", attrName)
 	rBlock := `
 	resource "aci_tenant" "test" {
 		name 		= "%s"
@@ -579,7 +578,7 @@ func CreateL3outFloatingSVIWithoutRequired(fvTenantName, l3extOutName, l3extLNod
 	}
 		`
 	}
-	return rBlock
+	return fmt.Sprintf(rBlock, fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, nodeDn, encap)
 }
 
 func CreateAccL3outFloatingSVIConfigWithUpdatedRequiredParams(rName, nodeDn, encap string) string {
