@@ -55,7 +55,6 @@ func TestAccAciL3outFloatingSVI_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "if_inst_t", "ext-svi"),
 					resource.TestCheckResourceAttr(resourceName, "ipv6_dad", "enabled"),
 					resource.TestCheckResourceAttr(resourceName, "ll_addr", "::"),
-					// resource.TestCheckResourceAttr(resourceName, "mac", "00:22:BD:F8:19:FF"),
 					resource.TestCheckResourceAttr(resourceName, "mode", "regular"),
 					resource.TestCheckResourceAttr(resourceName, "mtu", "inherit"),
 					resource.TestCheckResourceAttr(resourceName, "target_dscp", "unspecified"),
