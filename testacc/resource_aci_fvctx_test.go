@@ -1,4 +1,4 @@
-package acctest
+package testacc
 
 import (
 	"fmt"
@@ -21,9 +21,9 @@ func TestAccAciVRF_Basic(t *testing.T) {
 	prOther := makeTestVariable(acctest.RandString(5))
 	longrName := acctest.RandString(65)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciVRFDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciVRFDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      CreateAccVRFWithoutTenant(rName),
@@ -120,9 +120,9 @@ func TestAccAciVRF_NegativeCases(t *testing.T) {
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(5)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciVRFDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciVRFDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccVRFConfig(rName),
@@ -164,18 +164,22 @@ func TestAccAciVRF_NegativeCases(t *testing.T) {
 				ExpectError: regexp.MustCompile(`expected pc_enf_dir to be one of (.)+, got (.)+`),
 			},
 			{
+				Config:      CreateAccVRFUpdatedAttr(rName, "pc_enf_pref", randomValue),
+				ExpectError: regexp.MustCompile(`expected pc_enf_pref to be one of (.)+, got (.)+`),
+			},
+			{
 				Config: CreateAccVRFConfig(rName),
 			},
 		},
 	})
 }
 
-func TestAccVRF_MultipleCreateDelete(t *testing.T) {
+func TestAccAciVRF_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciVRFDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciVRFDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccVRFsConfig(rName),
@@ -184,7 +188,7 @@ func TestAccVRF_MultipleCreateDelete(t *testing.T) {
 	})
 }
 
-func TestAccVRF_RelationParameters(t *testing.T) {
+func TestAccAciVRF_RelationParameters(t *testing.T) {
 	var vrf_default models.VRF
 	var vrf_rel1 models.VRF
 	var vrf_rel2 models.VRF
@@ -193,9 +197,9 @@ func TestAccVRF_RelationParameters(t *testing.T) {
 	relRes1 := makeTestVariable(acctest.RandString(5))
 	relRes2 := makeTestVariable(acctest.RandString(5))
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciVRFDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciVRFDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccVRFConfig(rName),

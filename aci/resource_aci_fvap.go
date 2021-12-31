@@ -61,7 +61,7 @@ func resourceAciApplicationProfile() *schema.Resource {
 
 			"relation_fv_rs_ap_mon_pol": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
+	
 				Optional: true,
 			},
 		}),

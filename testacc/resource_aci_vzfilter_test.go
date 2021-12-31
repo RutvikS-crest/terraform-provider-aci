@@ -1,4 +1,4 @@
-package acctest
+package testacc
 
 import (
 	"fmt"
@@ -22,10 +22,10 @@ func TestAccAciFilter_Basic(t *testing.T) {
 	longrName := acctest.RandString(65)
 	prOther := makeTestVariable(acctest.RandString(5))
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciFilterDestroy,
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciFilterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      CreateAccFilterWithoutName(rName),
@@ -104,16 +104,16 @@ func TestAccAciFilter_Basic(t *testing.T) {
 	)
 }
 
-func TestAccFilter_NegativeCases(t *testing.T) {
+func TestAccAciFilter_NegativeCases(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 	longDescAnnotation := acctest.RandString(129)
 	longNameAlias := acctest.RandString(64)
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(5)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciFilterDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciFilterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccFilterConfig(rName),
@@ -146,12 +146,12 @@ func TestAccFilter_NegativeCases(t *testing.T) {
 	})
 }
 
-func TestAccFilter_MultipleCreateDelete(t *testing.T) {
+func TestAccAciFilter_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciFilterDestroy,
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciFilterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccFiltersConfig(rName),
@@ -275,7 +275,7 @@ func CreateAccFilterWithoutName(rName string) string {
 }
 
 func CreateAccFilterWithoutTenant(rName string) string {
-	fmt.Println("=== STEP  Basic: testing filter creation without giving name")
+	fmt.Println("=== STEP  Basic: testing filter creation without giving tenant_dn")
 	resource := fmt.Sprintf(`
 
 	resource "aci_filter" "test" {
@@ -288,15 +288,19 @@ func CreateAccFilterWithoutTenant(rName string) string {
 func CreateAccFilterWithoutFilter(rName string) string {
 	fmt.Println("=== STEP  Basic: testing filter creation without creating tenant")
 	resource := fmt.Sprintf(`
-	resource "aci_filter" "test" {
+	resource "aci_tenant" "test"{
 		name = "%s"
+	}
+
+	resource "aci_filter" "test" {
+		tenant_dn = 
 	}
 	`, rName)
 	return resource
 }
 
 func CreateAccFilterConfig(rName string) string {
-	fmt.Println("=== STEP  testing filter creation with required arguements")
+	fmt.Println("=== STEP  testing filter creation with required arguments")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -329,7 +333,7 @@ func CreateAccFilterConfigWithOptionalValues(rName string) string {
 }
 
 func CreateAccFilterRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing filter creation with optional parameters")
+	fmt.Println("=== STEP  Basic: testing filter updation without optional parameters")
 	resource := fmt.Sprintln(`
 
 	resource "aci_filter" "test" {

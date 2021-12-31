@@ -46,7 +46,7 @@ func resourceAciTenant() *schema.Resource {
 			},
 			"relation_fv_rs_tenant_mon_pol": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
+			
 				Optional: true,
 			},
 		}),

@@ -1,4 +1,4 @@
-package acctest
+package testacc
 
 import (
 	"fmt"
@@ -23,9 +23,9 @@ func TestAccAciSubnet_Basic(t *testing.T) {
 	ipother, _ := acctest.RandIpAddress("10.21.0.0/16")
 	ipother = fmt.Sprintf("%s/16", ipother)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciSubnetDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciSubnetDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      CreateSubnetWithoutParentDn(ip),
@@ -115,7 +115,7 @@ func TestAccAciSubnet_Basic(t *testing.T) {
 	})
 }
 
-func TestAccSubnet_Update(t *testing.T) {
+func TestAccAciSubnet_Update(t *testing.T) {
 	var subnet_default models.Subnet
 	var subnet_updated models.Subnet
 	resourceName := "aci_subnet.test"
@@ -123,9 +123,9 @@ func TestAccSubnet_Update(t *testing.T) {
 	ip, _ := acctest.RandIpAddress("10.20.0.0/16")
 	ip = fmt.Sprintf("%s/16", ip)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciSubnetDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciSubnetDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccSubnetConfig(rName, ip),
@@ -250,7 +250,7 @@ func TestAccSubnet_Update(t *testing.T) {
 	})
 }
 
-func TestAccSubnet_NegativeCases(t *testing.T) {
+func TestAccAciSubnet_NegativeCases(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 	ip, _ := acctest.RandIpAddress("10.20.0.0/16")
 	ip = fmt.Sprintf("%s/16", ip)
@@ -259,16 +259,16 @@ func TestAccSubnet_NegativeCases(t *testing.T) {
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(5)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciSubnetDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciSubnetDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccSubnetConfig(rName, ip),
 			},
 			{
 				Config:      CreateAccSubnetWithInValidParentDn(rName, ip),
-				ExpectError: regexp.MustCompile(`configured object (.)+ not found (.)+,`),
+				ExpectError: regexp.MustCompile(`is not valid bridge_domain_dn`),
 			},
 			{
 				Config:      CreateAccSubnetUpdatedAttr(rName, ip, "description", longDescAnnotation),
@@ -296,7 +296,7 @@ func TestAccSubnet_NegativeCases(t *testing.T) {
 			},
 			{
 				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"public", "public"})),
-				ExpectError: regexp.MustCompile(`duplication in list`),
+				ExpectError: regexp.MustCompile(`duplication is not supported in list`),
 			},
 			{
 				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "scope", StringListtoString([]string{"private", "public"})),
@@ -312,7 +312,7 @@ func TestAccSubnet_NegativeCases(t *testing.T) {
 			},
 			{
 				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"nd", "nd"})),
-				ExpectError: regexp.MustCompile(`duplication in list`),
+				ExpectError: regexp.MustCompile(`duplication is not supported in list`),
 			},
 			{
 				Config:      CreateAccSubnetUpdatedAttrList(rName, ip, "ctrl", StringListtoString([]string{"unspecified", "nd"})),
@@ -329,7 +329,7 @@ func TestAccSubnet_NegativeCases(t *testing.T) {
 	})
 }
 
-func TestAccSubnet_reltionalParameters(t *testing.T) {
+func TestAccAciSubnet_reltionalParameters(t *testing.T) {
 	var subnet_default models.Subnet
 	var subnet_rel1 models.Subnet
 	var subnet_rel2 models.Subnet
@@ -340,9 +340,9 @@ func TestAccSubnet_reltionalParameters(t *testing.T) {
 	relRes1 := makeTestVariable(acctest.RandString(5))
 	relRes2 := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciSubnetDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciSubnetDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccSubnetConfig(rName, ip),
@@ -386,16 +386,16 @@ func TestAccSubnet_reltionalParameters(t *testing.T) {
 	})
 }
 
-func TestAccSubnet_MultipleCreateDelete(t *testing.T) {
+func TestAccAciSubnet_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 	ip, _ := acctest.RandIpAddress("10.20.0.0/16")
 	ip1 := fmt.Sprintf("%s/16", ip)
 	ip2 := fmt.Sprintf("%s/17", ip)
 	ip3 := fmt.Sprintf("%s/18", ip)
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciSubnetDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciSubnetDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccSubnetsConfig(rName, ip1, ip2, ip3),
@@ -496,7 +496,7 @@ func CreateSubnetWithoutIP(rName string) string {
 }
 
 func CreateAccSubnetConfig(rName, ip string) string {
-	fmt.Println("=== STEP  testing subnet creation with required arguements only")
+	fmt.Println("=== STEP  testing subnet creation with required arguments only")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test"{
 		name = "%s"
@@ -548,20 +548,15 @@ func CreateAccSubnetsConfig(rName, ip1, ip2, ip3 string) string {
 func CreateAccSubnetWithInValidParentDn(rName, ip string) string {
 	fmt.Println("=== STEP  Negative Case: testing subnet creation with invalid parent_dn")
 	resource := fmt.Sprintf(`
-	resource "aci_tenant" "test" {
-		name = "%s"
-	}
-
-	resource "aci_bridge_domain" "test"{
-		tenant_dn = aci_tenant.test.id
+	resource "aci_fc_domain" "test" {
 		name = "%s"
 	}
 
 	resource "aci_subnet" "test" {
-		parent_dn = "${aci_bridge_domain.test.id}xyz"
+		parent_dn = aci_fc_domain.test.id
 		ip = "%s"
 	}
-	`, rName, rName, ip)
+	`, rName, ip)
 	return resource
 }
 

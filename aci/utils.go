@@ -312,7 +312,7 @@ func checkDuplicate(arr []string) error {
 	for i := 0; i < len(arr)-1; i++ {
 		for j := i + 1; j < len(arr); j++ {
 			if arr[i] == arr[j] {
-				return fmt.Errorf("duplication in list")
+				return fmt.Errorf("duplication is not supported in list")
 			}
 		}
 	}
