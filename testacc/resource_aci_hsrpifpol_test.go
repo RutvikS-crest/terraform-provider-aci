@@ -139,7 +139,14 @@ func TestAccAciHsrpInterfacePolicy_Update(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccHsrpInterfacePolicyUpdatedAttrList(rName, rName, "ctrl", StringListtoString([]string{"bia"})),
+				Config: CreateAccHsrpInterfacePolicyUpdatedAttrList(rName, rName, "ctrl", StringListtoString([]string{"bfd", "bia"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciHsrpInterfacePolicyExists(resourceName, &hsrp_interface_policy_updated),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "bfd"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "bia"),
+					testAccCheckAciHsrpInterfacePolicyIdEqual(&hsrp_interface_policy_default, &hsrp_interface_policy_updated),
+				),
 			},
 			{
 				Config: CreateAccHsrpInterfacePolicyUpdatedAttr(rName, rName, "delay", "5000"),
@@ -158,7 +165,7 @@ func TestAccAciHsrpInterfacePolicy_Update(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccHsrpInterfacePolicyUpdatedAttr(rName, rName, "reload_delay", "000"),
+				Config: CreateAccHsrpInterfacePolicyUpdatedAttr(rName, rName, "reload_delay", "5000"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciHsrpInterfacePolicyExists(resourceName, &hsrp_interface_policy_updated),
 					resource.TestCheckResourceAttr(resourceName, "reload_delay", "5000"),

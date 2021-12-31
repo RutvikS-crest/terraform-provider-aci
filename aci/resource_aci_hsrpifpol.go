@@ -44,6 +44,7 @@ func resourceAciHSRPInterfacePolicy() *schema.Resource {
 			"ctrl": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 					ValidateFunc: validation.StringInSlice([]string{
