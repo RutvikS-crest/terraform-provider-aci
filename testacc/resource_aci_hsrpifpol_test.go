@@ -141,6 +141,38 @@ func TestAccAciHsrpInterfacePolicy_Update(t *testing.T) {
 			{
 				Config: CreateAccHsrpInterfacePolicyUpdatedAttrList(rName, rName, "ctrl", StringListtoString([]string{"bia"})),
 			},
+			{
+				Config: CreateAccHsrpInterfacePolicyUpdatedAttr(rName, rName, "delay", "5000"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciHsrpInterfacePolicyExists(resourceName, &hsrp_interface_policy_updated),
+					resource.TestCheckResourceAttr(resourceName, "delay", "5000"),
+					testAccCheckAciHsrpInterfacePolicyIdEqual(&hsrp_interface_policy_default, &hsrp_interface_policy_updated),
+				),
+			},
+			{
+				Config: CreateAccHsrpInterfacePolicyUpdatedAttr(rName, rName, "delay", "10000"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciHsrpInterfacePolicyExists(resourceName, &hsrp_interface_policy_updated),
+					resource.TestCheckResourceAttr(resourceName, "delay", "10000"),
+					testAccCheckAciHsrpInterfacePolicyIdEqual(&hsrp_interface_policy_default, &hsrp_interface_policy_updated),
+				),
+			},
+			{
+				Config: CreateAccHsrpInterfacePolicyUpdatedAttr(rName, rName, "reload_delay", "000"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciHsrpInterfacePolicyExists(resourceName, &hsrp_interface_policy_updated),
+					resource.TestCheckResourceAttr(resourceName, "reload_delay", "5000"),
+					testAccCheckAciHsrpInterfacePolicyIdEqual(&hsrp_interface_policy_default, &hsrp_interface_policy_updated),
+				),
+			},
+			{
+				Config: CreateAccHsrpInterfacePolicyUpdatedAttr(rName, rName, "reload_delay", "10000"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciHsrpInterfacePolicyExists(resourceName, &hsrp_interface_policy_updated),
+					resource.TestCheckResourceAttr(resourceName, "reload_delay", "10000"),
+					testAccCheckAciHsrpInterfacePolicyIdEqual(&hsrp_interface_policy_default, &hsrp_interface_policy_updated),
+				),
+			},
 		},
 	})
 }
@@ -160,7 +192,7 @@ func TestAccAciHsrpInterfacePolicy_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccHsrpInterfacePolicyWithInvalidParentDn(rName, rName),
-				ExpectError: regexp.MustCompile(`configured object (.)+ not found (.)+,`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
 				Config:      CreateAccHsrpInterfacePolicyUpdatedAttr(rName, rName, "description", acctest.RandString(129)),
@@ -406,13 +438,13 @@ func CreateAccHsrpInterfacePolicyWithInvalidParentDn(fvTenantName, rName string)
 	fmt.Println("=== STEP  Negative Case: testing hsrp_interface_policy creation with invalid parent Dn")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_tenant" "test" {
+	resource "aci_aaa_domain" "test" {
 		name 		= "%s"
 		description = "tenant created while acceptance testing"
 	}
 	
 	resource "aci_hsrp_interface_policy" "test" {
-		tenant_dn  = "${aci_tenant.test.id}invalid"
+		tenant_dn  = aci_aaa_domain.test.id
 		name  = "%s"	
 	}
 	`, fvTenantName, rName)

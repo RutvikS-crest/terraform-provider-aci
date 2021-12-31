@@ -36,7 +36,6 @@ func TestAccAciHsrpInterfacePolicyDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "tenant_dn", resourceName, "tenant_dn"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "ctrl", resourceName, "ctrl"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "reload_delay", resourceName, "reload_delay"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "delay", resourceName, "delay"),
