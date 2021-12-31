@@ -159,65 +159,65 @@ func TestAccAciAny_NegativeCases(t *testing.T) {
 	})
 }
 
-func TestAccAciAny_reltionalParameters(t *testing.T) {
-	var any_default models.Any
-	var any_rel1 models.Any
-	var any_rel2 models.Any
-	resourceName := "aci_any.test"
-	rName := makeTestVariable(acctest.RandString(5))
-	rsRelName1 := acctest.RandString(5)
-	rsRelName2 := acctest.RandString(5)
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
-		CheckDestroy:      testAccCheckAciAnyDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: CreateAccAnyConfig(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciAnyExists(resourceName, &any_default),
-				),
-			},
-			{
-				Config: CreateAccAnyUpdatedAnyIntial(rName, rsRelName1),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciAnyExists(resourceName, &any_rel1),
-					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_cons.#", "1"),
-					resource.TestCheckTypeSetElemAttr(resourceName, "relation_vz_rs_any_to_cons.*", fmt.Sprintf("uni/tn-%s/brc-%s", rName, rsRelName1)),
-					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_cons_if.#", "1"),
-					resource.TestCheckTypeSetElemAttr(resourceName, "relation_vz_rs_any_to_cons_if.*", fmt.Sprintf("uni/tn-%s/cif-%s", rName, rsRelName1)),
-					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_prov.#", "1"),
-					resource.TestCheckTypeSetElemAttr(resourceName, "relation_vz_rs_any_to_prov.*", fmt.Sprintf("uni/tn-%s/brc-%s", rName, rsRelName1)),
-					testAccCheckAciAnyIdEqual(&any_default, &any_rel1),
-				),
-			},
-			{
-				Config: CreateAccAnyUpdatedAnyFinal(rName, rsRelName1, rsRelName2),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciAnyExists(resourceName, &any_rel2),
-					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_cons.#", "2"),
-					resource.TestCheckTypeSetElemAttr(resourceName, "relation_vz_rs_any_to_cons.*", fmt.Sprintf("uni/tn-%s/brc-%s", rName, rsRelName1)),
-					resource.TestCheckTypeSetElemAttr(resourceName, "relation_vz_rs_any_to_cons.*", fmt.Sprintf("uni/tn-%s/brc-%s", rName, rsRelName2)),
-					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_cons_if.#", "2"),
-					resource.TestCheckTypeSetElemAttr(resourceName, "relation_vz_rs_any_to_cons_if.*", fmt.Sprintf("uni/tn-%s/cif-%s", rName, rsRelName1)),
-					resource.TestCheckTypeSetElemAttr(resourceName, "relation_vz_rs_any_to_cons_if.*", fmt.Sprintf("uni/tn-%s/cif-%s", rName, rsRelName2)),
-					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_prov.#", "2"),
-					resource.TestCheckTypeSetElemAttr(resourceName, "relation_vz_rs_any_to_prov.*", fmt.Sprintf("uni/tn-%s/brc-%s", rName, rsRelName1)),
-					resource.TestCheckTypeSetElemAttr(resourceName, "relation_vz_rs_any_to_prov.*", fmt.Sprintf("uni/tn-%s/brc-%s", rName, rsRelName2)),
-					testAccCheckAciAnyIdEqual(&any_default, &any_rel1),
-				),
-			},
-			{
-				Config: CreateAccAnyConfig(rName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_cons.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_cons_if.#", "0"),
-					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_prov.#", "0"),
-				),
-			},
-		},
-	})
-}
+// func TestAccAciAny_reltionalParameters(t *testing.T) {
+// 	var any_default models.Any
+// 	var any_rel1 models.Any
+// 	var any_rel2 models.Any
+// 	resourceName := "aci_any.test"
+// 	rName := makeTestVariable(acctest.RandString(5))
+// 	rsRelName1 := acctest.RandString(5)
+// 	rsRelName2 := acctest.RandString(5)
+// 	resource.ParallelTest(t, resource.TestCase{
+// 		PreCheck:          func() { testAccPreCheck(t) },
+// 		ProviderFactories: testAccProviders,
+// 		CheckDestroy:      testAccCheckAciAnyDestroy,
+// 		Steps: []resource.TestStep{
+// 			{
+// 				Config: CreateAccAnyConfig(rName),
+// 				Check: resource.ComposeTestCheckFunc(
+// 					testAccCheckAciAnyExists(resourceName, &any_default),
+// 				),
+// 			},
+// 			{
+// 				Config: CreateAccAnyUpdatedAnyIntial(rName, rsRelName1),
+// 				Check: resource.ComposeTestCheckFunc(
+// 					testAccCheckAciAnyExists(resourceName, &any_rel1),
+// 					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_cons.#", "1"),
+// 					resource.TestCheckTypeSetElemAttr(resourceName, "relation_vz_rs_any_to_cons.*", fmt.Sprintf("uni/tn-%s/brc-%s", rName, rsRelName1)),
+// 					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_cons_if.#", "1"),
+// 					resource.TestCheckTypeSetElemAttr(resourceName, "relation_vz_rs_any_to_cons_if.*", fmt.Sprintf("uni/tn-%s/cif-%s", rName, rsRelName1)),
+// 					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_prov.#", "1"),
+// 					resource.TestCheckTypeSetElemAttr(resourceName, "relation_vz_rs_any_to_prov.*", fmt.Sprintf("uni/tn-%s/brc-%s", rName, rsRelName1)),
+// 					testAccCheckAciAnyIdEqual(&any_default, &any_rel1),
+// 				),
+// 			},
+// 			{
+// 				Config: CreateAccAnyUpdatedAnyFinal(rName, rsRelName1, rsRelName2),
+// 				Check: resource.ComposeTestCheckFunc(
+// 					testAccCheckAciAnyExists(resourceName, &any_rel2),
+// 					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_cons.#", "2"),
+// 					resource.TestCheckTypeSetElemAttr(resourceName, "relation_vz_rs_any_to_cons.*", fmt.Sprintf("uni/tn-%s/brc-%s", rName, rsRelName1)),
+// 					resource.TestCheckTypeSetElemAttr(resourceName, "relation_vz_rs_any_to_cons.*", fmt.Sprintf("uni/tn-%s/brc-%s", rName, rsRelName2)),
+// 					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_cons_if.#", "2"),
+// 					resource.TestCheckTypeSetElemAttr(resourceName, "relation_vz_rs_any_to_cons_if.*", fmt.Sprintf("uni/tn-%s/cif-%s", rName, rsRelName1)),
+// 					resource.TestCheckTypeSetElemAttr(resourceName, "relation_vz_rs_any_to_cons_if.*", fmt.Sprintf("uni/tn-%s/cif-%s", rName, rsRelName2)),
+// 					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_prov.#", "2"),
+// 					resource.TestCheckTypeSetElemAttr(resourceName, "relation_vz_rs_any_to_prov.*", fmt.Sprintf("uni/tn-%s/brc-%s", rName, rsRelName1)),
+// 					resource.TestCheckTypeSetElemAttr(resourceName, "relation_vz_rs_any_to_prov.*", fmt.Sprintf("uni/tn-%s/brc-%s", rName, rsRelName2)),
+// 					testAccCheckAciAnyIdEqual(&any_default, &any_rel1),
+// 				),
+// 			},
+// 			{
+// 				Config: CreateAccAnyConfig(rName),
+// 				Check: resource.ComposeTestCheckFunc(
+// 					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_cons.#", "0"),
+// 					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_cons_if.#", "0"),
+// 					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_any_to_prov.#", "0"),
+// 				),
+// 			},
+// 		},
+// 	})
+// }
 
 func TestAccAciAny_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
