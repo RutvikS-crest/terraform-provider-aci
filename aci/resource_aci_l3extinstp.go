@@ -42,7 +42,6 @@ func resourceAciExternalNetworkInstanceProfile() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validateIntRange(0, 512),
 			},
 
 			"flood_on_encap": &schema.Schema{
