@@ -40,13 +40,11 @@ func TestAccAciEndpointSecurityGroup_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
 					resource.TestCheckResourceAttr(resourceName, "application_profile_dn", fmt.Sprintf("uni/tn-%s/ap-%s", rName, rName)),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
-					resource.TestCheckResourceAttr(resourceName, "flood_on_encap", "disabled"),
 					resource.TestCheckResourceAttr(resourceName, "match_t", "AtleastOne"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 					resource.TestCheckResourceAttr(resourceName, "pc_enf_pref", "unenforced"),
 					resource.TestCheckResourceAttr(resourceName, "pref_gr_memb", "exclude"),
-					resource.TestCheckResourceAttr(resourceName, "prio", "unspecified"),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_cons.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_cons_if.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_prov.#", "0"),
@@ -59,13 +57,11 @@ func TestAccAciEndpointSecurityGroup_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "annotation", "test_annotation"),
 					resource.TestCheckResourceAttr(resourceName, "application_profile_dn", fmt.Sprintf("uni/tn-%s/ap-%s", rName, rName)),
 					resource.TestCheckResourceAttr(resourceName, "description", "test_description"),
-					resource.TestCheckResourceAttr(resourceName, "flood_on_encap", "enabled"),
 					resource.TestCheckResourceAttr(resourceName, "match_t", "All"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_name_alias"),
 					resource.TestCheckResourceAttr(resourceName, "pc_enf_pref", "enforced"),
 					resource.TestCheckResourceAttr(resourceName, "pref_gr_memb", "include"),
-					resource.TestCheckResourceAttr(resourceName, "prio", "level1"),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_cons.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_cons_if.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_intra_epg.#", "0"),
@@ -137,46 +133,6 @@ func TestAccAciEndpointSecurityGroup_Update(t *testing.T) {
 					testAccCheckAciEndpointSecurityGroupIdEqual(&esg_default, &esg_updated),
 				),
 			},
-			{
-				Config: CreateAccEndpointSecurityGroupConfigWithUpdatedAttr(rName, "prio", "level2"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciEndpointSecurityGroupExists(resourceName, &esg_updated),
-					resource.TestCheckResourceAttr(resourceName, "prio", "level2"),
-					testAccCheckAciEndpointSecurityGroupIdEqual(&esg_default, &esg_updated),
-				),
-			},
-			{
-				Config: CreateAccEndpointSecurityGroupConfigWithUpdatedAttr(rName, "prio", "level3"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciEndpointSecurityGroupExists(resourceName, &esg_updated),
-					resource.TestCheckResourceAttr(resourceName, "prio", "level3"),
-					testAccCheckAciEndpointSecurityGroupIdEqual(&esg_default, &esg_updated),
-				),
-			},
-			{
-				Config: CreateAccEndpointSecurityGroupConfigWithUpdatedAttr(rName, "prio", "level4"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciEndpointSecurityGroupExists(resourceName, &esg_updated),
-					resource.TestCheckResourceAttr(resourceName, "prio", "level4"),
-					testAccCheckAciEndpointSecurityGroupIdEqual(&esg_default, &esg_updated),
-				),
-			},
-			{
-				Config: CreateAccEndpointSecurityGroupConfigWithUpdatedAttr(rName, "prio", "level5"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciEndpointSecurityGroupExists(resourceName, &esg_updated),
-					resource.TestCheckResourceAttr(resourceName, "prio", "level5"),
-					testAccCheckAciEndpointSecurityGroupIdEqual(&esg_default, &esg_updated),
-				),
-			},
-			{
-				Config: CreateAccEndpointSecurityGroupConfigWithUpdatedAttr(rName, "prio", "level6"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciEndpointSecurityGroupExists(resourceName, &esg_updated),
-					resource.TestCheckResourceAttr(resourceName, "prio", "level6"),
-					testAccCheckAciEndpointSecurityGroupIdEqual(&esg_default, &esg_updated),
-				),
-			},
 		},
 	})
 }
@@ -212,10 +168,6 @@ func TestAccAciEndpointSecurityGroup_NegativeCases(t *testing.T) {
 				ExpectError: regexp.MustCompile(`property nameAlias of (.)+ failed validation for value '(.)+'`),
 			},
 			{
-				Config:      CreateAccEndpointSecurityGroupConfigWithUpdatedAttr(rName, "flood_on_encap", randomValue),
-				ExpectError: regexp.MustCompile(`expected flood_on_encap to be one of (.)+, got (.)+`),
-			},
-			{
 				Config:      CreateAccEndpointSecurityGroupConfigWithUpdatedAttr(rName, "match_t", randomValue),
 				ExpectError: regexp.MustCompile(`expected match_t to be one of (.)+, got (.)+`),
 			},
@@ -226,10 +178,6 @@ func TestAccAciEndpointSecurityGroup_NegativeCases(t *testing.T) {
 			{
 				Config:      CreateAccEndpointSecurityGroupConfigWithUpdatedAttr(rName, "pref_gr_memb", randomValue),
 				ExpectError: regexp.MustCompile(`expected pref_gr_memb to be one of (.)+, got (.)+`),
-			},
-			{
-				Config:      CreateAccEndpointSecurityGroupConfigWithUpdatedAttr(rName, "prio", randomValue),
-				ExpectError: regexp.MustCompile(`expected prio to be one of (.)+, got (.)+`),
 			},
 			{
 				Config:      CreateAccEndpointSecurityGroupConfigWithUpdatedAttr(rName, randomParameter, randomValue),
@@ -336,12 +284,10 @@ func CreateAccEndpointSecurityGroupConfigWithParentAndName(prName, rName string)
 		application_profile_dn = aci_application_profile.test.id
 		annotation = "test_annotation"
 		description = "test_description"
-		flood_on_encap = "enabled"
 		match_t = "All"
 		name_alias = "test_name_alias"
 		pc_enf_pref = "enforced"
 		pref_gr_memb = "include"
-		prio = "level1"
 	  }
 	`, prName, prName, rName)
 	return resource
@@ -358,7 +304,6 @@ func CreateAccEndpointSecurityGroupRemovingRequiredField() string {
 		name_alias = "test_name_alias"
 		pc_enf_pref = "enforced"
 		pref_gr_memb = "include"
-		prio = "level1"
 	  }
 	`)
 	return resource
@@ -402,12 +347,10 @@ func CreateAccEndpointSecurityGroupConfigWithOptionalValues(rName string) string
 		application_profile_dn = aci_application_profile.test.id
 		annotation = "test_annotation"
 		description = "test_description"
-		flood_on_encap = "enabled"
 		match_t = "All"
 		name_alias = "test_name_alias"
 		pc_enf_pref = "enforced"
 		pref_gr_memb = "include"
-		prio = "level1"
 	  }
 	`, rName, rName, rName)
 	return resource

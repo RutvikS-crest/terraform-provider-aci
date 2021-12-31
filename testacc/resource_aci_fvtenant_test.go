@@ -117,56 +117,56 @@ func TestAccAciTenant_NegativeCases(t *testing.T) {
 	})
 }
 
-func TestAccAciTenant_reltionalParameters(t *testing.T) {
-	var tenant_default models.Tenant
-	var tenant_rel1 models.Tenant
-	var tenant_rel2 models.Tenant
-	resourceName := "aci_tenant.test"
-	rName := makeTestVariable(acctest.RandString(5))
-	rsRelName1 := acctest.RandString(5)
-	rsRelName2 := acctest.RandString(5)
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
-		CheckDestroy:      testAccCheckAciTenantDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: CreateAccTenantConfig(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTenantExists(resourceName, &tenant_default),
-					// resource.TestCheckResourceAttr(resourceName, "relation_tenant_rs_ap_mon_pol", ""),       // checking value of relation_fv_rs_ap_mon_pol parameter for given configuration
-				),
-			},
-			{
-				Config: CreateAccTenanttUpdatedTenantIntial(rName, rsRelName1, rsRelName2),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTenantExists(resourceName, &tenant_rel1),
-					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_tenant_mon_pol", fmt.Sprintf("uni/tn-%s/monepg-%s", rsRelName1, rsRelName1)),
-					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_tn_deny_rule.#", "1"),
-					resource.TestCheckTypeSetElemAttr(resourceName, "relation_fv_rs_tn_deny_rule.*", fmt.Sprintf("uni/tn-%s/flt-%s", rsRelName1, rsRelName2)),
-					testAccCheckAciTenantIdEqual(&tenant_default, &tenant_rel1),
-				),
-			},
-			{
-				Config: CreateAccTenantUpdatedTenantFinal(rName, rsRelName2, rsRelName1, rsRelName2),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTenantExists(resourceName, &tenant_rel2),
-					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_tenant_mon_pol", fmt.Sprintf("uni/tn-%s/monepg-%s", rsRelName2, rsRelName2)),
-					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_tn_deny_rule.#", "2"),
-					resource.TestCheckTypeSetElemAttr(resourceName, "relation_fv_rs_tn_deny_rule.*", fmt.Sprintf("uni/tn-%s/flt-%s", rsRelName2, rsRelName1)),
-					resource.TestCheckTypeSetElemAttr(resourceName, "relation_fv_rs_tn_deny_rule.*", fmt.Sprintf("uni/tn-%s/flt-%s", rsRelName2, rsRelName2)),
-					testAccCheckAciTenantIdEqual(&tenant_default, &tenant_rel2),
-				),
-			},
-			{
-				Config: CreateAccTenantConfig(rName),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_tenant_mon_pol", ""),
-				),
-			},
-		},
-	})
-}
+// func TestAccAciTenant_reltionalParameters(t *testing.T) {
+// 	var tenant_default models.Tenant
+// 	var tenant_rel1 models.Tenant
+// 	var tenant_rel2 models.Tenant
+// 	resourceName := "aci_tenant.test"
+// 	rName := makeTestVariable(acctest.RandString(5))
+// 	rsRelName1 := acctest.RandString(5)
+// 	rsRelName2 := acctest.RandString(5)
+// 	resource.ParallelTest(t, resource.TestCase{
+// 		PreCheck:          func() { testAccPreCheck(t) },
+// 		ProviderFactories: testAccProviders,
+// 		CheckDestroy:      testAccCheckAciTenantDestroy,
+// 		Steps: []resource.TestStep{
+// 			{
+// 				Config: CreateAccTenantConfig(rName),
+// 				Check: resource.ComposeTestCheckFunc(
+// 					testAccCheckAciTenantExists(resourceName, &tenant_default),
+// 					// resource.TestCheckResourceAttr(resourceName, "relation_tenant_rs_ap_mon_pol", ""),       // checking value of relation_fv_rs_ap_mon_pol parameter for given configuration
+// 				),
+// 			},
+// 			{
+// 				Config: CreateAccTenanttUpdatedTenantIntial(rName, rsRelName1, rsRelName2),
+// 				Check: resource.ComposeTestCheckFunc(
+// 					testAccCheckAciTenantExists(resourceName, &tenant_rel1),
+// 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_tenant_mon_pol", fmt.Sprintf("uni/tn-%s/monepg-%s", rsRelName1, rsRelName1)),
+// 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_tn_deny_rule.#", "1"),
+// 					resource.TestCheckTypeSetElemAttr(resourceName, "relation_fv_rs_tn_deny_rule.*", fmt.Sprintf("uni/tn-%s/flt-%s", rsRelName1, rsRelName2)),
+// 					testAccCheckAciTenantIdEqual(&tenant_default, &tenant_rel1),
+// 				),
+// 			},
+// 			{
+// 				Config: CreateAccTenantUpdatedTenantFinal(rName, rsRelName2, rsRelName1, rsRelName2),
+// 				Check: resource.ComposeTestCheckFunc(
+// 					testAccCheckAciTenantExists(resourceName, &tenant_rel2),
+// 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_tenant_mon_pol", fmt.Sprintf("uni/tn-%s/monepg-%s", rsRelName2, rsRelName2)),
+// 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_tn_deny_rule.#", "2"),
+// 					resource.TestCheckTypeSetElemAttr(resourceName, "relation_fv_rs_tn_deny_rule.*", fmt.Sprintf("uni/tn-%s/flt-%s", rsRelName2, rsRelName1)),
+// 					resource.TestCheckTypeSetElemAttr(resourceName, "relation_fv_rs_tn_deny_rule.*", fmt.Sprintf("uni/tn-%s/flt-%s", rsRelName2, rsRelName2)),
+// 					testAccCheckAciTenantIdEqual(&tenant_default, &tenant_rel2),
+// 				),
+// 			},
+// 			{
+// 				Config: CreateAccTenantConfig(rName),
+// 				Check: resource.ComposeTestCheckFunc(
+// 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_tenant_mon_pol", ""),
+// 				),
+// 			},
+// 		},
+// 	})
+// }
 
 func TestAccAciTenant_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
@@ -279,7 +279,7 @@ func CreateAccTenantConfigWithName(rOther string) string {
 }
 
 func CreateAccTenantConfig(rName string) string {
-	fmt.Println("=== STEP testing tenant creation with name")
+	fmt.Println("=== STEP  testing tenant creation with name")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
