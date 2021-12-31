@@ -60,7 +60,7 @@ func TestAccAciHsrpInterfacePolicyDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccHsrpInterfacePolicyUpdatedConfigDataSourceRandomAttr(rName, attribute, value string) string {
-	fmt.Println("=== STEP  Basic: Testing Hrsp Interface Policy data source with updated resource")
+	fmt.Println("=== STEP  Basic: Testing Hrsp Interface Policy data source with random attribute")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"

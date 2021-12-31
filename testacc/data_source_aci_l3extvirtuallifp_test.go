@@ -40,6 +40,8 @@ func TestAccAciL3outFloatingSVIDataSource_Basic(t *testing.T) {
 				Config: CreateAccL3outFloatingSVIConfigDataSource(rName, rName, rName, rName, node_dn, encap),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "logical_interface_profile_dn", resourceName, "logical_interface_profile_dn"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "node_dn", resourceName, "node_dn"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "encap", resourceName, "encap"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "addr", resourceName, "addr"),
@@ -64,7 +66,7 @@ func TestAccAciL3outFloatingSVIDataSource_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
 			},
 			{
-				Config: CreateAccL3outFloatingSVIDataSourceUpdate(rName, rName, rName, rName, node_dn, encap, "annotation", "orchestrator:terraform-testacc"),
+				Config: CreateAccL3outFloatingSVIDataSourceUpdatedResource(rName, rName, rName, rName, node_dn, encap, "annotation", "orchestrator:terraform-testacc"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 				),
@@ -74,7 +76,7 @@ func TestAccAciL3outFloatingSVIDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccL3outFloatingSVIConfigDataSource(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, node_dn, encap string) string {
-	fmt.Println("=== STEP  testing l3out_floating_svi creation with required arguments only")
+	fmt.Println("=== STEP  testing l3out_floating_svi data source with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -121,7 +123,7 @@ func CreateAccL3outFloatingSVIConfigDataSource(fvTenantName, l3extOutName, l3ext
 }
 
 func CreateAccL3outFloatingSVIConfigDataSourceWithoutParentDn(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, node_dn, encap string) string {
-	fmt.Println("=== STEP  testing l3out_floating_svi creation without logical_interface_profile_dn")
+	fmt.Println("=== STEP  testing l3out_floating_svi creation data source without logical_interface_profile_dn")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -167,7 +169,7 @@ func CreateAccL3outFloatingSVIConfigDataSourceWithoutParentDn(fvTenantName, l3ex
 }
 
 func CreateAccL3outFloatingSVIConfigDataSourceWithoutNodeDn(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, node_dn, encap string) string {
-	fmt.Println("=== STEP  testing l3out_floating_svi creation without node_dn")
+	fmt.Println("=== STEP  testing l3out_floating_svi data source without node_dn")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -213,7 +215,7 @@ func CreateAccL3outFloatingSVIConfigDataSourceWithoutNodeDn(fvTenantName, l3extO
 }
 
 func CreateAccL3outFloatingSVIConfigDataSourceWithoutEncap(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, node_dn, encap string) string {
-	fmt.Println("=== STEP  testing l3out_floating_svi creation without encap")
+	fmt.Println("=== STEP  testing l3out_floating_svi data source without encap")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -258,7 +260,7 @@ func CreateAccL3outFloatingSVIConfigDataSourceWithoutEncap(fvTenantName, l3extOu
 	return resource
 }
 func CreateAccL3outFloatingSVIDSWithInvalidParentDn(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, node_dn, encap string) string {
-	fmt.Println("=== STEP  testing l3out_floating_svi creation with Invalid Parent Dn")
+	fmt.Println("=== STEP  testing l3out_floating_svi data source with Invalid Parent Dn")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -304,8 +306,56 @@ func CreateAccL3outFloatingSVIDSWithInvalidParentDn(fvTenantName, l3extOutName, 
 	return resource
 }
 
+func CreateAccL3outFloatingSVIDataSourceUpdatedResource(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, node_dn, encap, key, value string) string {
+	fmt.Println("=== STEP  testing l3out_floating_svi data source with updated resource")
+	resource := fmt.Sprintf(`
+	
+	resource "aci_tenant" "test" {
+		name 		= "%s"
+		description = "tenant created while acceptance testing"
+	
+	}
+	
+	resource "aci_l3_outside" "test" {
+		name 		= "%s"
+		description = "l3_outside created while acceptance testing"
+		tenant_dn = aci_tenant.test.id
+	}
+	
+	resource "aci_logical_node_profile" "test" {
+		name 		= "%s"
+		description = "logical_node_profile created while acceptance testing"
+		l3_outside_dn = aci_l3_outside.test.id
+	}
+	
+	resource "aci_logical_interface_profile" "test" {
+		name 		= "%s"
+		description = "logical_interface_profile created while acceptance testing"
+		logical_node_profile_dn = aci_logical_node_profile.test.id
+	}
+	
+	resource "aci_l3out_floating_svi" "test" {
+		logical_interface_profile_dn  = aci_logical_interface_profile.test.id
+		node_dn  = "%s"
+		encap  = "%s"
+		if_inst_t = "ext-svi"
+		%s = "%s"
+	}
+
+	data "aci_l3out_floating_svi" "test" {
+		logical_interface_profile_dn  = aci_logical_interface_profile.test.id
+		node_dn  = aci_l3out_floating_svi.test.node_dn
+		encap  = aci_l3out_floating_svi.test.encap
+		depends_on = [
+			aci_l3out_floating_svi.test
+		]
+	}
+	`, fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, node_dn, encap, key, value)
+	return resource
+}
+
 func CreateAccL3outFloatingSVIDataSourceUpdate(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, node_dn, encap, key, value string) string {
-	fmt.Println("=== STEP  testing l3out_floating_svi updation with required arguments only")
+	fmt.Println("=== STEP  testing l3out_floating_svi data source with random argument")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
