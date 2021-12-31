@@ -62,6 +62,7 @@ func resourceAciBFDInterfaceProfile() *schema.Resource {
 
 			"relation_bfd_rs_if_pol": &schema.Schema{
 				Type:     schema.TypeString,
+				
 				Optional: true,
 			},
 		}),
