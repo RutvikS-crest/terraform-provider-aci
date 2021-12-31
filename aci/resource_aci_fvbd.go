@@ -235,7 +235,7 @@ func resourceAciBridgeDomain() *schema.Resource {
 			},
 			"relation_fv_rs_mldsn": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
+
 				Optional: true,
 			},
 			"relation_fv_rs_abd_pol_mon_pol": &schema.Schema{
@@ -245,7 +245,7 @@ func resourceAciBridgeDomain() *schema.Resource {
 			},
 			"relation_fv_rs_bd_to_nd_p": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
+
 				Optional: true,
 			},
 			"relation_fv_rs_bd_flood_to": &schema.Schema{
@@ -266,7 +266,7 @@ func resourceAciBridgeDomain() *schema.Resource {
 			},
 			"relation_fv_rs_ctx": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
+
 				Optional: true,
 			},
 			"relation_fv_rs_bd_to_netflow_monitor_pol": &schema.Schema{
@@ -287,12 +287,12 @@ func resourceAciBridgeDomain() *schema.Resource {
 			},
 			"relation_fv_rs_igmpsn": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
+
 				Optional: true,
 			},
 			"relation_fv_rs_bd_to_ep_ret": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
+
 				Optional: true,
 			},
 			"relation_fv_rs_bd_to_out": &schema.Schema{

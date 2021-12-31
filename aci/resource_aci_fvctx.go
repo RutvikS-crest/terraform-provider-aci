@@ -92,12 +92,12 @@ func resourceAciVRF() *schema.Resource {
 
 			"relation_fv_rs_ospf_ctx_pol": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
+	
 				Optional: true,
 			},
 			"relation_fv_rs_vrf_validation_pol": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
+
 				Optional: true,
 			},
 			"relation_fv_rs_ctx_mcast_to": &schema.Schema{
@@ -142,12 +142,12 @@ func resourceAciVRF() *schema.Resource {
 			},
 			"relation_fv_rs_ctx_to_ep_ret": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
+
 				Optional: true,
 			},
 			"relation_fv_rs_bgp_ctx_pol": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
+
 				Optional: true,
 			},
 			"relation_fv_rs_ctx_mon_pol": &schema.Schema{
@@ -157,7 +157,7 @@ func resourceAciVRF() *schema.Resource {
 			},
 			"relation_fv_rs_ctx_to_ext_route_tag_pol": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
+
 				Optional: true,
 			},
 			"relation_fv_rs_ctx_to_bgp_ctx_af_pol": &schema.Schema{
