@@ -43,7 +43,7 @@ func TestAccAciBridgeDomain_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
 					resource.TestCheckResourceAttr(resourceName, "arp_flood", "no"),
 					resource.TestCheckResourceAttr(resourceName, "ep_clear", "no"),
-					//resource.TestCheckResourceAttr(resourceName, "ep_move_detect_mode", ""), no need to check these parameter for now will look into it in regression testing
+					resource.TestCheckResourceAttr(resourceName, "ep_move_detect_mode", "disable"), 
 					resource.TestCheckResourceAttr(resourceName, "host_based_routing", "no"),
 					resource.TestCheckResourceAttr(resourceName, "intersite_bum_traffic_allow", "no"),
 					resource.TestCheckResourceAttr(resourceName, "intersite_l2_stretch", "no"),
@@ -79,7 +79,7 @@ func TestAccAciBridgeDomain_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "annotation", "test_annotation"),
 					resource.TestCheckResourceAttr(resourceName, "arp_flood", "yes"),
 					resource.TestCheckResourceAttr(resourceName, "ep_clear", "yes"),
-					//resource.TestCheckResourceAttr(resourceName, "ep_move_detect_mode", ""),
+					resource.TestCheckResourceAttr(resourceName, "ep_move_detect_mode", "garp"),
 					resource.TestCheckResourceAttr(resourceName, "host_based_routing", "yes"),
 					resource.TestCheckResourceAttr(resourceName, "intersite_bum_traffic_allow", "yes"),
 					resource.TestCheckResourceAttr(resourceName, "intersite_l2_stretch", "yes"),
@@ -516,7 +516,7 @@ func CreateAccBridgeDomainRelConfigFinal(rName, relName1, relName2 string) strin
 }
 
 func CreateAccBridgeDomainRelConfigInitial(rName, relName string) string {
-	fmt.Println("=== STEP  testing bridge domain with final relational parameters")
+	fmt.Println("=== STEP  testing bridge domain with initial relational parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -641,6 +641,7 @@ func CreateAccBridgeDomainConfigWithOptionalValues(rName string) string {
 		arp_flood= "yes"
 		description= "test_desc"
 		ep_clear="yes"
+		ep_move_detect_mode = "garp"
 		host_based_routing="yes"
 		intersite_bum_traffic_allow="yes"
 		intersite_l2_stretch="yes"
