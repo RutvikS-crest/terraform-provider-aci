@@ -1,4 +1,4 @@
-package acctest
+package testacc
 
 import (
 	"fmt"
@@ -16,20 +16,20 @@ func TestAccAciApplicationProfileDataSource_Basic(t *testing.T) {
 	randomValue := acctest.RandString(5)
 	rName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciApplicationProfileDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciApplicationProfileDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      CreateAccApplicationProfileDSWithoutTenant(rName), // creating data source for application profile without required arguement tenant_dn
+				Config:      CreateAccApplicationProfileDSWithoutTenant(rName), // creating data source for application profile without required argument tenant_dn
 				ExpectError: regexp.MustCompile(`Missing required argument`),   // test step expect error which should be match with defined regex
 			},
 			{
-				Config:      CreateAccApplicationProfileDSWithoutName(rName), // creating data source for application profile without required arguement name
+				Config:      CreateAccApplicationProfileDSWithoutName(rName), // creating data source for application profile without required argument name
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccApplicationProfileConfigDataSource(rName), // creating data source with required arguements from the resource
+				Config: CreateAccApplicationProfileConfigDataSource(rName), // creating data source with required arguments from the resource
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"), // comparing value of parameter description in data source and resoruce
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),   // comparing value of parameter description in data source and resoruce

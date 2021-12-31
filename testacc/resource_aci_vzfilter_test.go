@@ -1,4 +1,4 @@
-package acctest
+package testacc
 
 import (
 	"fmt"
@@ -22,10 +22,10 @@ func TestAccAciFilter_Basic(t *testing.T) {
 	longrName := acctest.RandString(65)
 	prOther := makeTestVariable(acctest.RandString(5))
 
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciFilterDestroy,
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciFilterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      CreateAccFilterWithoutName(rName),
@@ -36,33 +36,33 @@ func TestAccAciFilter_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				
-				Config: CreateAccFilterConfig(rName), 
+
+				Config: CreateAccFilterConfig(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciFilterExists(resourceName, &filter_default), 
-					resource.TestCheckResourceAttr(resourceName, "description", ""), 
+					testAccCheckAciFilterExists(resourceName, &filter_default),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_filt_graph_att", ""),
 					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_fwd_r_flt_p_att", ""),
-					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_rev_r_flt_p_att", ""),   
-					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"), 
+					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_rev_r_flt_p_att", ""),
+					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rName)),
 				),
 			},
 			{
-				Config: CreateAccFilterConfigWithOptionalValues(rName), 
+				Config: CreateAccFilterConfigWithOptionalValues(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciFilterExists(resourceName, &filter_updated),
-					resource.TestCheckResourceAttr(resourceName, "description", "From Terraform"), 
-					resource.TestCheckResourceAttr(resourceName, "name_alias", "alias_filter"),    
+					resource.TestCheckResourceAttr(resourceName, "description", "From Terraform"),
+					resource.TestCheckResourceAttr(resourceName, "name_alias", "alias_filter"),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "tag_filter"),
 					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_filt_graph_att", ""),
 					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_fwd_r_flt_p_att", ""),
 					resource.TestCheckResourceAttr(resourceName, "relation_vz_rs_rev_r_flt_p_att", ""),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rName)), 
-					testAccCheckAciFilterIdEqual(&filter_default, &filter_updated),                             
+					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rName)),
+					testAccCheckAciFilterIdEqual(&filter_default, &filter_updated),
 				),
 			},
 			{
@@ -75,28 +75,28 @@ func TestAccAciFilter_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config:      CreateAccFilterConfigUpdatedName(rName, longrName), 
+				Config:      CreateAccFilterConfigUpdatedName(rName, longrName),
 				ExpectError: regexp.MustCompile(fmt.Sprintf("property name of flt-%s failed validation for value '%s'", longrName, longrName)),
 			},
 			{
-				Config: CreateAccFilterConfigWithParentAndName(rName, rOther), 
+				Config: CreateAccFilterConfigWithParentAndName(rName, rOther),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciFilterExists(resourceName, &filter_updated),
-					resource.TestCheckResourceAttr(resourceName, "name", rOther),                              
-					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rName)), 
-					testAccCheckAciFilterIdNotEqual(&filter_default, &filter_updated),                          
+					resource.TestCheckResourceAttr(resourceName, "name", rOther),
+					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rName)),
+					testAccCheckAciFilterIdNotEqual(&filter_default, &filter_updated),
 				),
 			},
 			{
-				Config: CreateAccFilterConfig(rName), 
+				Config: CreateAccFilterConfig(rName),
 			},
 			{
-				Config: CreateAccFilterConfigWithParentAndName(prOther, rName), 
+				Config: CreateAccFilterConfigWithParentAndName(prOther, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciFilterExists(resourceName, &filter_updated),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", prOther)),
-					testAccCheckAciFilterIdNotEqual(&filter_default, &filter_updated), 
+					testAccCheckAciFilterIdNotEqual(&filter_default, &filter_updated),
 				),
 			},
 		},
@@ -104,54 +104,54 @@ func TestAccAciFilter_Basic(t *testing.T) {
 	)
 }
 
-func TestAccFilter_NegativeCases(t *testing.T) {
+func TestAccAciFilter_NegativeCases(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
-	longDescAnnotation := acctest.RandString(129)                                     
-	longNameAlias := acctest.RandString(64)                                                                                        
-	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz") 
-	randomValue := acctest.RandString(5)                                              
+	longDescAnnotation := acctest.RandString(129)
+	longNameAlias := acctest.RandString(64)
+	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
+	randomValue := acctest.RandString(5)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciFilterDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciFilterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: CreateAccFilterConfig(rName), 
+				Config: CreateAccFilterConfig(rName),
 			},
 			{
-				Config:      CreateAccFilterWithInValidTenantDn(rName),                                      
-				ExpectError: regexp.MustCompile(`unknown property value (.)+, name dn, class vzFilter (.)+`), 
+				Config:      CreateAccFilterWithInValidTenantDn(rName),
+				ExpectError: regexp.MustCompile(`unknown property value (.)+, name dn, class vzFilter (.)+`),
 			},
 			{
-				Config:      CreateAccFilterUpdatedAttr(rName, "description", longDescAnnotation), 
+				Config:      CreateAccFilterUpdatedAttr(rName, "description", longDescAnnotation),
 				ExpectError: regexp.MustCompile(`property descr of (.)+ failed validation for value '(.)+'`),
 			},
 			{
-				Config:      CreateAccFilterUpdatedAttr(rName, "annotation", longDescAnnotation), 
+				Config:      CreateAccFilterUpdatedAttr(rName, "annotation", longDescAnnotation),
 				ExpectError: regexp.MustCompile(`property annotation of (.)+ failed validation for value '(.)+'`),
 			},
 			{
-				Config:      CreateAccFilterUpdatedAttr(rName, "name_alias", longNameAlias), 
+				Config:      CreateAccFilterUpdatedAttr(rName, "name_alias", longNameAlias),
 				ExpectError: regexp.MustCompile(`property nameAlias of (.)+ failed validation for value '(.)+'`),
 			},
 
 			{
-				Config:      CreateAccFilterUpdatedAttr(rName, randomParameter, randomValue), 
+				Config:      CreateAccFilterUpdatedAttr(rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
 			{
-				Config: CreateAccFilterConfig(rName), 
+				Config: CreateAccFilterConfig(rName),
 			},
 		},
 	})
 }
 
-func TestAccFilter_MultipleCreateDelete(t *testing.T) {
+func TestAccAciFilter_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciFilterDestroy,
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciFilterDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccFiltersConfig(rName),
@@ -275,7 +275,7 @@ func CreateAccFilterWithoutName(rName string) string {
 }
 
 func CreateAccFilterWithoutTenant(rName string) string {
-	fmt.Println("=== STEP  Basic: testing filter creation without giving name")
+	fmt.Println("=== STEP  Basic: testing filter creation without giving tenant_dn")
 	resource := fmt.Sprintf(`
 
 	resource "aci_filter" "test" {
@@ -288,15 +288,19 @@ func CreateAccFilterWithoutTenant(rName string) string {
 func CreateAccFilterWithoutFilter(rName string) string {
 	fmt.Println("=== STEP  Basic: testing filter creation without creating tenant")
 	resource := fmt.Sprintf(`
-	resource "aci_filter" "test" {
+	resource "aci_tenant" "test"{
 		name = "%s"
+	}
+
+	resource "aci_filter" "test" {
+		tenant_dn = 
 	}
 	`, rName)
 	return resource
 }
 
 func CreateAccFilterConfig(rName string) string {
-	fmt.Println("=== STEP  testing filter creation with required arguements")
+	fmt.Println("=== STEP  testing filter creation with required arguments")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
@@ -329,7 +333,7 @@ func CreateAccFilterConfigWithOptionalValues(rName string) string {
 }
 
 func CreateAccFilterRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing filter creation with optional parameters")
+	fmt.Println("=== STEP  Basic: testing filter updation without optional parameters")
 	resource := fmt.Sprintln(`
 
 	resource "aci_filter" "test" {

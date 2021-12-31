@@ -1,4 +1,4 @@
-package acctest
+package testacc
 
 import (
 	"fmt"
@@ -10,30 +10,30 @@ import (
 )
 
 func TestAccAciFilterDataSource_Basic(t *testing.T) {
-	resourceName := "aci_filter.test"                                                
-	dataSourceName := "data.aci_filter.test"                                          
-	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz") 
+	resourceName := "aci_filter.test"
+	dataSourceName := "data.aci_filter.test"
+	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(5)
 	rName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciFilterDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciFilterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      CreateAccFilterDSWithoutTenant(rName),           
-				ExpectError: regexp.MustCompile(`Missing required argument`), 
-			},
-			{
-				Config:      CreateAccFilterDSWithoutName(rName), 
+				Config:      CreateAccFilterDSWithoutTenant(rName),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccFilterConfigDataSource(rName), 
+				Config:      CreateAccFilterDSWithoutName(rName),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+			{
+				Config: CreateAccFilterConfigDataSource(rName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"), 
-					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),   
-					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),  
+					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 
 					resource.TestCheckResourceAttrPair(dataSourceName, "tenant_dn", resourceName, "tenant_dn"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
@@ -44,8 +44,8 @@ func TestAccAciFilterDataSource_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
 			{
-				Config:      CreateAccFilterDSWithInvalidName(rName),         
-				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`), 
+				Config:      CreateAccFilterDSWithInvalidName(rName),
+				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
 			},
 			{
 				Config: CreateAccFilterDataSourceUpdate(rName, "description", "description"),

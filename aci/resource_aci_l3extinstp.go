@@ -39,9 +39,9 @@ func resourceAciExternalNetworkInstanceProfile() *schema.Resource {
 			},
 
 			"exception_tag": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
 			},
 
 			"flood_on_encap": &schema.Schema{
@@ -158,7 +158,7 @@ func resourceAciExternalNetworkInstanceProfile() *schema.Resource {
 			},
 			"relation_fv_rs_cust_qos_pol": &schema.Schema{
 				Type:     schema.TypeString,
-				Computed: true,
+
 				Optional: true,
 			},
 			"relation_l3ext_rs_inst_p_to_profile": &schema.Schema{

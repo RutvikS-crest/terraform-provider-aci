@@ -1,4 +1,4 @@
-package acctest
+package testacc
 
 import (
 	"fmt"
@@ -21,22 +21,22 @@ func TestAccAciApplicationProfile_Basic(t *testing.T) {
 	prOther := makeTestVariable(acctest.RandString(5))        // randomly created string of 5 alphanumeric characters' for another parent resource name
 	longrName := acctest.RandString(65)                       // randomly created string of 65 alphanumeric characters' for negative resource name test case
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciApplicationProfileDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciApplicationProfileDestroy,
 		Steps: []resource.TestStep{
 			{
-				// terraform will try to create application profile without required arguement tenant_dn
+				// terraform will try to create application profile without required argument tenant_dn
 				Config:      CreateAccApplicationProfileWithoutTenant(rName), // configuration to check creation of application profile without tenant
 				ExpectError: regexp.MustCompile(`Missing required argument`), // test step expect error which should be match with defined regex
 			},
 			{
-				// terraform will try to create application profile without required arguement name
+				// terraform will try to create application profile without required argument name
 				Config:      CreateAccApplicationProfileWithoutName(rName), // configuration to check creation of application profile without tenant
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				// step terraform will create application profile with only required arguements i.e. name and tenant_dn
+				// step terraform will create application profile with only required arguments i.e. name and tenant_dn
 				Config: CreateAccApplicationProfileConfig(rName), // configuration to create application profile with required fields only
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_default), // this function will check whether any resource is exist or not in state file with given resource name
@@ -58,8 +58,8 @@ func TestAccAciApplicationProfile_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "from terraform"), // comparing description with value which is given in configuration
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_ap"),         // comparing name_alias with value which is given in configuration
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", ""),
-					resource.TestCheckResourceAttr(resourceName, "annotation", "tag"),                                    // comparing annotation with value which is given in configuration
-					resource.TestCheckResourceAttr(resourceName, "prio", "level1"),                                       // comparing prio with value which is given in configuration
+					resource.TestCheckResourceAttr(resourceName, "annotation", "tag"), // comparing annotation with value which is given in configuration
+					resource.TestCheckResourceAttr(resourceName, "prio", "level1"),    // comparing prio with value which is given in configuration
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rName)),
 					testAccCheckAciApplicationProfileIdEqual(&application_profile_default, &application_profile_updated), // this function will check whether id or dn of both resource are same or not to make sure updation is performed on the same resource
@@ -104,18 +104,18 @@ func TestAccAciApplicationProfile_Basic(t *testing.T) {
 	})
 }
 
-func TestAccApplicationProfile_Update(t *testing.T) {
+func TestAccAciApplicationProfile_Update(t *testing.T) {
 	var application_profile_default models.ApplicationProfile
 	var application_profile_updated models.ApplicationProfile
 	resourceName := "aci_application_profile.test"
 	rName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciApplicationProfileDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciApplicationProfileDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: CreateAccApplicationProfileConfig(rName), // creating application profile with required arguements only
+				Config: CreateAccApplicationProfileConfig(rName), // creating application profile with required arguments only
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_default),
 				),
@@ -165,19 +165,19 @@ func TestAccApplicationProfile_Update(t *testing.T) {
 	})
 }
 
-func TestAccApplicationProfile_NegativeCases(t *testing.T) {
+func TestAccAciApplicationProfile_NegativeCases(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 	longDescAnnotation := acctest.RandString(129)                                     // creating random string of 129 characters
 	longNameAlias := acctest.RandString(64)                                           // creating random string of 64 characters                                              // creating random string of 6 characters
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz") // creating random string of 5 characters (to give as random parameter)
 	randomValue := acctest.RandString(5)                                              // creating random string of 5 characters (to give as random value of random parameter)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciApplicationProfileDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciApplicationProfileDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: CreateAccApplicationProfileConfig(rName), // creating application profile with required arguements only
+				Config: CreateAccApplicationProfileConfig(rName), // creating application profile with required arguments only
 			},
 			{
 				Config:      CreateAccApplicationProfileWithInValidTenantDn(rName),                       // checking application profile creation with invalid tenant_dn value
@@ -204,13 +204,13 @@ func TestAccApplicationProfile_NegativeCases(t *testing.T) {
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
 			{
-				Config: CreateAccApplicationProfileConfig(rName), // creating application profile with required arguements only
+				Config: CreateAccApplicationProfileConfig(rName), // creating application profile with required arguments only
 			},
 		},
 	})
 }
 
-func TestAccApplicationProfile_reltionalParameters(t *testing.T) {
+func TestAccAciApplicationProfile_reltionalParameters(t *testing.T) {
 	var application_profile_default models.ApplicationProfile
 	var application_profile_rel1 models.ApplicationProfile
 	var application_profile_rel2 models.ApplicationProfile
@@ -219,15 +219,14 @@ func TestAccApplicationProfile_reltionalParameters(t *testing.T) {
 	relRes1 := makeTestVariable(acctest.RandString(5)) // randomly created name for relational resoruce
 	relRes2 := makeTestVariable(acctest.RandString(5)) // randomly created name for relational resoruce
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-
-		CheckDestroy: testAccCheckAciApplicationProfileDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciApplicationProfileDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccApplicationProfileConfig(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_default), // creating application profile with required arguements only
+					testAccCheckAciApplicationProfileExists(resourceName, &application_profile_default), // creating application profile with required arguments only
 					resource.TestCheckResourceAttr(resourceName, "relation_fv_rs_ap_mon_pol", ""),       // checking value of relation_fv_rs_ap_mon_pol parameter for given configuration
 				),
 			},
@@ -257,12 +256,12 @@ func TestAccApplicationProfile_reltionalParameters(t *testing.T) {
 	})
 }
 
-func TestAccApplicationProfile_MultipleCreateDelete(t *testing.T) {
+func TestAccAciApplicationProfile_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciApplicationProfileDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciApplicationProfileDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccApplicationProfilesConfig(rName),
@@ -378,7 +377,7 @@ func CreateAccApplicationProfileConfigWithParentAndName(prName, rName string) st
 }
 
 func CreateAccApplicationProfileConfig(rName string) string {
-	fmt.Println("=== STEP  testing application profile creation with required arguements")
+	fmt.Println("=== STEP  testing application profile creation with required arguments")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"
