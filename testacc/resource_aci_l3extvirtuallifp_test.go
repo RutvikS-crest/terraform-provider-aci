@@ -107,6 +107,7 @@ func TestAccAciL3outFloatingSVI_Basic(t *testing.T) {
 					testAccCheckAciL3outFloatingSVIExists(resourceName, &l3out_floating_svi_updated),
 					resource.TestCheckResourceAttr(resourceName, "logical_interface_profile_dn", fmt.Sprintf("uni/tn-%s/out-%s/lnodep-%s/lifp-%s", rName, rName, rName, rName)),
 					resource.TestCheckResourceAttr(resourceName, "node_dn", nodeDnUpdated),
+					resource.TestCheckResourceAttr(resourceName, "encap", encap),
 					testAccCheckAciL3outFloatingSVIIdNotEqual(&l3out_floating_svi_default, &l3out_floating_svi_updated),
 				),
 			},
@@ -367,7 +368,7 @@ func TestAccAciL3outFloatingSVI_Negative(t *testing.T) {
 				Config: CreateAccL3outFloatingSVIConfig(rName, rName, rName, rName, nodeDn, encap),
 			},
 			{
-				Config:      CreateAccL3outFloatingSVIWithInValidParentDn(rName, rName, rName, rName, nodeDn, encap),
+				Config:      CreateAccL3outFloatingSVIWithInValidParentDn(rName, rName, rName, nodeDn, encap),
 				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
@@ -715,7 +716,7 @@ func CreateAccL3outFloatingSVIsConfig(fvTenantName, l3extOutName, l3extLNodePNam
 	return resource
 }
 
-func CreateAccL3outFloatingSVIWithInValidParentDn(fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, nodeDn, encap string) string {
+func CreateAccL3outFloatingSVIWithInValidParentDn(fvTenantName, l3extOutName, l3extLNodePName, nodeDn, encap string) string {
 	fmt.Println("=== STEP  Negative Case: testing l3out_floating_svi creation with invalid parent Dn")
 	resource := fmt.Sprintf(`
 	
@@ -736,20 +737,14 @@ func CreateAccL3outFloatingSVIWithInValidParentDn(fvTenantName, l3extOutName, l3
 		description = "logical_node_profile created while acceptance testing"
 		l3_outside_dn = aci_l3_outside.test.id
 	}
-	
-	resource "aci_logical_interface_profile" "test" {
-		name 		= "%s"
-		description = "logical_interface_profile created while acceptance testing"
-		logical_node_profile_dn = aci_logical_node_profile.test.id
-	}
-	
+
 	resource "aci_l3out_floating_svi" "test" {
 		logical_interface_profile_dn  = "aci_logical_node_profile.test.id"
 		node_dn  = "%s"
 		encap  = "%s"
 		if_inst_t = "ext-svi"
 	}
-	`, fvTenantName, l3extOutName, l3extLNodePName, l3extLIfPName, nodeDn, encap)
+	`, fvTenantName, l3extOutName, l3extLNodePName, nodeDn, encap)
 	return resource
 }
 
