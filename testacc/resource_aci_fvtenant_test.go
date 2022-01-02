@@ -251,21 +251,21 @@ func testAccCheckAciTenantIdNotEqual(tn1, tn2 *models.Tenant) resource.TestCheck
 
 func CreateAccTenantWithoutName() string {
 	fmt.Println("=== STEP  Basic: testing tenant creation without giving Name")
-	resource := fmt.Sprintf(`
+	resource := `
 	resource "aci_tenant" "test" {
 	}
-	`)
+	`
 	return resource
 }
 func CreateAccTenantConfigUpdateWithoutName() string {
 	fmt.Println("=== STEP  Basic: testing tenant update without giving Name")
-	resource := fmt.Sprintf(`
+	resource := `
 	resource "aci_tenant" "test" {
 		annotation = "tag"
 		description = "from terraform"
 		name_alias = "test_ap"
 	}
-	`)
+	`
 	return resource
 }
 func CreateAccTenantConfigWithName(rOther string) string {
