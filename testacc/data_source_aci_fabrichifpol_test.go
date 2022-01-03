@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAccAciFabricIFPolDataSource_Basic(t *testing.T) {
+func TestAccAciFabricIfPolicyDataSource_Basic(t *testing.T) {
 	resourceName := "aci_fabric_if_pol.test"
 	dataSourceName := "data.aci_fabric_if_pol.test"
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")
@@ -19,15 +19,15 @@ func TestAccAciFabricIFPolDataSource_Basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
-		CheckDestroy:      testAccCheckAciFabricIFPolDestroy,
+		CheckDestroy:      testAccCheckAciFabricIfPolicyDestroy,
 		Steps: []resource.TestStep{
 
 			{
-				Config:      CreateFabricIFPolDSWithoutRequired(rName, "name"),
+				Config:      CreateFabricIfPolicyDSWithoutRequired(rName),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccFabricIFPolConfigDataSource(rName),
+				Config: CreateAccFabricIfPolicyConfigDataSource(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
@@ -40,16 +40,15 @@ func TestAccAciFabricIFPolDataSource_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config:      CreateAccFabricIFPolDataSourceUpdate(rName, randomParameter, randomValue),
+				Config:      CreateAccFabricIfPolicyDataSourceUpdateRandomAttr(rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
 			{
-				Config:      CreateAccFabricIFPolDataSourceUpdatedName(rName, randomParameter, randomValue),
-				ExpectError: regexp.MustCompile(`Object may not exists`),
+				Config:      CreateAccFabricIfPolicyConfigDataSourceWithInValidName(rName),
+				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
 			},
-
 			{
-				Config: CreateAccFabricIFPolDataSourceUpdate(rName, "annotation", "orchestrator:terraform-testacc"),
+				Config: CreateAccFabricIfPolicyDataSourceUpdate(rName, "annotation", "orchestrator:terraform-testacc"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 				),
@@ -58,17 +57,15 @@ func TestAccAciFabricIFPolDataSource_Basic(t *testing.T) {
 	})
 }
 
-func CreateAccFabricIFPolConfigDataSource(rName string) string {
-	fmt.Println("=== STEP  testing fabric_if_pol creation with required arguments only")
+func CreateAccFabricIfPolicyConfigDataSource(rName string) string {
+	fmt.Println("=== STEP  testing fabric_if_pol data source with required arguments only")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_fabric_if_pol" "test" {
-	
+	resource "aci_fabric_if_pol" "test" {	
 		name  = "%s"
 	}
 
 	data "aci_fabric_if_pol" "test" {
-	
 		name  = aci_fabric_if_pol.test.name
 		depends_on = [
 			aci_fabric_if_pol.test
@@ -78,18 +75,32 @@ func CreateAccFabricIFPolConfigDataSource(rName string) string {
 	return resource
 }
 
-func CreateAccFabricIFPolConfigDataSourceUpdatedName(rName string) string {
-	fmt.Println("=== STEP  testing fabric_if_pol creation with Invalid Name")
+func CreateAccFabricIfPolicyConfigDataSourceWithInValidName(rName string) string {
+	fmt.Println("=== STEP  testing fabric_if_pol data source with Invalid Name")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_fabric_if_pol" "test" {
-	
+	resource "aci_fabric_if_pol" "test" {	
 		name  = "%s"
 	}
 
 	data "aci_fabric_if_pol" "test" {
+		name  = "${aci_fabric_if_pol.test.name}invalid"
+		depends_on = [
+			aci_fabric_if_pol.test
+		]
+	}
+	`, rName)
+	return resource
+}
+func CreateFabricIfPolicyDSWithoutRequired(rName string) string {
+	fmt.Println("=== STEP  testing fabric_if_pol data source without required arguments")
+	resource := fmt.Sprintf(`
 	
-		name  = "${aci_fabric_if_pol.test.name}_invaid"
+	resource "aci_fabric_if_pol" "test" {
+		name  = "%s"
+	}
+
+	data "aci_fabric_if_pol" "test" {
 		depends_on = [
 			aci_fabric_if_pol.test
 		]
@@ -98,37 +109,36 @@ func CreateAccFabricIFPolConfigDataSourceUpdatedName(rName string) string {
 	return resource
 }
 
-func CreateFabricIFPolDSWithoutRequired(rName, attribute string) string {
-	fmt.Println("=== STEP  testing fabric_if_pol creation with required arguments only")
+func CreateAccFabricIfPolicyDataSourceUpdateRandomAttr(rName, key, value string) string {
+	fmt.Println("=== STEP  testing fabric_if_pol data source with random attribute")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_fabric_if_pol" "test" {
-	
 		name  = "%s"
 	}
 
 	data "aci_fabric_if_pol" "test" {
-		depends_on = [
-			aci_fabric_if_pol.test
-		]
-	}
-	`, rName)
-	return resource
-}
-
-func CreateAccFabricIFPolDataSourceUpdate(rName, key, value string) string {
-	fmt.Println("=== STEP  testing fabric_if_pol creation with required arguments only")
-	resource := fmt.Sprintf(`
-	
-	resource "aci_fabric_if_pol" "test" {
-	
-		name  = "%s"
-	}
-
-	data "aci_fabric_if_pol" "test" {
-	
 		name  = aci_fabric_if_pol.test.name
 		%s = "%s"
+		depends_on = [
+			aci_fabric_if_pol.test
+		]
+	}
+	`, rName, key, value)
+	return resource
+}
+
+func CreateAccFabricIfPolicyDataSourceUpdate(rName, key, value string) string {
+	fmt.Println("=== STEP  testing fabric_if_pol data source with updated resource")
+	resource := fmt.Sprintf(`
+	
+	resource "aci_fabric_if_pol" "test" {
+		name  = "%s"
+		%s = "%s"
+	}
+
+	data "aci_fabric_if_pol" "test" {
+		name  = aci_fabric_if_pol.test.name
 		depends_on = [
 			aci_fabric_if_pol.test
 		]
