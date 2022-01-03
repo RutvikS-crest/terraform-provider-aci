@@ -143,7 +143,7 @@ func TestAccAcil3extLoopBackIfP_Negative(t *testing.T) {
 func CreateAccLoopBackInterfaceProfileRemovingRequiredField() string {
 	fmt.Println("=== STEP  Basic: testing LoopBackInterfaceProfile updation without required parameters")
 	resource := fmt.Sprintln(`
-	resource "aci_l3out_route_tag_policy" "test" {
+	resource "aci_l3out_loopback_interface_profile" "test" {
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_l3out_route_tag_policy"
@@ -215,7 +215,7 @@ func CreateAccLoopBackInterfaceProfileWithInvalidIP(rName, tdn, parent_addr stri
 }
 
 func CreateAccLoopBackInterfaceProfileConfigWithRequiredParams(rName, tdn, parent_addr, addr string) string {
-	fmt.Printf("=== STEP  testing LoopBackInterfaceProfile creation with tdn %s and addr %s\n", tdn, addr)
+	fmt.Println("=== STEP  testing LoopBackInterfaceProfile creation with required parameters")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -272,7 +272,7 @@ func CreateAccLoopBackInterfaceProfileConfigUpdatedAttr(rName, tdn, parent_addr,
 }
 
 func CreateAccLoopBackInterfaceProfileConfigWithInvalidParentDn(rName, addr string) string {
-	fmt.Println("=== STEP  testing LoopBackInterfaceProfile creation invalid fabric_node_dn")
+	fmt.Println("=== STEP  testing LoopBackInterfaceProfile creation with invalid fabric_node_dn")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
