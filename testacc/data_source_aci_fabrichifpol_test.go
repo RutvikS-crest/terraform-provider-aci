@@ -75,6 +75,28 @@ func CreateAccFabricIfPolicyConfigDataSource(rName string) string {
 	return resource
 }
 
+
+func CreateAccFabricIFPolConfigDataSourceUpdatedName(rName string) string {
+	fmt.Println("=== STEP  testing fabric_if_pol creation with updated name")
+	resource := fmt.Sprintf(`
+	
+	resource "aci_fabric_if_pol" "test" {
+	
+		name  = "%s"
+	}
+
+	data "aci_fabric_if_pol" "test" {
+	
+		name  = aci_fabric_if_pol.test.name
+		depends_on = [
+			aci_fabric_if_pol.test
+		]
+	}
+	`, rName)
+	return resource
+}
+
+
 func CreateAccFabricIfPolicyConfigDataSourceWithInValidName(rName string) string {
 	fmt.Println("=== STEP  testing fabric_if_pol data source with Invalid Name")
 	resource := fmt.Sprintf(`
@@ -108,6 +130,7 @@ func CreateFabricIfPolicyDSWithoutRequired(rName string) string {
 	`, rName)
 	return resource
 }
+
 
 func CreateAccFabricIfPolicyDataSourceUpdateRandomAttr(rName, key, value string) string {
 	fmt.Println("=== STEP  testing fabric_if_pol data source with random attribute")

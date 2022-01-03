@@ -41,8 +41,7 @@ func TestAccAciLeafInterfaceProfile_Basic(t *testing.T) {
 				),
 			},
 			{
-				// in this step all optional attribute expect realational attribute are given for the same resource and then compared
-				Config: CreateAccLeafInterfaceProfileConfigWithOptionalValues(rName), // configuration to update optional filelds
+				Config: CreateAccLeafInterfaceProfileConfigWithOptionalValues(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciLeafInterfaceProfileExists(resourceName, &leaf_interface_profile_updated),
 
@@ -116,6 +115,25 @@ func TestAccAciLeafInterfaceProfile_Negative(t *testing.T) {
 			},
 			{
 				Config: CreateAccLeafInterfaceProfileConfig(rName),
+			},
+		},
+	})
+}
+
+func TestAccAciLeafInterfaceProfile_MultipleCreateDelete(t *testing.T) {
+	rName := makeTestVariable(acctest.RandString(5))
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciLeafInterfaceProfileDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+				resource "aci_leaf_interface_profile" "test" {
+					name  = "%s_${count.index}"
+					count = 5
+				}
+				`, rName),
 			},
 		},
 	})

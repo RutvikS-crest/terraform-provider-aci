@@ -30,6 +30,7 @@ func TestAccAciLACPPolicyDataSource_Basic(t *testing.T) {
 				Config: CreateAccLACPPolicyConfigDataSource(rName),
 				Check: resource.ComposeTestCheckFunc(
 
+					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
@@ -48,7 +49,11 @@ func TestAccAciLACPPolicyDataSource_Basic(t *testing.T) {
 			},
 
 			{
-				Config: CreateAccLACPPolicyDataSourceUpdate(rName, "annotation", "orchestrator:terraform-testacc"),
+				Config:      CreateAccLACPPolicyDSWithInvalidName(rName),
+				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
+			},
+			{
+				Config: CreateAccLACPPolicyDataSourceUpdatedResource(rName, "annotation", "orchestrator:terraform-testacc"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 				),
@@ -57,8 +62,27 @@ func TestAccAciLACPPolicyDataSource_Basic(t *testing.T) {
 	})
 }
 
+func CreateLACPPolicyDSWithoutRequired(rName, attr string) string {
+	fmt.Println("=== STEP  testing lacp_policy Data Source without required argument")
+	resource := fmt.Sprintf(`
+	
+	resource "aci_lacp_policy" "test" {
+	
+		name  = "%s"
+	}
+
+	data "aci_lacp_policy" "test" {
+		# name  = aci_lacp_policy.test.name
+		depends_on = [
+			aci_lacp_policy.test
+		]
+	}
+	`, rName)
+	return resource
+}
+
 func CreateAccLACPPolicyConfigDataSource(rName string) string {
-	fmt.Println("=== STEP  testing lacp_policy creation with required arguments only")
+	fmt.Println("=== STEP  testing lacp_policy Data Source with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_lacp_policy" "test" {
@@ -77,8 +101,8 @@ func CreateAccLACPPolicyConfigDataSource(rName string) string {
 	return resource
 }
 
-func CreateLACPPolicyDSWithoutRequired(rName, attr string) string {
-	fmt.Println("=== STEP  testing lacp_policy creation without required arguments")
+func CreateAccLACPPolicyDSWithInvalidName(rName string) string {
+	fmt.Println("=== STEP  testing lacp_policy Data Source with invalid Name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_lacp_policy" "test" {
@@ -88,6 +112,7 @@ func CreateLACPPolicyDSWithoutRequired(rName, attr string) string {
 
 	data "aci_lacp_policy" "test" {
 	
+		name  = "${aci_lacp_policy.test.name}_invalid"
 		depends_on = [
 			aci_lacp_policy.test
 		]
@@ -97,7 +122,7 @@ func CreateLACPPolicyDSWithoutRequired(rName, attr string) string {
 }
 
 func CreateAccLACPPolicyDataSourceUpdate(rName, key, value string) string {
-	fmt.Println("=== STEP  testing lacp_policy creation with required arguments only")
+	fmt.Println("=== STEP  testing lacp_policy Data Source with random attribute")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_lacp_policy" "test" {
@@ -109,6 +134,27 @@ func CreateAccLACPPolicyDataSourceUpdate(rName, key, value string) string {
 	
 		name  = aci_lacp_policy.test.name
 		%s = "%s"
+		depends_on = [
+			aci_lacp_policy.test
+		]
+	}
+	`, rName, key, value)
+	return resource
+}
+
+func CreateAccLACPPolicyDataSourceUpdatedResource(rName, key, value string) string {
+	fmt.Println("=== STEP  testing lacp_policy Data Source with updated resource")
+	resource := fmt.Sprintf(`
+	
+	resource "aci_lacp_policy" "test" {
+	
+		name  = "%s"
+		%s = "%s"
+	}
+
+	data "aci_lacp_policy" "test" {
+	
+		name  = aci_lacp_policy.test.name
 		depends_on = [
 			aci_lacp_policy.test
 		]
