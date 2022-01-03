@@ -85,6 +85,25 @@ func TestAccAciLLDPInterfacePolicy_Basic(t *testing.T) {
 	})
 }
 
+func TestAccAciLLDPInterfacePolicy_MultipleCreateDelete(t *testing.T) {
+	rName := makeTestVariable(acctest.RandString(5))
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciLLDPInterfacePolicyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+				resource "aci_lldp_interface_policy" "test" {
+					name  = "%s_${count.index}"
+					count = 5
+				}
+				`, rName),
+			},
+		},
+	})
+}
+
 func TestAccAciLLDPInterfacePolicy_Negative(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 

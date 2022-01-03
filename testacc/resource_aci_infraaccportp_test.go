@@ -120,6 +120,25 @@ func TestAccAciLeafInterfaceProfile_Negative(t *testing.T) {
 	})
 }
 
+func TestAccAciLeafInterfaceProfile_MultipleCreateDelete(t *testing.T) {
+	rName := makeTestVariable(acctest.RandString(5))
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciLeafInterfaceProfileDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: fmt.Sprintf(`
+				resource "aci_leaf_interface_profile" "test" {
+					name  = "%s_${count.index}"
+					count = 5
+				}
+				`, rName),
+			},
+		},
+	})
+}
+
 func testAccCheckAciLeafInterfaceProfileExists(name string, leaf_interface_profile *models.LeafInterfaceProfile) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
