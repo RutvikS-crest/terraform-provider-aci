@@ -668,11 +668,19 @@ func TestAccAciPeerConnectivityProfile_Update(t *testing.T) {
 				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "private_a_sctrl", StringListtoString([]string{"0"})),
 			},
 			{
-				Config: CreateAccLACPPolicyUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "mode", "mac-pin"),
+				Config: CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "local_asn_propagate", "no-prepend"),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciLACPPolicyExists(resourceName, &lacp_policy_updated),
-					resource.TestCheckResourceAttr(resourceName, "mode", "mac-pin"),
-					testAccCheckAciLACPPolicyIdEqual(&lacp_policy_default, &lacp_policy_updated),
+					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
+					resource.TestCheckResourceAttr(resourceName, "local_asn_propagate", "no-prepend"),
+					testAccCheckAciPeerConnectivityProfileIdNotEqual(&peer_connectivity_profile_default, &peer_connectivity_profile_updated),
+				),
+			},
+			{
+				Config: CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "local_asn_propagate", "replace-as"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
+					resource.TestCheckResourceAttr(resourceName, "local_asn_propagate", "replace-as"),
+					testAccCheckAciPeerConnectivityProfileIdNotEqual(&peer_connectivity_profile_default, &peer_connectivity_profile_updated),
 				),
 			},
 			{
@@ -750,23 +758,27 @@ func TestAccAciPeerConnectivityProfile_Negative(t *testing.T) {
 				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
 			},
 			{
-				Config:      CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "peer_ctrl", StringListtoString([]string{randomValue})),
+				Config:      CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "peer_ctrl", StringListtoString([]string{randomValue})),
 				ExpectError: regexp.MustCompile(`expected (.)+ to be one of (.)+, got(.)+`),
 			},
 			{
-				Config:      CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "peer_ctrl", StringListtoString([]string{"bfd", "bfd"})),
+				Config:      CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "peer_ctrl", StringListtoString([]string{"bfd", "bfd"})),
 				ExpectError: regexp.MustCompile(`duplication is not supported in list`),
 			},
 			// TODO: add unspecified case for "peer_ctrl" if applicable
 			{
-				Config:      CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "private_a_sctrl", StringListtoString([]string{randomValue})),
+				Config:      CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "private_a_sctrl", StringListtoString([]string{randomValue})),
 				ExpectError: regexp.MustCompile(`expected (.)+ to be one of (.)+, got(.)+`),
 			},
 			{
-				Config:      CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "private_a_sctrl", StringListtoString([]string{"remove-all", "remove-all"})),
+				Config:      CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "private_a_sctrl", StringListtoString([]string{"remove-all", "remove-all"})),
 				ExpectError: regexp.MustCompile(`duplication is not supported in list`),
 			},
 			// TODO: add unspecified case for "private_a_sctrl" if applicable
+			{
+				Config:      CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "local_asn_propagate", randomValue),
+				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
+			},
 			{
 				Config:      CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "ttl", randomValue),
 				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
