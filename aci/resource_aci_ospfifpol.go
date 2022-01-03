@@ -311,6 +311,7 @@ func resourceAciOSPFInterfacePolicyUpdate(ctx context.Context, d *schema.Resourc
 			ctrlList = append(ctrlList, val.(string))
 		}
 		Ctrl := strings.Join(ctrlList, ",")
+
 		ospfIfPolAttr.Ctrl = Ctrl
 	}
 	if DeadIntvl, ok := d.GetOk("dead_intvl"); ok {

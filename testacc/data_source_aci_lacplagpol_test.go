@@ -112,10 +112,7 @@ func CreateAccLACPPolicyDSWithInvalidName(rName string) string {
 
 	data "aci_lacp_policy" "test" {
 	
-<<<<<<< HEAD
-=======
 		name  = "${aci_lacp_policy.test.name}_invalid"
->>>>>>> 817bb87b (added test files)
 		depends_on = [
 			aci_lacp_policy.test
 		]

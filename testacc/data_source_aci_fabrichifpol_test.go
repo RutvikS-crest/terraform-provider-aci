@@ -44,8 +44,8 @@ func TestAccAciFabricIFPolDataSource_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
 			{
-				Config:      CreateAccFabricIFPolDataSourceUpdatedName(rName, randomParameter, randomValue),
-				ExpectError: regexp.MustCompile(`Object may not exists`),
+				Config:      CreateAccFabricIFPolDataSourceUpdate(rName, randomParameter, randomValue),
+				ExpectError: regexp.MustCompile(`Unsupported argument`),
 			},
 
 			{
@@ -79,6 +79,26 @@ func CreateAccFabricIFPolConfigDataSource(rName string) string {
 }
 
 func CreateAccFabricIFPolConfigDataSourceUpdatedName(rName string) string {
+	fmt.Println("=== STEP  testing fabric_if_pol creation with updated name")
+	resource := fmt.Sprintf(`
+	
+	resource "aci_fabric_if_pol" "test" {
+	
+		name  = "%s"
+	}
+
+	data "aci_fabric_if_pol" "test" {
+	
+		name  = aci_fabric_if_pol.test.name
+		depends_on = [
+			aci_fabric_if_pol.test
+		]
+	}
+	`, rName)
+	return resource
+}
+
+func CreateAccFabricIFPolDataSourceUpdatedName(rName string) string {
 	fmt.Println("=== STEP  testing fabric_if_pol creation with Invalid Name")
 	resource := fmt.Sprintf(`
 	
@@ -117,11 +137,10 @@ func CreateFabricIFPolDSWithoutRequired(rName, attribute string) string {
 }
 
 func CreateAccFabricIFPolDataSourceUpdate(rName, key, value string) string {
-	fmt.Println("=== STEP  testing fabric_if_pol creation with required arguments only")
+	fmt.Printf("=== STEP  testing fabric_if_pol creation with %s = %s", key, value)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_fabric_if_pol" "test" {
-	
 		name  = "%s"
 	}
 

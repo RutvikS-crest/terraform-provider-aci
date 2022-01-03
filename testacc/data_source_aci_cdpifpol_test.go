@@ -96,7 +96,7 @@ func CreateAccCDPInterfacePolicyDSWithInvalidName(rName string) string {
 	return resource
 }
 
-func CreateCDPInterfacePolicyDSWithoutRequired(rName,attr string) string {
+func CreateCDPInterfacePolicyDSWithoutRequired(rName, attr string) string {
 	fmt.Println("=== STEP  testing cdp_interface_policy Data Source without required argument")
 	resource := fmt.Sprintf(`
 	

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"reflect"
 	"sort"
 	"strings"
 
@@ -56,6 +57,7 @@ func resourceAciBgpPeerConnectivityProfile() *schema.Resource {
 					ValidateFunc: validation.StringInSlice([]string{
 						"af-ucast",
 						"af-mcast",
+						"af-label-ucast",
 					}, false),
 				},
 			},
@@ -262,49 +264,109 @@ func setBgpPeerConnectivityProfileAttributes(bgpPeerP *models.BgpPeerConnectivit
 
 	d.Set("admin_state", bgpPeerPMap["adminSt"])
 	d.Set("addr", bgpPeerPMap["addr"])
-	addrTCtrlGet := make([]string, 0, 1)
+	ctrlGet := make([]string, 0, 1)
 	for _, val := range strings.Split(bgpPeerPMap["addrTCtrl"], ",") {
-		addrTCtrlGet = append(addrTCtrlGet, strings.Trim(val, " "))
+		if val == "" {
+			ctrlGet = append(ctrlGet, "unspecified")
+		} else {
+			ctrlGet = append(ctrlGet, strings.Trim(val, " "))
+		}
 	}
-	sort.Strings(addrTCtrlGet)
-	if len(addrTCtrlGet) == 1 && addrTCtrlGet[0] == "" {
-		d.Set("addr_t_ctrl", make([]string, 0, 1))
+
+	sort.Strings(ctrlGet)
+	if ctrlInp, ok := d.GetOk("addr_t_ctrl"); ok {
+		ctrlAct := make([]string, 0, 1)
+		for _, val := range ctrlInp.([]interface{}) {
+			ctrlAct = append(ctrlAct, val.(string))
+		}
+		sort.Strings(ctrlAct)
+		if reflect.DeepEqual(ctrlAct, ctrlGet) {
+			d.Set("addr_t_ctrl", d.Get("addr_t_ctrl").([]interface{}))
+		} else {
+			d.Set("addr_t_ctrl", ctrlGet)
+		}
 	} else {
-		d.Set("addr_t_ctrl", addrTCtrlGet)
+		d.Set("addr_t_ctrl", ctrlGet)
 	}
+
 	d.Set("allowed_self_as_cnt", bgpPeerPMap["allowedSelfAsCnt"])
 	d.Set("annotation", bgpPeerPMap["annotation"])
-	ctrlGet := make([]string, 0, 1)
+	ctrlGet = make([]string, 0, 1)
 	for _, val := range strings.Split(bgpPeerPMap["ctrl"], ",") {
-		ctrlGet = append(ctrlGet, strings.Trim(val, " "))
+		if val == "" {
+			ctrlGet = append(ctrlGet, "unspecified")
+		} else {
+			ctrlGet = append(ctrlGet, strings.Trim(val, " "))
+		}
 	}
+
 	sort.Strings(ctrlGet)
-	if len(ctrlGet) == 1 && ctrlGet[0] == "" {
-		d.Set("ctrl", make([]string, 0, 1))
+	if ctrlInp, ok := d.GetOk("ctrl"); ok {
+		ctrlAct := make([]string, 0, 1)
+		for _, val := range ctrlInp.([]interface{}) {
+			ctrlAct = append(ctrlAct, val.(string))
+		}
+		sort.Strings(ctrlAct)
+		if reflect.DeepEqual(ctrlAct, ctrlGet) {
+			d.Set("ctrl", d.Get("ctrl").([]interface{}))
+		} else {
+			d.Set("ctrl", ctrlGet)
+		}
 	} else {
 		d.Set("ctrl", ctrlGet)
 	}
+
 	d.Set("name_alias", bgpPeerPMap["nameAlias"])
-	peerCtrlGet := make([]string, 0, 1)
+	ctrlGet = make([]string, 0, 1)
 	for _, val := range strings.Split(bgpPeerPMap["peerCtrl"], ",") {
-		peerCtrlGet = append(peerCtrlGet, strings.Trim(val, " "))
+		if val == "" {
+			ctrlGet = append(ctrlGet, "unspecified")
+		} else {
+			ctrlGet = append(ctrlGet, strings.Trim(val, " "))
+		}
 	}
-	sort.Strings(peerCtrlGet)
-	if len(peerCtrlGet) == 1 && peerCtrlGet[0] == "" {
-		d.Set("peer_ctrl", make([]string, 0, 1))
+
+	sort.Strings(ctrlGet)
+	if ctrlInp, ok := d.GetOk("peer_ctrl"); ok {
+		ctrlAct := make([]string, 0, 1)
+		for _, val := range ctrlInp.([]interface{}) {
+			ctrlAct = append(ctrlAct, val.(string))
+		}
+		sort.Strings(ctrlAct)
+		if reflect.DeepEqual(ctrlAct, ctrlGet) {
+			d.Set("peer_ctrl", d.Get("ctrl").([]interface{}))
+		} else {
+			d.Set("peer_ctrl", ctrlGet)
+		}
 	} else {
-		d.Set("peer_ctrl", peerCtrlGet)
+		d.Set("peer_ctrl", ctrlGet)
 	}
-	privateASctrlGet := make([]string, 0, 1)
+
+	ctrlGet = make([]string, 0, 1)
 	for _, val := range strings.Split(bgpPeerPMap["privateASctrl"], ",") {
-		privateASctrlGet = append(privateASctrlGet, strings.Trim(val, " "))
+		if val == "" {
+			ctrlGet = append(ctrlGet, "unspecified")
+		} else {
+			ctrlGet = append(ctrlGet, strings.Trim(val, " "))
+		}
 	}
-	sort.Strings(privateASctrlGet)
-	if len(privateASctrlGet) == 1 && privateASctrlGet[0] == "" {
-		d.Set("private_a_sctrl", make([]string, 0, 1))
+
+	sort.Strings(ctrlGet)
+	if ctrlInp, ok := d.GetOk("private_a_sctrl"); ok {
+		ctrlAct := make([]string, 0, 1)
+		for _, val := range ctrlInp.([]interface{}) {
+			ctrlAct = append(ctrlAct, val.(string))
+		}
+		sort.Strings(ctrlAct)
+		if reflect.DeepEqual(ctrlAct, ctrlGet) {
+			d.Set("private_a_sctrl", d.Get("ctrl").([]interface{}))
+		} else {
+			d.Set("private_a_sctrl", ctrlGet)
+		}
 	} else {
-		d.Set("private_a_sctrl", privateASctrlGet)
+		d.Set("private_a_sctrl", ctrlGet)
 	}
+
 	d.Set("ttl", bgpPeerPMap["ttl"])
 	d.Set("weight", bgpPeerPMap["weight"])
 	return d, nil
@@ -719,22 +781,33 @@ func resourceAciBgpPeerConnectivityProfileRead(ctx context.Context, d *schema.Re
 		return nil
 	}
 
-	if _, ok := d.GetOk("as_number"); ok {
+	err = checkTDn(aciClient, []string{fmt.Sprintf("%s/as", dn)})
+	if err == nil {
 		bgpAsP, err := getRemoteBgpAutonomousSystemProfileFromBgpPeerConnectivityProfile(aciClient, fmt.Sprintf("%s/as", dn))
 		if err != nil {
-			d.SetId("")
-			return nil
+			return diag.FromErr(err)
 		}
-		setBgpAutonomousSystemProfileAttributesFromBgpPeerConnectivityProfile(bgpAsP, d)
+		_, err = setBgpAutonomousSystemProfileAttributesFromBgpPeerConnectivityProfile(bgpAsP, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	} else {
+		d.Set("as_number", "")
 	}
 
-	if _, ok := d.GetOk("local_asn"); ok {
+	err = checkTDn(aciClient, []string{fmt.Sprintf("%s/localasn", dn)})
+	if err == nil {
 		bgpLocalAsnP, err := getRemoteLocalAutonomousSystemProfileFromBgpPeerConnectivityProfile(aciClient, fmt.Sprintf("%s/localasn", dn))
 		if err != nil {
-			d.SetId("")
-			return nil
+			return diag.FromErr(err)
 		}
-		setLocalAutonomousSystemProfileAttributesFromBgpPeerConnectivityProfile(bgpLocalAsnP, d)
+		_, err = setLocalAutonomousSystemProfileAttributesFromBgpPeerConnectivityProfile(bgpLocalAsnP, d)
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	} else {
+		d.Set("local_asn", "")
+		d.Set("local_asn_propagate", "")
 	}
 
 	bgpRsPeerPfxPolData, err := aciClient.ReadRelationbgpRsPeerPfxPolFromBgpPeerConnectivityProfile(dn)

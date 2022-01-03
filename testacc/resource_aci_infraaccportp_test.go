@@ -41,8 +41,7 @@ func TestAccAciLeafInterfaceProfile_Basic(t *testing.T) {
 				),
 			},
 			{
-				// in this step all optional attribute expect realational attribute are given for the same resource and then compared
-				Config: CreateAccLeafInterfaceProfileConfigWithOptionalValues(rName), // configuration to update optional filelds
+				Config: CreateAccLeafInterfaceProfileConfigWithOptionalValues(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciLeafInterfaceProfileExists(resourceName, &leaf_interface_profile_updated),
 

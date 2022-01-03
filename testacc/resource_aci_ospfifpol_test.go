@@ -21,9 +21,9 @@ func TestAccAciOSPFInterfacePolicy_Basic(t *testing.T) {
 
 	fvTenantName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciOSPFInterfacePolicyDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciOSPFInterfacePolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config:      CreateOSPFInterfacePolicyWithoutRequired(fvTenantName, rName, "tenant_dn"),
@@ -83,7 +83,7 @@ func TestAccAciOSPFInterfacePolicy_Basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config:      CreateAccOSPFInterfacePolicyConfigUpdatedName(rName,acctest.RandString(65)),
+				Config:      CreateAccOSPFInterfacePolicyConfigUpdatedName(rName, acctest.RandString(65)),
 				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
 			},
 
@@ -124,9 +124,9 @@ func TestAccAciOSPFInterfacePolicy_Update(t *testing.T) {
 
 	fvTenantName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciOSPFInterfacePolicyDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciOSPFInterfacePolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccOSPFInterfacePolicyConfig(fvTenantName, rName),
@@ -236,11 +236,10 @@ func TestAccAciOSPFInterfacePolicy_Update(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccOSPFInterfacePolicyUpdatedAttrList(fvTenantName, rName, "ctrl", StringListtoString([]string{"unspecified", "passive", "mtu-ignore", "bfd", "advert-subnet"})),
+				Config: CreateAccOSPFInterfacePolicyUpdatedAttrList(fvTenantName, rName, "ctrl", StringListtoString([]string{"passive", "mtu-ignore", "bfd", "advert-subnet"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciOSPFInterfacePolicyExists(resourceName, &ospf_interface_policy_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "5"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "unspecified"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "4"),
 					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "passive"),
 					resource.TestCheckResourceAttr(resourceName, "ctrl.2", "mtu-ignore"),
 					resource.TestCheckResourceAttr(resourceName, "ctrl.3", "bfd"),
@@ -265,9 +264,9 @@ func TestAccAciOSPFInterfacePolicy_Negative(t *testing.T) {
 	randomValue := makeTestVariable(acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciOSPFInterfacePolicyDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciOSPFInterfacePolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccOSPFInterfacePolicyConfig(fvTenantName, rName),
@@ -495,8 +494,9 @@ func CreateAccOSPFInterfacePolicyWithInValidParentDn(rName string) string {
 	}
 	resource "aci_ospf_interface_policy" "test" {
 		tenant_dn  = aci_application_profile.test.id
-		name  = "%s"	}
-	`, rName, rName,rName)
+		name  = "%s"	
+	}
+	`, rName, rName, rName)
 	return resource
 }
 
@@ -515,8 +515,15 @@ func CreateAccOSPFInterfacePolicyConfigWithOptionalValues(fvTenantName, rName st
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_ospf_interface_policy"
-		cost = "1"cost = ""ctrl = ["advert-subnet"]
-		dead_intvl = "2"dead_intvl = ""hello_intvl = "2"hello_intvl = ""nw_t = "bcast"pfx_suppress = "disable"prio = "1"prio = ""rexmit_intvl = "2"rexmit_intvl = ""xmit_delay = "2"xmit_delay = ""
+		cost = "1"
+		ctrl = ["advert-subnet"]
+		dead_intvl = "2"
+		hello_intvl = "2"
+		nw_t = "bcast"
+		pfx_suppress = "disable"
+		prio = "1"
+		rexmit_intvl = "2"
+		xmit_delay = "2"
 	}
 	`, fvTenantName, rName)
 
@@ -530,8 +537,15 @@ func CreateAccOSPFInterfacePolicyRemovingRequiredField() string {
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_ospf_interface_policy"
-		cost = "1"cost = ""ctrl = ["advert-subnet"]
-		dead_intvl = "2"dead_intvl = ""hello_intvl = "2"hello_intvl = ""nw_t = "bcast"pfx_suppress = "disable"prio = "1"prio = ""rexmit_intvl = "2"rexmit_intvl = ""xmit_delay = "2"xmit_delay = ""
+		cost = "1"
+		ctrl = ["advert-subnet"]
+		dead_intvl = "2"
+		hello_intvl = "2"
+		nw_t = "bcast"
+		pfx_suppress = "disable"
+		prio = "1"
+		rexmit_intvl = "2"
+		xmit_delay = "2"
 	}
 	`)
 

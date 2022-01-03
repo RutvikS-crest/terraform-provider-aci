@@ -34,7 +34,7 @@ func TestAccAciLLDPInterfacePolicy_Basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciLLDPInterfacePolicyExists(resourceName, &lldp_interface_policy_default),
 
-					resource.TestCheckResourceAttr(resourceName, "name", ""),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
@@ -47,7 +47,7 @@ func TestAccAciLLDPInterfacePolicy_Basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciLLDPInterfacePolicyExists(resourceName, &lldp_interface_policy_updated),
 
-					resource.TestCheckResourceAttr(resourceName, "name", ""),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_lldp_interface_policy"),
@@ -258,7 +258,8 @@ func CreateAccLLDPInterfacePolicyConfigWithOptionalValues(rName string) string {
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_lldp_interface_policy"
-		admin_rx_st = "disabled"admin_tx_st = "disabled"
+		admin_rx_st = "disabled"
+		admin_tx_st = "disabled"
 	}
 	`, rName)
 
@@ -272,7 +273,8 @@ func CreateAccLLDPInterfacePolicyRemovingRequiredField() string {
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_lldp_interface_policy"
-		admin_rx_st = "disabled"admin_tx_st = "disabled"
+		admin_rx_st = "disabled"
+		admin_tx_st = "disabled"
 	}
 	`)
 

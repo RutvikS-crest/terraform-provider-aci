@@ -97,7 +97,7 @@ func CreateAccLLDPInterfacePolicyDSWithInvalidName(rName string) string {
 	return resource
 }
 
-func CreateLLDPInterfacePolicyDSWithoutRequired(rName,attr string) string {
+func CreateLLDPInterfacePolicyDSWithoutRequired(rName, attr string) string {
 	fmt.Println("=== STEP  testing lldp_interface_policy Data Source without required argument")
 	resource := fmt.Sprintf(`
 	

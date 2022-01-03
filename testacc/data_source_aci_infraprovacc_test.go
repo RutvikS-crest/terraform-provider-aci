@@ -24,7 +24,7 @@ func TestAccAciVlanEncapsulationforVxlanTrafficDataSource_Basic(t *testing.T) {
 			{
 				Config:      CreateVlanEncapsulationforVxlanTrafficDSWithoutRequired(rName, "attachable_access_entity_profile_dn"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
-			}, 
+			},
 			{
 				Config: CreateAccVlanEncapsulationforVxlanTrafficConfigDataSource(rName),
 				Check: resource.ComposeTestCheckFunc(
@@ -77,7 +77,7 @@ func CreateAccVlanEncapsulationforVxlanTrafficConfigDataSource(infraAttEntityPNa
 	return resource
 }
 
-func CreateVlanEncapsulationforVxlanTrafficDSWithoutRequired(infraAttEntityPName,attr string) string {
+func CreateVlanEncapsulationforVxlanTrafficDSWithoutRequired(infraAttEntityPName, attr string) string {
 	fmt.Println("=== STEP  testing vlan_encapsulationfor_vxlan_traffic Data Source without required argument")
 	resource := fmt.Sprintf(`
 	
