@@ -140,12 +140,12 @@ func resourceAciApplicationEPG() *schema.Resource {
 			},
 
 			"relation_fv_rs_bd": &schema.Schema{
-				Type:     schema.TypeString,
-	
+				Type: schema.TypeString,
+
 				Optional: true,
 			},
 			"relation_fv_rs_cust_qos_pol": &schema.Schema{
-				Type:     schema.TypeString,
+				Type: schema.TypeString,
 
 				Optional: true,
 			},

@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAccAciInterfaceFCPolicyDataSource_Basic(t *testing.T) {
+func TestAccAciInterfaceFcPolicy_Basic(t *testing.T) {
 	resourceName := "aci_interface_fc_policy.test"
 	dataSourceName := "data.aci_interface_fc_policy.test"
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")
@@ -19,17 +19,17 @@ func TestAccAciInterfaceFCPolicyDataSource_Basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
-		CheckDestroy:      testAccCheckAciInterfaceFCPolicyDestroy,
+		CheckDestroy:      testAccCheckAciInterfaceFcPolicyDestroy,
 		Steps: []resource.TestStep{
 
 			{
-				Config:      CreateInterfaceFCPolicyDSWithoutRequired(rName, "name"),
+				Config:      CreateInterfaceFcPolicyDSWithoutName(rName),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccInterfaceFCPolicyConfigDataSource(rName),
+				Config: CreateAccInterfaceFcPolicyConfigDataSource(rName),
 				Check: resource.ComposeTestCheckFunc(
-
+					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
@@ -42,12 +42,15 @@ func TestAccAciInterfaceFCPolicyDataSource_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config:      CreateAccInterfaceFCPolicyDataSourceUpdate(rName, randomParameter, randomValue),
+				Config:      CreateAccInterfaceFcPolicyDataSourceUpdateRandomAttr(rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
-
 			{
-				Config: CreateAccInterfaceFCPolicyDataSourceUpdate(rName, "annotation", "orchestrator:terraform-testacc"),
+				Config:      CreateAccInterfaceFcPolicyConfigDataSourceWithInValidName(rName),
+				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
+			},
+			{
+				Config: CreateAccInterfaceFcPolicyDataSourceUpdate(rName, "annotation", "orchestrator:terraform-testacc"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 				),
@@ -56,8 +59,8 @@ func TestAccAciInterfaceFCPolicyDataSource_Basic(t *testing.T) {
 	})
 }
 
-func CreateAccInterfaceFCPolicyConfigDataSource(rName string) string {
-	fmt.Println("=== STEP  testing interface_fc_policy creation with required arguments only")
+func CreateAccInterfaceFcPolicyConfigDataSource(rName string) string {
+	fmt.Println("=== STEP  testing interface_fc_policy data source with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_interface_fc_policy" "test" {
@@ -76,17 +79,16 @@ func CreateAccInterfaceFCPolicyConfigDataSource(rName string) string {
 	return resource
 }
 
-func CreateInterfaceFCPolicyDSWithoutRequired(rName, attr string) string {
-	fmt.Println("=== STEP  testing interface_fc_policy creation without required arguments")
+func CreateAccInterfaceFcPolicyConfigDataSourceWithInValidName(rName string) string {
+	fmt.Println("=== STEP  testing interface_fc_policy data source with Invalid Name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_interface_fc_policy" "test" {
-	
 		name  = "%s"
 	}
 
 	data "aci_interface_fc_policy" "test" {
-	
+		name  = "${aci_interface_fc_policy.test.name}invalid"
 		depends_on = [
 			aci_interface_fc_policy.test
 		]
@@ -95,19 +97,53 @@ func CreateInterfaceFCPolicyDSWithoutRequired(rName, attr string) string {
 	return resource
 }
 
-func CreateAccInterfaceFCPolicyDataSourceUpdate(rName, key, value string) string {
-	fmt.Println("=== STEP  testing interface_fc_policy creation with required arguments only")
+func CreateInterfaceFcPolicyDSWithoutName(rName string) string {
+	fmt.Println("=== STEP  testing interface_fc_policy data source without name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_interface_fc_policy" "test" {
-	
 		name  = "%s"
 	}
 
 	data "aci_interface_fc_policy" "test" {
+		depends_on = [
+			aci_interface_fc_policy.test
+		]
+	}
+	`, rName)
+	return resource
+}
+func CreateAccInterfaceFcPolicyDataSourceUpdateRandomAttr(rName, key, value string) string {
+	fmt.Println("=== STEP  testing interface_fc_policy data source updation with random attribute")
+	resource := fmt.Sprintf(`
 	
+	resource "aci_interface_fc_policy" "test" {
+		name  = "%s"
+	}
+
+	data "aci_interface_fc_policy" "test" {
 		name  = aci_interface_fc_policy.test.name
 		%s = "%s"
+		depends_on = [
+			aci_interface_fc_policy.test
+		]
+	}
+	`, rName, key, value)
+	return resource
+}
+
+func CreateAccInterfaceFcPolicyDataSourceUpdate(rName, key, value string) string {
+	fmt.Println("=== STEP  testing interface_fc_policy data source with updated resource")
+	resource := fmt.Sprintf(`
+	
+	resource "aci_interface_fc_policy" "test" {
+		name  = "%s"
+		%s = "%s"
+
+	}
+
+	data "aci_interface_fc_policy" "test" {
+		name  = aci_interface_fc_policy.test.name
 		depends_on = [
 			aci_interface_fc_policy.test
 		]
