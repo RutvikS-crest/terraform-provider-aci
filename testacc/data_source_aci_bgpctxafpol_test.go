@@ -88,7 +88,7 @@ func CreateAccBGPAddressFamilyContextConfigDataSource(fvTenantName, rName string
 }
 
 func CreateBGPAddressFamilyContextDSWithoutRequired(fvTenantName, rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing bgp_address_family_context creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing bgp_address_family_context Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_tenant" "test" {

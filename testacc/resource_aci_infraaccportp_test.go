@@ -292,7 +292,7 @@ func CreateAccLeafInterfaceProfileConfigWithOptionalValues(rName string) string 
 }
 
 func CreateAccLeafInterfaceProfileRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing leaf_interface_profile update with required parameters")
+	fmt.Println("=== STEP  Basic: testing leaf_interface_profile update without required parameters")
 	resource := `
 	resource "aci_leaf_interface_profile" "test" {
 		description = "created while acceptance testing"
