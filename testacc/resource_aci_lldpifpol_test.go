@@ -66,12 +66,10 @@ func TestAccAciLLDPInterfacePolicy_Basic(t *testing.T) {
 				Config:      CreateAccLLDPInterfacePolicyConfigUpdatedName(acctest.RandString(65)),
 				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
 			},
-
 			{
 				Config:      CreateAccLLDPInterfacePolicyRemovingRequiredField(),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
-
 			{
 				Config: CreateAccLLDPInterfacePolicyConfigWithRequiredParams(rNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
@@ -93,12 +91,7 @@ func TestAccAciLLDPInterfacePolicy_MultipleCreateDelete(t *testing.T) {
 		CheckDestroy:      testAccCheckAciLLDPInterfacePolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
-				resource "aci_lldp_interface_policy" "test" {
-					name  = "%s_${count.index}"
-					count = 5
-				}
-				`, rName),
+				Config: CreateAccLLDPInterfacePolicyConfigs(rName),
 			},
 		},
 	})
@@ -232,12 +225,23 @@ func CreateLLDPInterfacePolicyWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccLLDPInterfacePolicyConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing lldp_interface_policy creation with required arguments only")
+	fmt.Println("=== STEP  testing lldp_interface_policy creation with updated name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_lldp_interface_policy" "test" {
 	
 		name  = "%s"
+	}
+	`, rName)
+	return resource
+}
+
+func CreateAccLLDPInterfacePolicyConfigs(rName string) string {
+	fmt.Println("=== STEP  testing multiple lldp_interface_policy creation with required arguments only")
+	resource := fmt.Sprintf(`
+	resource "aci_lldp_interface_policy" "test" {
+		name  = "%s_${count.index}"
+		count = 5
 	}
 	`, rName)
 	return resource
@@ -256,7 +260,7 @@ func CreateAccLLDPInterfacePolicyConfig(rName string) string {
 }
 
 func CreateAccLLDPInterfacePolicyConfigUpdatedName(rName string) string {
-	fmt.Println("=== STEP  testing lldp_interface_policy creation with Updated name")
+	fmt.Println("=== STEP  testing lldp_interface_policy creation with longer name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_lldp_interface_policy" "test" {
@@ -286,7 +290,7 @@ func CreateAccLLDPInterfacePolicyConfigWithOptionalValues(rName string) string {
 }
 
 func CreateAccLLDPInterfacePolicyRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing lldp_interface_policy creation with optional parameters")
+	fmt.Println("=== STEP  Basic: testing lldp_interface_policy update without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_lldp_interface_policy" "test" {
 		description = "created while acceptance testing"
