@@ -204,6 +204,18 @@ func TestAccAciLACPPolicy_Update(t *testing.T) {
 				),
 			},
 			{
+				Config: CreateAccLACPPolicyUpdatedListAttr(rName, "ctrl", StringListtoString([]string{"load-defer", "graceful-conv", "susp-individual", "symmetric-hash", "fast-sel-hot-stdby"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciLACPPolicyExists(resourceName, &lacp_policy_updated),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "5"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "load-defer"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "graceful-conv"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.2", "susp-individual"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.3", "symmetric-hash"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.4", "fast-sel-hot-stdby"),
+				),
+			},
+			{
 				Config: CreateAccLACPPolicyUpdatedListAttr(rName, "ctrl", StringListtoString([]string{"susp-individual", "graceful-conv", "fast-sel-hot-stdby"})),
 			},
 			{
@@ -253,12 +265,7 @@ func TestAccAciLACPPolicy_MultipleCreateDelete(t *testing.T) {
 		CheckDestroy:      testAccCheckAciLACPPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
-				resource "aci_lacp_policy" "test" {
-					name  = "%s_${count.index}"
-					count = 5
-				}
-				`, rName),
+				Config: CreateAccLACPPoliciesConfig(rName),
 			},
 		},
 	})
@@ -404,7 +411,7 @@ func CreateLACPPolicyWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccLACPPolicyConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing lacp_policy creation with required arguments only")
+	fmt.Println("=== STEP  testing lacp_policy creation with updated required arguments")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_lacp_policy" "test" {
@@ -427,8 +434,31 @@ func CreateAccLACPPolicyConfig(rName string) string {
 	return resource
 }
 
+func CreateAccLACPPoliciesConfig(rName string) string {
+	fmt.Println("=== STEP  testing Multiple lacp_policy creation with required arguments only")
+	resource := fmt.Sprintf(`
+	
+	resource "aci_lacp_policy" "test" {
+		name  = "%s"
+	}
+
+	resource "aci_lacp_policy" "test1" {
+		name  = "%s"
+	}
+
+	resource "aci_lacp_policy" "test2" {
+		name  = "%s"
+	}
+
+	resource "aci_lacp_policy" "test3" {
+		name  = "%s"
+	}
+	`, rName, rName+"1", rName+"2", rName+"3")
+	return resource
+}
+
 func CreateAccLACPPolicyConfigUpdatedName(rName string) string {
-	fmt.Println("=== STEP  testing lacp_policy creation with uodated name")
+	fmt.Println("=== STEP  testing lacp_policy creation with Invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_lacp_policy" "test" {
@@ -460,7 +490,7 @@ func CreateAccLACPPolicyConfigWithOptionalValues(rName string) string {
 }
 
 func CreateAccLACPPolicyRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing lacp_policy creation with optional parameters")
+	fmt.Println("=== STEP  Basic: testing lacp_policy updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_lacp_policy" "test" {
 		description = "created while acceptance testing"
