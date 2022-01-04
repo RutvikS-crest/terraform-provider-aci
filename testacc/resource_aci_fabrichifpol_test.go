@@ -372,7 +372,7 @@ func testAccCheckAciFabricIfPolicyIdNotEqual(m1, m2 *models.LinkLevelPolicy) res
 }
 
 func CreateFabricIfPolicyWithoutName(rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing fabric_if_pol creation without Name", attrName)
+	fmt.Println("=== STEP  Basic: testing fabric_if_pol creation without", attrName)
 	rBlock := `
 	
 	`
