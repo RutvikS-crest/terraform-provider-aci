@@ -128,12 +128,7 @@ func TestAccAciLeafInterfaceProfile_MultipleCreateDelete(t *testing.T) {
 		CheckDestroy:      testAccCheckAciLeafInterfaceProfileDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
-				resource "aci_leaf_interface_profile" "test" {
-					name  = "%s_${count.index}"
-					count = 5
-				}
-				`, rName),
+				Config: CreateAccLeafInterfaceProfileConfigs(rName),
 			},
 		},
 	})
@@ -221,12 +216,23 @@ func CreateLeafInterfaceProfileWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccLeafInterfaceProfileConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing leaf_interface_profile creation with required arguments only")
+	fmt.Println("=== STEP  testing leaf_interface_profile creation with updated name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_leaf_interface_profile" "test" {
 	
 		name  = "%s"
+	}
+	`, rName)
+	return resource
+}
+
+func CreateAccLeafInterfaceProfileConfigs(rName string) string {
+	fmt.Println("=== STEP  testing multiple leaf_interface_profile creation with required arguments only")
+	resource := fmt.Sprintf(`
+	resource "aci_leaf_interface_profile" "test" {
+		name  = "%s_${count.index}"
+		count = 5
 	}
 	`, rName)
 	return resource
@@ -245,7 +251,7 @@ func CreateAccLeafInterfaceProfileConfig(rName string) string {
 }
 
 func CreateAccLeafInterfaceProfileConfigUpdatedName(rName string) string {
-	fmt.Println("=== STEP  testing leaf_interface_profile creation with updated Name")
+	fmt.Println("=== STEP  testing leaf_interface_profile creation with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_leaf_interface_profile" "test" {
@@ -286,7 +292,7 @@ func CreateAccLeafInterfaceProfileConfigWithOptionalValues(rName string) string 
 }
 
 func CreateAccLeafInterfaceProfileRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing leaf_interface_profile creation with optional parameters")
+	fmt.Println("=== STEP  Basic: testing leaf_interface_profile update with required parameters")
 	resource := `
 	resource "aci_leaf_interface_profile" "test" {
 		description = "created while acceptance testing"
