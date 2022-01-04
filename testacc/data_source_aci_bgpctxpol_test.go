@@ -123,7 +123,7 @@ func CreateAccBGPTimersPolicyConfigDataSource(fvTenantName, rName string) string
 	return resource
 }
 func CreateAccBGPTimersPolicyDSWithInvalidName(fvTenantName, rName string) string {
-	fmt.Println("=== STEP  testing bgp_timers_policy Data Source with Invalid Parent Dn")
+	fmt.Println("=== STEP  testing bgp_timers_policy Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
