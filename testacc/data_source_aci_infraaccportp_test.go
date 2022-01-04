@@ -29,7 +29,7 @@ func TestAccAciLeafInterfaceProfileDataSource_Basic(t *testing.T) {
 			{
 				Config: CreateAccLeafInterfaceProfileConfigDataSource(rName),
 				Check: resource.ComposeTestCheckFunc(
-
+					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
@@ -39,9 +39,12 @@ func TestAccAciLeafInterfaceProfileDataSource_Basic(t *testing.T) {
 				Config:      CreateAccLeafInterfaceProfileDataSourceUpdate(rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
-
 			{
-				Config: CreateAccLeafInterfaceProfileDataSourceUpdate(rName, "annotation", "orchestrator:terraform-testacc"),
+				Config:      CreateAccLeafInterfaceProfileDataSourceWithInvalidName(rName),
+				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
+			},
+			{
+				Config: CreateAccLeafInterfaceProfileDataSourceUpdateResource(rName, "annotation", "orchestrator:terraform-testacc"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 				),
@@ -51,7 +54,7 @@ func TestAccAciLeafInterfaceProfileDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccLeafInterfaceProfileConfigDataSource(rName string) string {
-	fmt.Println("=== STEP  testing leaf_interface_profile creation with required arguments only")
+	fmt.Println("=== STEP  testing leaf_interface_profile Data Source with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_leaf_interface_profile" "test" {
@@ -71,7 +74,7 @@ func CreateAccLeafInterfaceProfileConfigDataSource(rName string) string {
 }
 
 func CreateLeafInterfaceProfileDSWithoutRequired(rName, attr string) string {
-	fmt.Println("=== STEP  testing leaf_interface_profile creation without required arguments")
+	fmt.Println("=== STEP  testing leaf_interface_profile Data Source without required arguments")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_leaf_interface_profile" "test" {
@@ -88,8 +91,27 @@ func CreateLeafInterfaceProfileDSWithoutRequired(rName, attr string) string {
 	return resource
 }
 
+func CreateAccLeafInterfaceProfileDataSourceWithInvalidName(rName string) string {
+	fmt.Println("=== STEP  testing leaf_interface_profile Data Source with invalid name")
+	resource := fmt.Sprintf(`
+	
+	resource "aci_leaf_interface_profile" "test" {
+	
+		name  = "%s"
+	}
+
+	data "aci_leaf_interface_profile" "test" {
+		name  = "${aci_leaf_interface_profile.test.name}_invalid"
+		depends_on = [
+			aci_leaf_interface_profile.test
+		]
+	}
+	`, rName)
+	return resource
+}
+
 func CreateAccLeafInterfaceProfileDataSourceUpdate(rName, key, value string) string {
-	fmt.Println("=== STEP  testing leaf_interface_profile creation with required arguments only")
+	fmt.Println("=== STEP  testing leaf_interface_profile Data Source with random attribute")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_leaf_interface_profile" "test" {
@@ -101,6 +123,26 @@ func CreateAccLeafInterfaceProfileDataSourceUpdate(rName, key, value string) str
 	
 		name  = aci_leaf_interface_profile.test.name
 		%s = "%s"
+		depends_on = [
+			aci_leaf_interface_profile.test
+		]
+	}
+	`, rName, key, value)
+	return resource
+}
+
+func CreateAccLeafInterfaceProfileDataSourceUpdateResource(rName, key, value string) string {
+	fmt.Println("=== STEP  testing leaf_interface_profile Data Source with updated resource")
+	resource := fmt.Sprintf(`
+	
+	resource "aci_leaf_interface_profile" "test" {
+		name  = "%s"
+		%s = "%s"
+	}
+
+	data "aci_leaf_interface_profile" "test" {
+	
+		name  = aci_leaf_interface_profile.test.name
 		depends_on = [
 			aci_leaf_interface_profile.test
 		]
