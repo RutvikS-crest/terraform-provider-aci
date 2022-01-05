@@ -338,7 +338,7 @@ func CreateAccBgpBestPathPolicyConfigWithOptionalValues(fvTenantName, rName stri
 }
 
 func CreateAccBgpBestPathPolicyRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing bgp_best_path_policy update with parameters")
+	fmt.Println("=== STEP  Basic: testing bgp_best_path_policy update without required parameters")
 	resource := fmt.Sprintln(`
 	resource "aci_bgp_best_path_policy" "test" {
 		description = "created while acceptance testing"

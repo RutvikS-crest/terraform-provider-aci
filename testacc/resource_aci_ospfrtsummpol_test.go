@@ -268,7 +268,7 @@ func testAccCheckAciOspfRouteSummarizationIdNotEqual(m1, m2 *models.OspfRouteSum
 }
 
 func CreateOspfRouteSummarizationWithoutRequired(fvTenantName, rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing ospf_route_summarization creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing ospf_route_summarization Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_tenant" "test" {

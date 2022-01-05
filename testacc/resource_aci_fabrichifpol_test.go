@@ -422,7 +422,7 @@ func CreateAccFabricIfPoliciesConfig(rName string) string {
 }
 
 func CreateAccFabricIfPolicyConfig(rName string) string {
-	fmt.Println("=== STEP  testing fabric_if_pol creation with required arguments only")
+	fmt.Println("=== STEP  testing fabric_if_pol creation with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_fabric_if_pol" "test" {

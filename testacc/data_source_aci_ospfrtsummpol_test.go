@@ -121,7 +121,7 @@ func CreateOspfRouteSummarizationDSWithoutRequired(fvTenantName, rName, attrName
 }
 
 func CreateAccOspfRouteSummarizationDSWithInvalidName(fvTenantName, rName string) string {
-	fmt.Println("=== STEP  testing ospf_route_summarization Data Source with Invalid Parent Dn")
+	fmt.Println("=== STEP  testing ospf_route_summarization Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
