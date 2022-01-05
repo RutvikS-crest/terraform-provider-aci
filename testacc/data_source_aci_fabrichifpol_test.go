@@ -75,7 +75,6 @@ func CreateAccFabricIfPolicyConfigDataSource(rName string) string {
 	return resource
 }
 
-
 func CreateAccFabricIFPolConfigDataSourceUpdatedName(rName string) string {
 	fmt.Println("=== STEP  testing fabric_if_pol creation with updated name")
 	resource := fmt.Sprintf(`
@@ -95,7 +94,6 @@ func CreateAccFabricIFPolConfigDataSourceUpdatedName(rName string) string {
 	`, rName)
 	return resource
 }
-
 
 func CreateAccFabricIfPolicyConfigDataSourceWithInValidName(rName string) string {
 	fmt.Println("=== STEP  testing fabric_if_pol data source with Invalid Name")
@@ -130,7 +128,6 @@ func CreateFabricIfPolicyDSWithoutRequired(rName string) string {
 	`, rName)
 	return resource
 }
-
 
 func CreateAccFabricIfPolicyDataSourceUpdateRandomAttr(rName, key, value string) string {
 	fmt.Println("=== STEP  testing fabric_if_pol data source with random attribute")
