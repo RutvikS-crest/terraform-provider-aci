@@ -281,7 +281,7 @@ func CreateAccL3outBGPExternalPolicyConfigWithOptionalValues(fvTenantName, l3ext
 }
 
 func CreateAccL3outBGPExternalPolicyRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing l3out_bgp_external_policy creation with optional parameters")
+	fmt.Println("=== STEP  Basic: testing l3out_bgp_external_policy creation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_l3out_bgp_external_policy" "test" {
 		description = "created while acceptance testing"

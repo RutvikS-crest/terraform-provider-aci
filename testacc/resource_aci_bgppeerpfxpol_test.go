@@ -58,8 +58,8 @@ func TestAccAciBGPPeerPrefix_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_bgp_peer_prefix"),
 					resource.TestCheckResourceAttr(resourceName, "action", "log"),
 					resource.TestCheckResourceAttr(resourceName, "max_pfx", "2"),
-					resource.TestCheckResourceAttr(resourceName, "restart_time", "2"),
-					resource.TestCheckResourceAttr(resourceName, "thresh", "2"),
+					resource.TestCheckResourceAttr(resourceName, "restart_time", "1"),
+					resource.TestCheckResourceAttr(resourceName, "thresh", "1"),
 					testAccCheckAciBGPPeerPrefixIdEqual(&bgp_peer_prefix_default, &bgp_peer_prefix_updated),
 				),
 			},
@@ -136,6 +136,22 @@ func TestAccAciBGPPeerPrefix_Update(t *testing.T) {
 				),
 			},
 			{
+				Config: CreateAccBGPPeerPrefixUpdatedAttr(fvTenantName, rName, "max_pfx", "1"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciBGPPeerPrefixExists(resourceName, &bgp_peer_prefix_updated),
+					resource.TestCheckResourceAttr(resourceName, "max_pfx", "1"),
+					testAccCheckAciBGPPeerPrefixIdEqual(&bgp_peer_prefix_default, &bgp_peer_prefix_updated),
+				),
+			},
+			{
+				Config: CreateAccBGPPeerPrefixUpdatedAttr(fvTenantName, rName, "thresh", "100"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciBGPPeerPrefixExists(resourceName, &bgp_peer_prefix_updated),
+					resource.TestCheckResourceAttr(resourceName, "thresh", "100"),
+					testAccCheckAciBGPPeerPrefixIdEqual(&bgp_peer_prefix_default, &bgp_peer_prefix_updated),
+				),
+			},
+			{
 				Config: CreateAccBGPPeerPrefixConfig(fvTenantName, rName),
 			},
 		},
@@ -182,8 +198,16 @@ func TestAccAciBGPPeerPrefix_Negative(t *testing.T) {
 				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
+				Config:      CreateAccBGPPeerPrefixUpdatedAttr(fvTenantName, rName, "max_pfx", "3000002"),
+				ExpectError: regexp.MustCompile(`Property maxPfx of (.)* is out of range`),
+			},
+			{
 				Config:      CreateAccBGPPeerPrefixUpdatedAttr(fvTenantName, rName, "restart_time", randomValue),
 				ExpectError: regexp.MustCompile(`unknown property value`),
+			},
+			{
+				Config:      CreateAccBGPPeerPrefixUpdatedAttr(fvTenantName, rName, "restart_time", "0"),
+				ExpectError: regexp.MustCompile(`Property restartTime of (.)* is out of range`),
 			},
 			{
 				Config:      CreateAccBGPPeerPrefixUpdatedAttr(fvTenantName, rName, "thresh", randomValue),
@@ -311,7 +335,7 @@ func CreateBGPPeerPrefixWithoutRequired(fvTenantName, rName, attrName string) st
 }
 
 func CreateAccBGPPeerPrefixConfigWithUpdatedRequiredParams(fvTenantName, rName string) string {
-	fmt.Println("=== STEP  testing bgp_peer_prefix creation with updated required arguments")
+	fmt.Printf("=== STEP  testing bgp_peer_prefix creation with updated required arguments with Tenant name %s and BGP Peer Prefix %s", fvTenantName, rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -327,7 +351,7 @@ func CreateAccBGPPeerPrefixConfigWithUpdatedRequiredParams(fvTenantName, rName s
 }
 
 func CreateAccBGPPeerPrefixConfig(fvTenantName, rName string) string {
-	fmt.Println("=== STEP  testing bgp_peer_prefix creation with required arguments only")
+	fmt.Printf("=== STEP  testing bgp_peer_prefix creation with required arguments only with name %s", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -393,7 +417,6 @@ func CreateAccBGPPeerPrefixConfigWithOptionalValues(fvTenantName, rName string) 
 	
 	resource "aci_tenant" "test" {
 		name 		= "%s"
-	
 	}
 	
 	resource "aci_bgp_peer_prefix" "test" {
@@ -404,8 +427,8 @@ func CreateAccBGPPeerPrefixConfigWithOptionalValues(fvTenantName, rName string) 
 		name_alias = "test_bgp_peer_prefix"
 		action = "log"
 		max_pfx = "2"
-		restart_time = "2"
-		thresh = "2"
+		restart_time = "1"
+		thresh = "1"
 	}
 	`, fvTenantName, rName)
 
