@@ -497,7 +497,7 @@ func CreateAccHSRPGroupPolicyConfigWithOptionalValues(fvTenantName, rName string
 }
 
 func CreateAccHSRPGroupPolicyRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing hsrp_group_policy creation with optional parameters")
+	fmt.Println("=== STEP  Basic: testing hsrp_group_policy update without required parameters")
 	resource := fmt.Sprintln(`
 	resource "aci_hsrp_group_policy" "test" {
 		description = "created while acceptance testing"

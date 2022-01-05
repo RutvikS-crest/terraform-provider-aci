@@ -342,7 +342,7 @@ func CreateAccL3DomainProfileConfigWithOptionalValues(rName string) string {
 }
 
 func CreateAccL3DomainProfileRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing l3_domain_profile creation with optional parameters")
+	fmt.Println("=== STEP  Basic: testing l3_domain_profile update without required parameters")
 	resource := fmt.Sprintln(`
 	resource "aci_l3_domain_profile" "test" {
 		annotation = "tag"

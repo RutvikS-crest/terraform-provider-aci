@@ -429,7 +429,7 @@ func CreateAccBGPTimersPolicyConfigWithOptionalValues(fvTenantName, rName string
 }
 
 func CreateAccBGPTimersPolicyRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing bgp_timers_policy updadation without required parameters")
+	fmt.Println("=== STEP  Basic: testing bgp_timers_policy update without required parameters")
 	resource := fmt.Sprintln(`
 	resource "aci_bgp_timers" "test" {
 		description = "created while acceptance testing"
