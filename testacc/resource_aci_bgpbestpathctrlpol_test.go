@@ -297,7 +297,7 @@ func CreateAccBgpBestPathPolicyConfig(fvTenantName, rName string) string {
 }
 
 func CreateAccBgpBestPathPolicyWithInValidParentDn(rName string) string {
-	fmt.Println("=== STEP  Negative Case: testing bgp_best_path_policy creation with invalid tenant_dn")
+	fmt.Println("=== STEP  Negative Case: testing bgp_best_path_policy creation with Invalid Parent Dn")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test"{
 		name = "%s"
