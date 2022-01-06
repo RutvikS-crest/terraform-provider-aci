@@ -335,7 +335,7 @@ func CreateBGPPeerPrefixWithoutRequired(fvTenantName, rName, attrName string) st
 }
 
 func CreateAccBGPPeerPrefixConfigWithUpdatedRequiredParams(fvTenantName, rName string) string {
-	fmt.Printf("=== STEP  testing bgp_peer_prefix creation with updated required arguments with Tenant name %s and BGP Peer Prefix %s", fvTenantName, rName)
+	fmt.Printf("=== STEP  testing bgp_peer_prefix creation with updated required arguments with Tenant name %s and BGP Peer Prefix %s\n", fvTenantName, rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -351,7 +351,7 @@ func CreateAccBGPPeerPrefixConfigWithUpdatedRequiredParams(fvTenantName, rName s
 }
 
 func CreateAccBGPPeerPrefixConfig(fvTenantName, rName string) string {
-	fmt.Printf("=== STEP  testing bgp_peer_prefix creation with required arguments only with name %s", rName)
+	fmt.Printf("=== STEP  testing bgp_peer_prefix creation with required arguments only with name %s\n", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
