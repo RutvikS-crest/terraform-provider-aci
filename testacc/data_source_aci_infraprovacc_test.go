@@ -99,6 +99,7 @@ func CreateVlanEncapsulationforVxlanTrafficDSWithoutRequired(infraAttEntityPName
 	`, infraAttEntityPName)
 	return resource
 }
+
 func CreateAccVlanEncapsulationforVxlanTrafficDSWithInvalidParentDn(infraAttEntityPName string) string {
 	fmt.Println("=== STEP  testing vlan_encapsulationfor_vxlan_traffic Data Source with Invalid Parent Dn")
 	resource := fmt.Sprintf(`
@@ -113,7 +114,7 @@ func CreateAccVlanEncapsulationforVxlanTrafficDSWithInvalidParentDn(infraAttEnti
 	}
 
 	data "aci_vlan_encapsulationfor_vxlan_traffic" "test" {
-		attachable_access_entity_profile_dn  = aci_attachable_access_entity_profile.test.id
+		attachable_access_entity_profile_dn  = "${aci_attachable_access_entity_profile.test.id}_invalid"
 		depends_on = [
 			aci_vlan_encapsulationfor_vxlan_traffic.test
 		]
