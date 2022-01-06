@@ -226,7 +226,7 @@ func TestAccAciL3outOspfExternalPolicy_Update(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccL3outOspfExternalPolicyUpdatedAttrInfra(rName,  "multipod_internal", "yes"),
+				Config: CreateAccL3outOspfExternalPolicyUpdatedAttrInfra(rName, "multipod_internal", "yes"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outOspfExternalPolicyExists(resourceName, &l3out_ospf_external_policy_updated_infra),
 					resource.TestCheckResourceAttr(resourceName, "multipod_internal", "yes"),

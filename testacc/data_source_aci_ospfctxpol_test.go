@@ -38,6 +38,7 @@ func TestAccAciOSPFTimersDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "bw_ref", resourceName, "bw_ref"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "ctrl", resourceName, "ctrl"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "dist", resourceName, "dist"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "gr_ctrl", resourceName, "gr_ctrl"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "lsa_arrival_intvl", resourceName, "lsa_arrival_intvl"),
@@ -100,7 +101,7 @@ func CreateAccOSPFTimersConfigDataSource(fvTenantName, rName string) string {
 }
 
 func CreateOSPFTimersDSWithoutRequired(fvTenantName, rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing ospf_timers creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing ospf_timers Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_tenant" "test" {
