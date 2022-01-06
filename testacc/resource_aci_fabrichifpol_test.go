@@ -64,7 +64,7 @@ func TestAccAciFabricIfPolicy_Basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config:      CreateAccFabricIfPolicyConfig(acctest.RandString(65)),
+				Config:      CreateAccFabricIfPolicyConfigWithUpdatedRequiredParams(acctest.RandString(65)),
 				ExpectError: regexp.MustCompile(`property name of (.)* failed validation`),
 			},
 			{
@@ -388,7 +388,7 @@ func CreateFabricIfPolicyWithoutName(rName, attrName string) string {
 }
 
 func CreateAccFabricIfPolicyConfigWithUpdatedRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing fabric_if_pol creation with updated required arguments")
+	fmt.Printf("=== STEP  testing fabric_if_pol creation with name = %s\n", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_fabric_if_pol" "test" {	
@@ -422,7 +422,7 @@ func CreateAccFabricIfPoliciesConfig(rName string) string {
 }
 
 func CreateAccFabricIfPolicyConfig(rName string) string {
-	fmt.Println("=== STEP  testing fabric_if_pol creation with invalid name")
+	fmt.Println("=== STEP  testing fabric_if_pol creation with required arguments")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_fabric_if_pol" "test" {
