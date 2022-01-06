@@ -49,21 +49,16 @@ func TestAccAciPeerConnectivityProfile_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 					resource.TestCheckResourceAttr(resourceName, "addr_t_ctrl.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "addr_t_ctrl.0", "1"),
-					resource.TestCheckResourceAttr(resourceName, "admin_st", "enabled"),
+					resource.TestCheckResourceAttr(resourceName, "addr_t_ctrl.0", "af-ucast"),
+					resource.TestCheckResourceAttr(resourceName, "admin_state", "enabled"),
 					resource.TestCheckResourceAttr(resourceName, "allowed_self_as_cnt", "3"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.0", ""),
-					resource.TestCheckResourceAttr(resourceName, "password", ""),
-					resource.TestCheckResourceAttr(resourceName, "peer_ctrl.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "peer_ctrl.0", ""),
-					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.0", "0"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "0"),
+					resource.TestCheckResourceAttr(resourceName, "peer_ctrl.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "1"),
 					resource.TestCheckResourceAttr(resourceName, "weight", "0"),
 					resource.TestCheckResourceAttr(resourceName, "as_number", ""),
 					resource.TestCheckResourceAttr(resourceName, "local_asn", ""),
-					resource.TestCheckResourceAttr(resourceName, "local_asn_propagate", "none"),
+					resource.TestCheckResourceAttr(resourceName, "local_asn_propagate", ""),
 				),
 			},
 			{
@@ -76,18 +71,20 @@ func TestAccAciPeerConnectivityProfile_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_peer_connectivity_profile"),
 					resource.TestCheckResourceAttr(resourceName, "addr_t_ctrl.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "addr_t_ctrl.0", "af-label-ucast"),
-					resource.TestCheckResourceAttr(resourceName, "admin_st", "disabled"),
+					resource.TestCheckResourceAttr(resourceName, "addr_t_ctrl.0", "af-mcast"),
+					resource.TestCheckResourceAttr(resourceName, "admin_state", "disabled"),
 					resource.TestCheckResourceAttr(resourceName, "allowed_self_as_cnt", "2"),
 					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "allow-self-as"),
-					resource.TestCheckResourceAttr(resourceName, "password", ""),
+					resource.TestCheckResourceAttr(resourceName, "password", "cisco"),
 					resource.TestCheckResourceAttr(resourceName, "peer_ctrl.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "peer_ctrl.0", "bfd"),
-					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.#", "3"),
 					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.0", "remove-all"),
+					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.1", "remove-exclusive"),
+					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.2", "replace-as"),
 					resource.TestCheckResourceAttr(resourceName, "ttl", "2"),
-					resource.TestCheckResourceAttr(resourceName, "weight", ""),
+					resource.TestCheckResourceAttr(resourceName, "weight", "1"),
 					resource.TestCheckResourceAttr(resourceName, "as_number", "1"),
 					resource.TestCheckResourceAttr(resourceName, "local_asn", "2"),
 					resource.TestCheckResourceAttr(resourceName, "local_asn_propagate", "dual-as"),
@@ -96,9 +93,10 @@ func TestAccAciPeerConnectivityProfile_Basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"password"},
 			},
 			{
 				Config:      CreateAccPeerConnectivityProfileWithInavalidIP(rName, rName, rName, addr),
@@ -113,7 +111,7 @@ func TestAccAciPeerConnectivityProfile_Basic(t *testing.T) {
 				Config: CreateAccPeerConnectivityProfileConfigWithRequiredParams(rName, rName, rNameUpdated, addr),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "parent_dn", GetParentDn(peer_connectivity_profile_default.DistinguishedName, fmt.Sprintf("/peerP-[%s]", addr))),
+					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s/out-%s/lnodep-%s", rName, rName, rNameUpdated)),
 					resource.TestCheckResourceAttr(resourceName, "addr", addr),
 					testAccCheckAciPeerConnectivityProfileIdNotEqual(&peer_connectivity_profile_default, &peer_connectivity_profile_updated),
 				),
@@ -125,7 +123,7 @@ func TestAccAciPeerConnectivityProfile_Basic(t *testing.T) {
 				Config: CreateAccPeerConnectivityProfileConfigWithRequiredParams(rName, rName, rName, addrUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "parent_dn", GetParentDn(peer_connectivity_profile_default.DistinguishedName, fmt.Sprintf("/peerP-[%s]", addr))),
+					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s/out-%s/lnodep-%s", rName, rName, rName)),
 					resource.TestCheckResourceAttr(resourceName, "addr", addrUpdated),
 					testAccCheckAciPeerConnectivityProfileIdNotEqual(&peer_connectivity_profile_default, &peer_connectivity_profile_updated),
 				),
@@ -196,126 +194,6 @@ func TestAccAciPeerConnectivityProfile_Update(t *testing.T) {
 				),
 			},
 			{
-
-				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "ctrl", StringListtoString([]string{"allow-self-as", "as-override"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "allow-self-as"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "as-override"),
-				),
-			},
-			{
-
-				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "ctrl", StringListtoString([]string{"as-override"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "as-override"),
-				),
-			},
-			{
-
-				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "ctrl", StringListtoString([]string{"allow-self-as", "as-override", "dis-peer-as-check"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "allow-self-as"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "as-override"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.2", "dis-peer-as-check"),
-				),
-			},
-			{
-
-				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "ctrl", StringListtoString([]string{"as-override", "dis-peer-as-check"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "as-override"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "dis-peer-as-check"),
-				),
-			},
-			{
-
-				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "ctrl", StringListtoString([]string{"dis-peer-as-check"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "dis-peer-as-check"),
-				),
-			},
-			{
-
-				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "ctrl", StringListtoString([]string{"allow-self-as", "as-override", "dis-peer-as-check", "nh-self"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "4"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "allow-self-as"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "as-override"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.2", "dis-peer-as-check"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.3", "nh-self"),
-				),
-			},
-			{
-
-				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "ctrl", StringListtoString([]string{"as-override", "dis-peer-as-check", "nh-self"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "as-override"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "dis-peer-as-check"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.2", "nh-self"),
-				),
-			},
-			{
-
-				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "ctrl", StringListtoString([]string{"dis-peer-as-check", "nh-self"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "dis-peer-as-check"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "nh-self"),
-				),
-			},
-			{
-
-				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "ctrl", StringListtoString([]string{"nh-self"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "nh-self"),
-				),
-			},
-
-			{
-
-				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "ctrl", StringListtoString([]string{"send-com"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "send-com"),
-				),
-			},
-			{
-
-				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "ctrl", StringListtoString([]string{"send-com", "send-ext-com"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "send-com"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "send-ext-com"),
-				),
-			},
-			{
-
-				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "ctrl", StringListtoString([]string{"send-ext-com"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "send-ext-com"),
-				),
-			},
-			{
 				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "ctrl", StringListtoString([]string{"send-ext-com", "send-com", "nh-self", "dis-peer-as-check", "as-override", "allow-self-as"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
@@ -367,34 +245,6 @@ func TestAccAciPeerConnectivityProfile_Update(t *testing.T) {
 			},
 			{
 
-				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "private_a_sctrl", StringListtoString([]string{"remove-all"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.0", "remove-all"),
-				),
-			},
-			{
-
-				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "private_a_sctrl", StringListtoString([]string{"remove-all", "remove-exclusive"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.0", "remove-all"),
-					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.1", "remove-exclusive"),
-				),
-			},
-			{
-
-				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "private_a_sctrl", StringListtoString([]string{"remove-exclusive"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.0", "remove-exclusive"),
-				),
-			},
-			{
-
 				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "private_a_sctrl", StringListtoString([]string{"remove-all", "remove-exclusive", "replace-as"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
@@ -402,24 +252,6 @@ func TestAccAciPeerConnectivityProfile_Update(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.0", "remove-all"),
 					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.1", "remove-exclusive"),
 					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.2", "replace-as"),
-				),
-			},
-			{
-				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "private_a_sctrl", StringListtoString([]string{"remove-exclusive", "replace-as"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.0", "remove-exclusive"),
-					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.1", "replace-as"),
-				),
-			},
-			{
-
-				Config: CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "private_a_sctrl", StringListtoString([]string{"replace-as"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "private_a_sctrl.0", "replace-as"),
 				),
 			},
 			{
@@ -433,19 +265,17 @@ func TestAccAciPeerConnectivityProfile_Update(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "local_asn_propagate", "no-prepend"),
+				Config: CreateAccPeerConnectivityProfileUpdatedLocalAsnAttrs(fvTenantName, l3extOutName, l3extLNodePName, addr, "local_asn_propagate", "no-prepend"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
 					resource.TestCheckResourceAttr(resourceName, "local_asn_propagate", "no-prepend"),
-					testAccCheckAciPeerConnectivityProfileIdNotEqual(&peer_connectivity_profile_default, &peer_connectivity_profile_updated),
 				),
 			},
 			{
-				Config: CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "local_asn_propagate", "replace-as"),
+				Config: CreateAccPeerConnectivityProfileUpdatedLocalAsnAttrs(fvTenantName, l3extOutName, l3extLNodePName, addr, "local_asn_propagate", "replace-as"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
 					resource.TestCheckResourceAttr(resourceName, "local_asn_propagate", "replace-as"),
-					testAccCheckAciPeerConnectivityProfileIdNotEqual(&peer_connectivity_profile_default, &peer_connectivity_profile_updated),
 				),
 			},
 			{
@@ -493,34 +323,28 @@ func TestAccAciPeerConnectivityProfile_Negative(t *testing.T) {
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
 			{
-				Config:      CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "addr_t_ctrl", StringListtoString([]string{randomValue})),
+				Config:      CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "addr_t_ctrl", StringListtoString([]string{randomValue})),
 				ExpectError: regexp.MustCompile(`expected (.)+ to be one of (.)+, got(.)+`),
 			},
 			{
-				Config:      CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "addr_t_ctrl", StringListtoString([]string{"af-label-ucast", "af-label-ucast"})),
+				Config:      CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "addr_t_ctrl", StringListtoString([]string{"af-mcast", "af-mcast"})),
 				ExpectError: regexp.MustCompile(`duplication is not supported in list`),
 			},
-			// TODO: add unspecified case for "addr_t_ctrl" if applicable
 			{
-				Config:      CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "admin_st", randomValue),
+				Config:      CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "admin_state", randomValue),
 				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
 			},
 			{
 				Config:      CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "allowed_self_as_cnt", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
-				Config:      CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "ctrl", StringListtoString([]string{randomValue})),
+				Config:      CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "ctrl", StringListtoString([]string{randomValue})),
 				ExpectError: regexp.MustCompile(`expected (.)+ to be one of (.)+, got(.)+`),
 			},
 			{
-				Config:      CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "ctrl", StringListtoString([]string{"allow-self-as", "allow-self-as"})),
+				Config:      CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "ctrl", StringListtoString([]string{"allow-self-as", "allow-self-as"})),
 				ExpectError: regexp.MustCompile(`duplication is not supported in list`),
-			},
-			// TODO: add unspecified case for "ctrl" if applicable
-			{
-				Config:      CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "password", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
 			},
 			{
 				Config:      CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "peer_ctrl", StringListtoString([]string{randomValue})),
@@ -530,7 +354,6 @@ func TestAccAciPeerConnectivityProfile_Negative(t *testing.T) {
 				Config:      CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "peer_ctrl", StringListtoString([]string{"bfd", "bfd"})),
 				ExpectError: regexp.MustCompile(`duplication is not supported in list`),
 			},
-			// TODO: add unspecified case for "peer_ctrl" if applicable
 			{
 				Config:      CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "private_a_sctrl", StringListtoString([]string{randomValue})),
 				ExpectError: regexp.MustCompile(`expected (.)+ to be one of (.)+, got(.)+`),
@@ -539,18 +362,17 @@ func TestAccAciPeerConnectivityProfile_Negative(t *testing.T) {
 				Config:      CreateAccPeerConnectivityProfileUpdatedAttrList(fvTenantName, l3extOutName, l3extLNodePName, addr, "private_a_sctrl", StringListtoString([]string{"remove-all", "remove-all"})),
 				ExpectError: regexp.MustCompile(`duplication is not supported in list`),
 			},
-			// TODO: add unspecified case for "private_a_sctrl" if applicable
 			{
-				Config:      CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "local_asn_propagate", randomValue),
+				Config:      CreateAccPeerConnectivityProfileUpdatedLocalAsnAttrs(fvTenantName, l3extOutName, l3extLNodePName, addr, "local_asn_propagate", randomValue),
 				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
 			},
 			{
 				Config:      CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "ttl", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
 				Config:      CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3extLNodePName, addr, "weight", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 
 			{
@@ -786,13 +608,13 @@ func CreateAccPeerConnectivityProfileConfigWithOptionalValues(fvTenantName, l3ex
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_peer_connectivity_profile"
-		addr_t_ctrl = ["af-label-ucast"]
-		admin_st = "disabled"
+		addr_t_ctrl = ["af-mcast"]
+		admin_state = "disabled"
 		allowed_self_as_cnt = "2"
 		ctrl = ["allow-self-as"]
-		password = "Cisco@123"
+		password = "cisco"
 		peer_ctrl = ["bfd"]
-		private_a_sctrl = ["remove-all"]
+		private_a_sctrl = ["remove-all", "remove-exclusive", "replace-as"]
 		ttl = "2"
 		as_number = "1"
 		local_asn = "2"
@@ -806,25 +628,25 @@ func CreateAccPeerConnectivityProfileConfigWithOptionalValues(fvTenantName, l3ex
 
 func CreateAccPeerConnectivityProfileRemovingRequiredField() string {
 	fmt.Println("=== STEP  Basic: testing peer_connectivity_profile creation with optional parameters")
-	resource := fmt.Sprintf(`
+	resource := `
 	resource "aci_bgp_peer_connectivity_profile" "test" {
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_peer_connectivity_profile"
 		addr_t_ctrl = ["af-label-ucast"]
-		admin_st = "disabled"
+		admin_state = "disabled"
 		allowed_self_as_cnt = "2"
 		ctrl = ["allow-self-as"]
 		password = "Cisco@123"
 		peer_ctrl = ["bfd"]
-		private_a_sctrl = ["remove-all"]
+		private_a_sctrl = ["remove-all", "remove-exclusive", "replace-as"]
 		ttl = "2"
 		as_number = "1"
 		local_asn = "2"
 		local_asn_propagate = "dual-as"
 		weight = "1"
 	}
-	`)
+	`
 
 	return resource
 }
@@ -851,6 +673,35 @@ func CreateAccPeerConnectivityProfileUpdatedAttr(fvTenantName, l3extOutName, l3e
 	resource "aci_bgp_peer_connectivity_profile" "test" {
 		parent_dn  = aci_logical_node_profile.test.id
 		addr  = "%s"
+		%s = "%s"
+	}
+	`, fvTenantName, l3extOutName, l3extLNodePName, addr, attribute, value)
+	return resource
+}
+
+func CreateAccPeerConnectivityProfileUpdatedLocalAsnAttrs(fvTenantName, l3extOutName, l3extLNodePName, addr, attribute, value string) string {
+	fmt.Printf("=== STEP  testing peer_connectivity_profile attribute: %s=%s \n", attribute, value)
+	resource := fmt.Sprintf(`
+	
+	resource "aci_tenant" "test" {
+		name 		= "%s"
+	
+	}
+	
+	resource "aci_l3_outside" "test" {
+		name 		= "%s"
+		tenant_dn = aci_tenant.test.id
+	}
+	
+	resource "aci_logical_node_profile" "test" {
+		name 		= "%s"
+		l3_outside_dn = aci_l3_outside.test.id
+	}
+	
+	resource "aci_bgp_peer_connectivity_profile" "test" {
+		parent_dn  = aci_logical_node_profile.test.id
+		addr  = "%s"
+		local_asn = 3
 		%s = "%s"
 	}
 	`, fvTenantName, l3extOutName, l3extLNodePName, addr, attribute, value)

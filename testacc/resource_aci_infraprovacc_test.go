@@ -26,11 +26,12 @@ func TestAccAciVlanEncapsulationforVxlanTraffic_Basic(t *testing.T) {
 			{
 				Config:      CreateVlanEncapsulationforVxlanTrafficWithoutRequired(infraAttEntityPName, "attachable_access_entity_profile_dn"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
-			}, {
+			},
+			{
 				Config: CreateAccVlanEncapsulationforVxlanTrafficConfig(infraAttEntityPName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciVlanEncapsulationforVxlanTrafficExists(resourceName, &vlan_encapsulationfor_vxlan_traffic_default),
-					resource.TestCheckResourceAttr(resourceName, "attachable_access_entity_profile_dn", GetParentDn(vlan_encapsulationfor_vxlan_traffic_default.DistinguishedName, fmt.Sprintf("/provacc"))),
+					resource.TestCheckResourceAttr(resourceName, "attachable_access_entity_profile_dn", fmt.Sprintf("uni/infra/attentp-%s", infraAttEntityPName)),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
@@ -40,7 +41,7 @@ func TestAccAciVlanEncapsulationforVxlanTraffic_Basic(t *testing.T) {
 				Config: CreateAccVlanEncapsulationforVxlanTrafficConfigWithOptionalValues(infraAttEntityPName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciVlanEncapsulationforVxlanTrafficExists(resourceName, &vlan_encapsulationfor_vxlan_traffic_updated),
-					resource.TestCheckResourceAttr(resourceName, "attachable_access_entity_profile_dn", GetParentDn(vlan_encapsulationfor_vxlan_traffic_default.DistinguishedName, fmt.Sprintf("/provacc"))),
+					resource.TestCheckResourceAttr(resourceName, "attachable_access_entity_profile_dn", fmt.Sprintf("uni/infra/attentp-%s", infraAttEntityPName)),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_vlan_encapsulationfor_vxlan_traffic"),
@@ -61,7 +62,7 @@ func TestAccAciVlanEncapsulationforVxlanTraffic_Basic(t *testing.T) {
 				Config: CreateAccVlanEncapsulationforVxlanTrafficConfigWithRequiredParams(rNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciVlanEncapsulationforVxlanTrafficExists(resourceName, &vlan_encapsulationfor_vxlan_traffic_updated),
-					resource.TestCheckResourceAttr(resourceName, "attachable_access_entity_profile_dn", GetParentDn(vlan_encapsulationfor_vxlan_traffic_default.DistinguishedName, fmt.Sprintf("/provacc"))),
+					resource.TestCheckResourceAttr(resourceName, "attachable_access_entity_profile_dn", fmt.Sprintf("uni/infra/attentp-%s", rNameUpdated)),
 					testAccCheckAciVlanEncapsulationforVxlanTrafficIdNotEqual(&vlan_encapsulationfor_vxlan_traffic_default, &vlan_encapsulationfor_vxlan_traffic_updated),
 				),
 			},
@@ -239,7 +240,8 @@ func CreateAccVlanEncapsulationforVxlanTrafficWithInValidParentDn(rName string) 
 		name = "%s"
 	}
 	resource "aci_vlan_encapsulationfor_vxlan_traffic" "test" {
-		attachable_access_entity_profile_dn  = aci_tenant.test.id	}
+		attachable_access_entity_profile_dn  = aci_tenant.test.id	
+	}
 	`, rName)
 	return resource
 }

@@ -37,16 +37,16 @@ func TestAccAciOSPFInterfacePolicy_Basic(t *testing.T) {
 				Config: CreateAccOSPFInterfacePolicyConfig(fvTenantName, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciOSPFInterfacePolicyExists(resourceName, &ospf_interface_policy_default),
-					resource.TestCheckResourceAttr(resourceName, "tenant_dn", GetParentDn(ospf_interface_policy_default.DistinguishedName, fmt.Sprintf("/ospfIfPol-%s", rName))),
-					resource.TestCheckResourceAttr(resourceName, "name", ""),
+					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", fvTenantName)),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
-					resource.TestCheckResourceAttr(resourceName, "cost", "u"),
+					resource.TestCheckResourceAttr(resourceName, "cost", "unspecified"),
 					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "unspecified"),
-					resource.TestCheckResourceAttr(resourceName, "dead_intvl", "4"),
-					resource.TestCheckResourceAttr(resourceName, "hello_intvl", "1"),
+					resource.TestCheckResourceAttr(resourceName, "dead_intvl", "40"),
+					resource.TestCheckResourceAttr(resourceName, "hello_intvl", "10"),
 					resource.TestCheckResourceAttr(resourceName, "nw_t", "unspecified"),
 					resource.TestCheckResourceAttr(resourceName, "pfx_suppress", "inherit"),
 					resource.TestCheckResourceAttr(resourceName, "prio", "1"),
@@ -58,21 +58,23 @@ func TestAccAciOSPFInterfacePolicy_Basic(t *testing.T) {
 				Config: CreateAccOSPFInterfacePolicyConfigWithOptionalValues(fvTenantName, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciOSPFInterfacePolicyExists(resourceName, &ospf_interface_policy_updated),
-					resource.TestCheckResourceAttr(resourceName, "tenant_dn", GetParentDn(ospf_interface_policy_default.DistinguishedName, fmt.Sprintf("/ospfIfPol-%s", rName))),
-					resource.TestCheckResourceAttr(resourceName, "name", ""),
+					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", fvTenantName)),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_ospf_interface_policy"),
-					resource.TestCheckResourceAttr(resourceName, "cost", "1"), resource.TestCheckResourceAttr(resourceName, "cost", ""),
+					resource.TestCheckResourceAttr(resourceName, "cost", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "advert-subnet"),
-					resource.TestCheckResourceAttr(resourceName, "dead_intvl", "2"), resource.TestCheckResourceAttr(resourceName, "dead_intvl", ""),
-					resource.TestCheckResourceAttr(resourceName, "hello_intvl", "2"), resource.TestCheckResourceAttr(resourceName, "hello_intvl", ""),
+					resource.TestCheckResourceAttr(resourceName, "dead_intvl", "2"),
+					resource.TestCheckResourceAttr(resourceName, "hello_intvl", "2"),
+
 					resource.TestCheckResourceAttr(resourceName, "nw_t", "bcast"),
+
 					resource.TestCheckResourceAttr(resourceName, "pfx_suppress", "disable"),
-					resource.TestCheckResourceAttr(resourceName, "prio", "1"), resource.TestCheckResourceAttr(resourceName, "prio", ""),
-					resource.TestCheckResourceAttr(resourceName, "rexmit_intvl", "2"), resource.TestCheckResourceAttr(resourceName, "rexmit_intvl", ""),
-					resource.TestCheckResourceAttr(resourceName, "xmit_delay", "2"), resource.TestCheckResourceAttr(resourceName, "xmit_delay", ""),
+					resource.TestCheckResourceAttr(resourceName, "prio", "1"),
+					resource.TestCheckResourceAttr(resourceName, "rexmit_intvl", "2"),
+					resource.TestCheckResourceAttr(resourceName, "xmit_delay", "2"),
 
 					testAccCheckAciOSPFInterfacePolicyIdEqual(&ospf_interface_policy_default, &ospf_interface_policy_updated),
 				),
@@ -83,7 +85,7 @@ func TestAccAciOSPFInterfacePolicy_Basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config:      CreateAccOSPFInterfacePolicyConfigUpdatedName(rName, acctest.RandString(65)),
+				Config:      CreateAccOSPFInterfacePolicyConfigUpdatedName(fvTenantName, acctest.RandString(65)),
 				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
 			},
 
@@ -95,7 +97,7 @@ func TestAccAciOSPFInterfacePolicy_Basic(t *testing.T) {
 				Config: CreateAccOSPFInterfacePolicyConfigWithRequiredParams(rNameUpdated, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciOSPFInterfacePolicyExists(resourceName, &ospf_interface_policy_updated),
-					resource.TestCheckResourceAttr(resourceName, "tenant_dn", GetParentDn(ospf_interface_policy_default.DistinguishedName, fmt.Sprintf("/ospfIfPol-%s", rName))),
+					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rNameUpdated)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					testAccCheckAciOSPFInterfacePolicyIdNotEqual(&ospf_interface_policy_default, &ospf_interface_policy_updated),
 				),
@@ -107,7 +109,7 @@ func TestAccAciOSPFInterfacePolicy_Basic(t *testing.T) {
 				Config: CreateAccOSPFInterfacePolicyConfigWithRequiredParams(rName, rNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciOSPFInterfacePolicyExists(resourceName, &ospf_interface_policy_updated),
-					resource.TestCheckResourceAttr(resourceName, "tenant_dn", GetParentDn(ospf_interface_policy_default.DistinguishedName, fmt.Sprintf("/ospfIfPol-%s", rName))),
+					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rName)),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdated),
 					testAccCheckAciOSPFInterfacePolicyIdNotEqual(&ospf_interface_policy_default, &ospf_interface_policy_updated),
 				),
@@ -136,7 +138,6 @@ func TestAccAciOSPFInterfacePolicy_Update(t *testing.T) {
 			},
 
 			{
-
 				Config: CreateAccOSPFInterfacePolicyUpdatedAttrList(fvTenantName, rName, "ctrl", StringListtoString([]string{"advert-subnet"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciOSPFInterfacePolicyExists(resourceName, &ospf_interface_policy_updated),
@@ -161,17 +162,6 @@ func TestAccAciOSPFInterfacePolicy_Update(t *testing.T) {
 					testAccCheckAciOSPFInterfacePolicyExists(resourceName, &ospf_interface_policy_updated),
 					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "bfd"),
-				),
-			},
-			{
-
-				Config: CreateAccOSPFInterfacePolicyUpdatedAttrList(fvTenantName, rName, "ctrl", StringListtoString([]string{"advert-subnet", "bfd", "mtu-ignore"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciOSPFInterfacePolicyExists(resourceName, &ospf_interface_policy_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "advert-subnet"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "bfd"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.2", "mtu-ignore"),
 				),
 			},
 			{
@@ -207,17 +197,6 @@ func TestAccAciOSPFInterfacePolicy_Update(t *testing.T) {
 			},
 			{
 
-				Config: CreateAccOSPFInterfacePolicyUpdatedAttrList(fvTenantName, rName, "ctrl", StringListtoString([]string{"bfd", "mtu-ignore", "passive"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciOSPFInterfacePolicyExists(resourceName, &ospf_interface_policy_updated),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "bfd"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "mtu-ignore"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.2", "passive"),
-				),
-			},
-			{
-
 				Config: CreateAccOSPFInterfacePolicyUpdatedAttrList(fvTenantName, rName, "ctrl", StringListtoString([]string{"mtu-ignore", "passive"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciOSPFInterfacePolicyExists(resourceName, &ospf_interface_policy_updated),
@@ -240,14 +219,11 @@ func TestAccAciOSPFInterfacePolicy_Update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciOSPFInterfacePolicyExists(resourceName, &ospf_interface_policy_updated),
 					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "4"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "passive"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.2", "mtu-ignore"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.3", "bfd"),
-					resource.TestCheckResourceAttr(resourceName, "ctrl.4", "advert-subnet"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.0", "passive"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.1", "mtu-ignore"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.2", "bfd"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.3", "advert-subnet"),
 				),
-			},
-			{
-				Config: CreateAccOSPFInterfacePolicyUpdatedAttrList(fvTenantName, rName, "ctrl", StringListtoString([]string{"unspecified"})),
 			},
 			{
 				Config: CreateAccOSPFInterfacePolicyConfig(fvTenantName, rName),
@@ -289,24 +265,31 @@ func TestAccAciOSPFInterfacePolicy_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "cost", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
-				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "ctrl", StringListtoString([]string{randomValue})),
+				Config:      CreateAccOSPFInterfacePolicyUpdatedAttrList(fvTenantName, rName, "ctrl", StringListtoString([]string{randomValue})),
 				ExpectError: regexp.MustCompile(`expected (.)+ to be one of (.)+, got(.)+`),
 			},
 			{
-				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "ctrl", StringListtoString([]string{"advert-subnet", "advert-subnet"})),
+				Config:      CreateAccOSPFInterfacePolicyUpdatedAttrList(fvTenantName, rName, "ctrl", StringListtoString([]string{"advert-subnet", "advert-subnet"})),
 				ExpectError: regexp.MustCompile(`duplication is not supported in list`),
 			},
-			// TODO: add unspecified case for "ctrl" if applicable
 			{
 				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "dead_intvl", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
+			},
+			{
+				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "dead_intvl", "0"),
+				ExpectError: regexp.MustCompile(`out of range`),
 			},
 			{
 				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "hello_intvl", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
+			},
+			{
+				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "hello_intvl", "0"),
+				ExpectError: regexp.MustCompile(`out of range`),
 			},
 			{
 				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "nw_t", randomValue),
@@ -318,23 +301,54 @@ func TestAccAciOSPFInterfacePolicy_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "prio", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
+			},
+			{
+				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "prio", "256"),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
 				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "rexmit_intvl", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
+			},
+			{
+				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "rexmit_intvl", "0"),
+				ExpectError: regexp.MustCompile(`out of range`),
 			},
 			{
 				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "xmit_delay", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
-
+			{
+				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "xmit_delay", "0"),
+				ExpectError: regexp.MustCompile(`out of range`),
+			},
+			{
+				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "xmit_delay", "451"),
+				ExpectError: regexp.MustCompile(`out of range`),
+			},
 			{
 				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
 			{
 				Config: CreateAccOSPFInterfacePolicyConfig(fvTenantName, rName),
+			},
+		},
+	})
+}
+
+func TestAccAciOSPFInterfacePolicy_MultipleCreateDelete(t *testing.T) {
+	rName := makeTestVariable(acctest.RandString(5))
+
+	fvTenantName := makeTestVariable(acctest.RandString(5))
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciOSPFInterfacePolicyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccOSPFInterfacePolicyConfigMultiple(fvTenantName, rName),
 			},
 		},
 	})
@@ -448,6 +462,22 @@ func CreateAccOSPFInterfacePolicyConfigWithRequiredParams(fvTenantName, rName st
 	`, fvTenantName, rName)
 	return resource
 }
+func CreateAccOSPFInterfacePolicyConfigUpdatedName(fvTenantName, rName string) string {
+	fmt.Println("=== STEP  testing ospf_interface_policy creation with invalid name = ", rName)
+	resource := fmt.Sprintf(`
+	
+	resource "aci_tenant" "test" {
+		name 		= "%s"
+	
+	}
+	
+	resource "aci_ospf_interface_policy" "test" {
+		tenant_dn  = aci_tenant.test.id
+		name  = "%s"
+	}
+	`, fvTenantName, rName)
+	return resource
+}
 
 func CreateAccOSPFInterfacePolicyConfig(fvTenantName, rName string) string {
 	fmt.Println("=== STEP  testing ospf_interface_policy creation with required arguments only")
@@ -466,8 +496,8 @@ func CreateAccOSPFInterfacePolicyConfig(fvTenantName, rName string) string {
 	return resource
 }
 
-func CreateAccOSPFInterfacePolicyConfigUpdatedName(fvTenantName, rName string) string {
-	fmt.Println("=== STEP  testing ospf_interface_policy creation with updated name")
+func CreateAccOSPFInterfacePolicyConfigMultiple(fvTenantName, rName string) string {
+	fmt.Println("=== STEP  testing multiple ospf_interface_policy creation with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -477,7 +507,8 @@ func CreateAccOSPFInterfacePolicyConfigUpdatedName(fvTenantName, rName string) s
 	
 	resource "aci_ospf_interface_policy" "test" {
 		tenant_dn  = aci_tenant.test.id
-		name  = "%s"
+		name  = "%s_${count.index}"
+		count = 5
 	}
 	`, fvTenantName, rName)
 	return resource
@@ -490,6 +521,7 @@ func CreateAccOSPFInterfacePolicyWithInValidParentDn(rName string) string {
 		name = "%s"
 	}
 	resource "aci_application_profile" "test"{
+		tenant_dn  = aci_tenant.test.id
 		name = "%s"
 	}
 	resource "aci_ospf_interface_policy" "test" {
@@ -524,6 +556,7 @@ func CreateAccOSPFInterfacePolicyConfigWithOptionalValues(fvTenantName, rName st
 		prio = "1"
 		rexmit_intvl = "2"
 		xmit_delay = "2"
+		
 	}
 	`, fvTenantName, rName)
 
@@ -531,7 +564,7 @@ func CreateAccOSPFInterfacePolicyConfigWithOptionalValues(fvTenantName, rName st
 }
 
 func CreateAccOSPFInterfacePolicyRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing ospf_interface_policy creation with optional parameters")
+	fmt.Println("=== STEP  Basic: testing ospf_interface_policy updation with required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_ospf_interface_policy" "test" {
 		description = "created while acceptance testing"
@@ -546,6 +579,7 @@ func CreateAccOSPFInterfacePolicyRemovingRequiredField() string {
 		prio = "1"
 		rexmit_intvl = "2"
 		xmit_delay = "2"
+		
 	}
 	`)
 

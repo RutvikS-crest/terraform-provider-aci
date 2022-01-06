@@ -245,6 +245,10 @@ func resourceAciOSPFInterfacePolicyCreate(ctx context.Context, d *schema.Resourc
 		for _, val := range Ctrl.([]interface{}) {
 			ctrlList = append(ctrlList, val.(string))
 		}
+		err := checkDuplicate(ctrlList)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 		Ctrl := strings.Join(ctrlList, ",")
 		ospfIfPolAttr.Ctrl = Ctrl
 	}
@@ -310,8 +314,11 @@ func resourceAciOSPFInterfacePolicyUpdate(ctx context.Context, d *schema.Resourc
 		for _, val := range Ctrl.([]interface{}) {
 			ctrlList = append(ctrlList, val.(string))
 		}
+		err := checkDuplicate(ctrlList)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 		Ctrl := strings.Join(ctrlList, ",")
-
 		ospfIfPolAttr.Ctrl = Ctrl
 	}
 	if DeadIntvl, ok := d.GetOk("dead_intvl"); ok {

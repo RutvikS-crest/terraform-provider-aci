@@ -266,9 +266,7 @@ func setBgpPeerConnectivityProfileAttributes(bgpPeerP *models.BgpPeerConnectivit
 	d.Set("addr", bgpPeerPMap["addr"])
 	ctrlGet := make([]string, 0, 1)
 	for _, val := range strings.Split(bgpPeerPMap["addrTCtrl"], ",") {
-		if val == "" {
-			ctrlGet = append(ctrlGet, "unspecified")
-		} else {
+		if val != "" {
 			ctrlGet = append(ctrlGet, strings.Trim(val, " "))
 		}
 	}
@@ -293,9 +291,7 @@ func setBgpPeerConnectivityProfileAttributes(bgpPeerP *models.BgpPeerConnectivit
 	d.Set("annotation", bgpPeerPMap["annotation"])
 	ctrlGet = make([]string, 0, 1)
 	for _, val := range strings.Split(bgpPeerPMap["ctrl"], ",") {
-		if val == "" {
-			ctrlGet = append(ctrlGet, "unspecified")
-		} else {
+		if val != "" {
 			ctrlGet = append(ctrlGet, strings.Trim(val, " "))
 		}
 	}
@@ -319,9 +315,7 @@ func setBgpPeerConnectivityProfileAttributes(bgpPeerP *models.BgpPeerConnectivit
 	d.Set("name_alias", bgpPeerPMap["nameAlias"])
 	ctrlGet = make([]string, 0, 1)
 	for _, val := range strings.Split(bgpPeerPMap["peerCtrl"], ",") {
-		if val == "" {
-			ctrlGet = append(ctrlGet, "unspecified")
-		} else {
+		if val != "" {
 			ctrlGet = append(ctrlGet, strings.Trim(val, " "))
 		}
 	}
@@ -334,7 +328,7 @@ func setBgpPeerConnectivityProfileAttributes(bgpPeerP *models.BgpPeerConnectivit
 		}
 		sort.Strings(ctrlAct)
 		if reflect.DeepEqual(ctrlAct, ctrlGet) {
-			d.Set("peer_ctrl", d.Get("ctrl").([]interface{}))
+			d.Set("peer_ctrl", d.Get("peer_ctrl").([]interface{}))
 		} else {
 			d.Set("peer_ctrl", ctrlGet)
 		}
@@ -344,9 +338,7 @@ func setBgpPeerConnectivityProfileAttributes(bgpPeerP *models.BgpPeerConnectivit
 
 	ctrlGet = make([]string, 0, 1)
 	for _, val := range strings.Split(bgpPeerPMap["privateASctrl"], ",") {
-		if val == "" {
-			ctrlGet = append(ctrlGet, "unspecified")
-		} else {
+		if val != "" {
 			ctrlGet = append(ctrlGet, strings.Trim(val, " "))
 		}
 	}
@@ -359,7 +351,7 @@ func setBgpPeerConnectivityProfileAttributes(bgpPeerP *models.BgpPeerConnectivit
 		}
 		sort.Strings(ctrlAct)
 		if reflect.DeepEqual(ctrlAct, ctrlGet) {
-			d.Set("private_a_sctrl", d.Get("ctrl").([]interface{}))
+			d.Set("private_a_sctrl", d.Get("private_a_sctrl").([]interface{}))
 		} else {
 			d.Set("private_a_sctrl", ctrlGet)
 		}
@@ -440,6 +432,10 @@ func resourceAciBgpPeerConnectivityProfileCreate(ctx context.Context, d *schema.
 		for _, val := range AddrTCtrl.([]interface{}) {
 			addrTCtrlList = append(addrTCtrlList, val.(string))
 		}
+		err := checkDuplicate(addrTCtrlList)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 		AddrTCtrl := strings.Join(addrTCtrlList, ",")
 		bgpPeerPAttr.AddrTCtrl = AddrTCtrl
 	}
@@ -456,6 +452,10 @@ func resourceAciBgpPeerConnectivityProfileCreate(ctx context.Context, d *schema.
 		for _, val := range Ctrl.([]interface{}) {
 			ctrlList = append(ctrlList, val.(string))
 		}
+		err := checkDuplicate(ctrlList)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 		Ctrl := strings.Join(ctrlList, ",")
 		bgpPeerPAttr.Ctrl = Ctrl
 	}
@@ -470,6 +470,10 @@ func resourceAciBgpPeerConnectivityProfileCreate(ctx context.Context, d *schema.
 		for _, val := range PeerCtrl.([]interface{}) {
 			peerCtrlList = append(peerCtrlList, val.(string))
 		}
+		err := checkDuplicate(peerCtrlList)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 		PeerCtrl := strings.Join(peerCtrlList, ",")
 		bgpPeerPAttr.PeerCtrl = PeerCtrl
 	}
@@ -477,6 +481,10 @@ func resourceAciBgpPeerConnectivityProfileCreate(ctx context.Context, d *schema.
 		privateASctrlList := make([]string, 0, 1)
 		for _, val := range PrivateASctrl.([]interface{}) {
 			privateASctrlList = append(privateASctrlList, val.(string))
+		}
+		err := checkDuplicate(privateASctrlList)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 		PrivateASctrl := strings.Join(privateASctrlList, ",")
 		bgpPeerPAttr.PrivateASctrl = PrivateASctrl
@@ -508,7 +516,7 @@ func resourceAciBgpPeerConnectivityProfileCreate(ctx context.Context, d *schema.
 			bgpLocalAsnPAttr.LocalAsn = LocalAsn.(string)
 		}
 
-		bgpLocalAsnP := models.NewLocalAutonomousSystemProfile(fmt.Sprintf("localasn"), PeerConnectivityProfileDn, desc, bgpLocalAsnPAttr)
+		bgpLocalAsnP := models.NewLocalAutonomousSystemProfile("localasn", PeerConnectivityProfileDn, desc, bgpLocalAsnPAttr)
 
 		err = aciClient.Save(bgpLocalAsnP)
 		if err != nil {
@@ -523,7 +531,7 @@ func resourceAciBgpPeerConnectivityProfileCreate(ctx context.Context, d *schema.
 			bgpAsPAttr.Asn = Asn.(string)
 		}
 
-		bgpAsP := models.NewBgpAutonomousSystemProfile(fmt.Sprintf("as"), PeerConnectivityProfileDn, desc, bgpAsPAttr)
+		bgpAsP := models.NewBgpAutonomousSystemProfile("as", PeerConnectivityProfileDn, desc, bgpAsPAttr)
 		err = aciClient.Save(bgpAsP)
 		if err != nil {
 			return diag.FromErr(err)
@@ -623,6 +631,10 @@ func resourceAciBgpPeerConnectivityProfileUpdate(ctx context.Context, d *schema.
 		for _, val := range Ctrl.([]interface{}) {
 			ctrlList = append(ctrlList, val.(string))
 		}
+		err := checkDuplicate(ctrlList)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 		Ctrl := strings.Join(ctrlList, ",")
 		bgpPeerPAttr.Ctrl = Ctrl
 	}
@@ -634,6 +646,10 @@ func resourceAciBgpPeerConnectivityProfileUpdate(ctx context.Context, d *schema.
 		for _, val := range PeerCtrl.([]interface{}) {
 			peerCtrlList = append(peerCtrlList, val.(string))
 		}
+		err := checkDuplicate(peerCtrlList)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 		PeerCtrl := strings.Join(peerCtrlList, ",")
 		bgpPeerPAttr.PeerCtrl = PeerCtrl
 	}
@@ -641,6 +657,10 @@ func resourceAciBgpPeerConnectivityProfileUpdate(ctx context.Context, d *schema.
 		privateASctrlList := make([]string, 0, 1)
 		for _, val := range PrivateASctrl.([]interface{}) {
 			privateASctrlList = append(privateASctrlList, val.(string))
+		}
+		err := checkDuplicate(privateASctrlList)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 		PrivateASctrl := strings.Join(privateASctrlList, ",")
 		bgpPeerPAttr.PrivateASctrl = PrivateASctrl
@@ -665,6 +685,7 @@ func resourceAciBgpPeerConnectivityProfileUpdate(ctx context.Context, d *schema.
 	}
 
 	PeerConnectivityProfileDn := bgpPeerP.DistinguishedName
+
 	if _, ok := d.GetOk("local_asn"); ok {
 		bgpLocalAsnPAttr := models.LocalAutonomousSystemProfileAttributes{}
 
@@ -675,13 +696,17 @@ func resourceAciBgpPeerConnectivityProfileUpdate(ctx context.Context, d *schema.
 			bgpLocalAsnPAttr.LocalAsn = LocalAsn.(string)
 		}
 
-		bgpLocalAsnP := models.NewLocalAutonomousSystemProfile(fmt.Sprintf("localasn"), PeerConnectivityProfileDn, desc, bgpLocalAsnPAttr)
-		bgpLocalAsnP.Status = "modified"
-
+		bgpLocalAsnP := models.NewLocalAutonomousSystemProfile("localasn", PeerConnectivityProfileDn, desc, bgpLocalAsnPAttr)
+		if _, err = aciClient.Get(fmt.Sprintf("%s/localasn", PeerConnectivityProfileDn)); err == nil {
+			bgpLocalAsnP.Status = "modified"
+		}
 		err = aciClient.Save(bgpLocalAsnP)
 		if err != nil {
 			return diag.FromErr(err)
 		}
+	} else {
+		d.Set("local_asn", "")
+		d.Set("local_asn_propagate", "")
 	}
 
 	if _, ok := d.GetOk("as_number"); ok {
@@ -691,13 +716,16 @@ func resourceAciBgpPeerConnectivityProfileUpdate(ctx context.Context, d *schema.
 			bgpAsPAttr.Asn = Asn.(string)
 		}
 
-		bgpAsP := models.NewBgpAutonomousSystemProfile(fmt.Sprintf("as"), PeerConnectivityProfileDn, desc, bgpAsPAttr)
-		bgpAsP.Status = "modified"
-
+		bgpAsP := models.NewBgpAutonomousSystemProfile("as", PeerConnectivityProfileDn, desc, bgpAsPAttr)
+		if _, err = aciClient.Get(fmt.Sprintf("%s/as", PeerConnectivityProfileDn)); err == nil {
+			bgpAsP.Status = "modified"
+		}
 		err = aciClient.Save(bgpAsP)
 		if err != nil {
 			return diag.FromErr(err)
 		}
+	} else {
+		d.Set("as_number", "")
 	}
 
 	checkDns := make([]string, 0, 1)
@@ -781,7 +809,7 @@ func resourceAciBgpPeerConnectivityProfileRead(ctx context.Context, d *schema.Re
 		return nil
 	}
 
-	err = checkTDn(aciClient, []string{fmt.Sprintf("%s/as", dn)})
+	_, err = aciClient.Get(fmt.Sprintf("%s/as", dn))
 	if err == nil {
 		bgpAsP, err := getRemoteBgpAutonomousSystemProfileFromBgpPeerConnectivityProfile(aciClient, fmt.Sprintf("%s/as", dn))
 		if err != nil {
@@ -795,7 +823,7 @@ func resourceAciBgpPeerConnectivityProfileRead(ctx context.Context, d *schema.Re
 		d.Set("as_number", "")
 	}
 
-	err = checkTDn(aciClient, []string{fmt.Sprintf("%s/localasn", dn)})
+	_, err = aciClient.Get(fmt.Sprintf("%s/localasn", dn))
 	if err == nil {
 		bgpLocalAsnP, err := getRemoteLocalAutonomousSystemProfileFromBgpPeerConnectivityProfile(aciClient, fmt.Sprintf("%s/localasn", dn))
 		if err != nil {

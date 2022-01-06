@@ -162,7 +162,7 @@ func dataSourceAciBgpPeerConnectivityProfileRead(ctx context.Context, d *schema.
 	if err != nil {
 		return diag.FromErr(err)
 	}
-	err = checkTDn(aciClient, []string{fmt.Sprintf("%s/as", dn)})
+	_, err = aciClient.Get(fmt.Sprintf("%s/as", dn))
 	if err == nil {
 		bgpAsP, err := getRemoteBgpAutonomousSystemProfileFromBgpPeerConnectivityProfile(aciClient, fmt.Sprintf("%s/as", dn))
 		if err != nil {
@@ -176,7 +176,7 @@ func dataSourceAciBgpPeerConnectivityProfileRead(ctx context.Context, d *schema.
 		d.Set("as_number", "")
 	}
 
-	err = checkTDn(aciClient, []string{fmt.Sprintf("%s/localasn", dn)})
+	_, err = aciClient.Get(fmt.Sprintf("%s/localasn", dn))
 	if err == nil {
 		bgpLocalAsnP, err := getRemoteLocalAutonomousSystemProfileFromBgpPeerConnectivityProfile(aciClient, fmt.Sprintf("%s/localasn", dn))
 		if err != nil {

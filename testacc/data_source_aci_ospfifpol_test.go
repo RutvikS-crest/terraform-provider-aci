@@ -98,6 +98,7 @@ func CreateOSPFInterfacePolicyDSWithoutRequired(fvTenantName, rName, attrName st
 	
 	resource "aci_tenant" "test" {
 		name 		= "%s"
+	
 	}
 	
 	resource "aci_ospf_interface_policy" "test" {
