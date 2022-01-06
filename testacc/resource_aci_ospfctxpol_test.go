@@ -42,6 +42,7 @@ func TestAccAciOSPFTimers_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 					resource.TestCheckResourceAttr(resourceName, "bw_ref", "40000"),
+					resource.TestCheckResourceAttr(resourceName, "ctrl.#", "0"),
 					resource.TestCheckResourceAttr(resourceName, "dist", "110"),
 					resource.TestCheckResourceAttr(resourceName, "gr_ctrl", ""),
 					resource.TestCheckResourceAttr(resourceName, "lsa_arrival_intvl", "1000"),
@@ -408,6 +409,13 @@ func TestAccAciOSPFTimers_Update(t *testing.T) {
 				),
 			},
 			{
+				Config: CreateAccOSPFTimersUpdatedAttr(fvTenantName, rName, "gr_ctrl", ""),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciOSPFTimersExists(resourceName, &ospf_timers_updated),
+					resource.TestCheckResourceAttr(resourceName, "gr_ctrl", ""),
+				),
+			},
+			{
 				Config: CreateAccOSPFTimersConfig(fvTenantName, rName),
 			},
 		},
@@ -706,7 +714,7 @@ func CreateOSPFTimersWithoutRequired(fvTenantName, rName, attrName string) strin
 }
 
 func CreateAccOSPFTimersConfigWithRequiredParams(fvTenantName, rName string) string {
-	fmt.Println("=== STEP  testing ospf_timers creation with updated required arguments")
+	fmt.Printf("=== STEP  testing ospf_timers creation with Tenant Name %s and OSPF Timers Name %s required arguments\n", fvTenantName, rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -722,7 +730,7 @@ func CreateAccOSPFTimersConfigWithRequiredParams(fvTenantName, rName string) str
 }
 
 func CreateAccOSPFTimersConfig(fvTenantName, rName string) string {
-	fmt.Println("=== STEP  testing ospf_timers creation with required arguments only")
+	fmt.Printf("=== STEP  testing ospf_timers creation with Tenant Name %s and OSPF Timers Name %s required arguments\n", fvTenantName, rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -823,7 +831,7 @@ func CreateAccOSPFTimersConfigWithOptionalValues(fvTenantName, rName string) str
 }
 
 func CreateAccOSPFTimersRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing ospf_timers creation without required parameters")
+	fmt.Println("=== STEP  Basic: testing ospf_timers updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_ospf_timers" "test" {
 		description = "created while acceptance testing"
