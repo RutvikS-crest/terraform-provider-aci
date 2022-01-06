@@ -88,6 +88,63 @@ func TestAccAciPortSecurityPolicy_Basic(t *testing.T) {
 	})
 }
 
+func TestAccAciPortSecurityPolicy_Update(t *testing.T) {
+	var port_security_policy_default models.PortSecurityPolicy
+	var port_security_policy_updated models.PortSecurityPolicy
+	resourceName := "aci_port_security_policy.test"
+	rName := makeTestVariable(acctest.RandString(5))
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciPortSecurityPolicyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccPortSecurityPolicyConfig(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciPortSecurityPolicyExists(resourceName, &port_security_policy_default),
+				),
+			},
+			{
+				Config: CreateAccPortSecurityPolicyUpdatedAttr(rName, "maximum", "12000"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciPortSecurityPolicyExists(resourceName, &port_security_policy_updated),
+					resource.TestCheckResourceAttr(resourceName, "maximum", "12000"),
+					testAccCheckAciPortSecurityPolicyIdEqual(&port_security_policy_default, &port_security_policy_updated),
+				),
+			},
+			{
+				Config: CreateAccPortSecurityPolicyUpdatedAttr(rName, "maximum", "6000"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciPortSecurityPolicyExists(resourceName, &port_security_policy_updated),
+					resource.TestCheckResourceAttr(resourceName, "maximum", "6000"),
+					testAccCheckAciPortSecurityPolicyIdEqual(&port_security_policy_default, &port_security_policy_updated),
+				),
+			},
+			{
+				Config: CreateAccPortSecurityPolicyUpdatedAttr(rName, "timeout", "3600"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciPortSecurityPolicyExists(resourceName, &port_security_policy_updated),
+					resource.TestCheckResourceAttr(resourceName, "timeout", "3600"),
+					testAccCheckAciPortSecurityPolicyIdEqual(&port_security_policy_default, &port_security_policy_updated),
+				),
+			},
+			{
+				Config: CreateAccPortSecurityPolicyUpdatedAttr(rName, "timeout", "1770"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciPortSecurityPolicyExists(resourceName, &port_security_policy_updated),
+					resource.TestCheckResourceAttr(resourceName, "timeout", "1770"),
+					testAccCheckAciPortSecurityPolicyIdEqual(&port_security_policy_default, &port_security_policy_updated),
+				),
+			},
+
+			{
+				Config: CreateAccPortSecurityPolicyConfig(rName),
+			},
+		},
+	})
+}
+
 func TestAccAciPortSecurityPolicy_Negative(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 
@@ -250,7 +307,7 @@ func CreatePortSecurityPolicyWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccPortSecurityPolicyConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing port_security_policy creation with required arguments only")
+	fmt.Println("=== STEP  testing port_security_policy creation with updated name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_port_security_policy" "test" {
@@ -260,6 +317,7 @@ func CreateAccPortSecurityPolicyConfigWithRequiredParams(rName string) string {
 	`, rName)
 	return resource
 }
+
 func CreateAccPortSecurityPolicyConfigUpdatedName(rName string) string {
 	fmt.Println("=== STEP  testing port_security_policy creation with invalid name = ", rName)
 	resource := fmt.Sprintf(`
@@ -318,7 +376,7 @@ func CreateAccPortSecurityPolicyConfigWithOptionalValues(rName string) string {
 }
 
 func CreateAccPortSecurityPolicyRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing port_security_policy updation with required parameters")
+	fmt.Println("=== STEP  Basic: testing port_security_policy updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_port_security_policy" "test" {
 		description = "created while acceptance testing"

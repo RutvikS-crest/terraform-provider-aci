@@ -290,7 +290,7 @@ func CreateAccMiscablingProtocolInterfacePolicyConfigWithOptionalValues(rName st
 }
 
 func CreateAccMiscablingProtocolInterfacePolicyRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing miscabling_protocol_interface_policy updation with required parameters")
+	fmt.Println("=== STEP  Basic: testing miscabling_protocol_interface_policy updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_miscabling_protocol_interface_policy" "test" {
 		description = "created while acceptance testing"
