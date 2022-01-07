@@ -12,26 +12,21 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-
-
-
-  
-
 func TestAccAciEndPointRetentionPolicy_Basic(t *testing.T) {
 	var end_point_retention_policy_default models.EndPointRetentionPolicy
 	var end_point_retention_policy_updated models.EndPointRetentionPolicy
 	resourceName := "aci_end_point_retention_policy.test"
 	rName := makeTestVariable(acctest.RandString(5))
 	rNameUpdated := makeTestVariable(acctest.RandString(5))
-	
+
 	fvTenantName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciEndPointRetentionPolicyDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciEndPointRetentionPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      CreateEndPointRetentionPolicyWithoutRequired(fvTenantName, rName,"tenant_dn"),
+				Config:      CreateEndPointRetentionPolicyWithoutRequired(fvTenantName, rName, "tenant_dn"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
@@ -42,11 +37,11 @@ func TestAccAciEndPointRetentionPolicy_Basic(t *testing.T) {
 				Config: CreateAccEndPointRetentionPolicyConfig(fvTenantName, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciEndPointRetentionPolicyExists(resourceName, &end_point_retention_policy_default),
-					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s",fvTenantName)),
-					resource.TestCheckResourceAttr(resourceName, "name",rName),
-					resource.TestCheckResourceAttr(resourceName, "annotation","orchestrator:terraform"),
-					resource.TestCheckResourceAttr(resourceName, "description",""),
-					resource.TestCheckResourceAttr(resourceName, "name_alias",""),
+					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", fvTenantName)),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 					resource.TestCheckResourceAttr(resourceName, "bounce_age_intvl", "630"),
 					resource.TestCheckResourceAttr(resourceName, "bounce_trig.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "bounce_trig.0", "protocol"),
@@ -54,15 +49,14 @@ func TestAccAciEndPointRetentionPolicy_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "local_ep_age_intvl", "900"),
 					resource.TestCheckResourceAttr(resourceName, "move_freq", "256"),
 					resource.TestCheckResourceAttr(resourceName, "remote_ep_age_intvl", "300"),
-					
 				),
 			},
 			{
-				Config: CreateAccEndPointRetentionPolicyConfigWithOptionalValues(fvTenantName, rName), 
+				Config: CreateAccEndPointRetentionPolicyConfigWithOptionalValues(fvTenantName, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciEndPointRetentionPolicyExists(resourceName, &end_point_retention_policy_updated),
-					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s",fvTenantName)),
-					resource.TestCheckResourceAttr(resourceName, "name",rName),
+					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", fvTenantName)),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_end_point_retention_policy"),
@@ -73,10 +67,10 @@ func TestAccAciEndPointRetentionPolicy_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "local_ep_age_intvl", "1"),
 					resource.TestCheckResourceAttr(resourceName, "move_freq", "1"),
 					resource.TestCheckResourceAttr(resourceName, "remote_ep_age_intvl", "1"),
-					
+
 					testAccCheckAciEndPointRetentionPolicyIdEqual(&end_point_retention_policy_default, &end_point_retention_policy_updated),
 				),
-			},  
+			},
 			{
 				ResourceName:      resourceName,
 				ImportState:       true,
@@ -86,17 +80,17 @@ func TestAccAciEndPointRetentionPolicy_Basic(t *testing.T) {
 				Config:      CreateAccEndPointRetentionPolicyConfigUpdatedName(fvTenantName, acctest.RandString(65)),
 				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
 			},
-			
+
 			{
 				Config:      CreateAccEndPointRetentionPolicyRemovingRequiredField(),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccEndPointRetentionPolicyConfigWithRequiredParams(rNameUpdated,rName),
+				Config: CreateAccEndPointRetentionPolicyConfigWithRequiredParams(rNameUpdated, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciEndPointRetentionPolicyExists(resourceName, &end_point_retention_policy_updated),
-					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s",fvTenantName)),
-					resource.TestCheckResourceAttr(resourceName, "name",rName),
+					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", fvTenantName)),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					testAccCheckAciEndPointRetentionPolicyIdNotEqual(&end_point_retention_policy_default, &end_point_retention_policy_updated),
 				),
 			},
@@ -104,11 +98,11 @@ func TestAccAciEndPointRetentionPolicy_Basic(t *testing.T) {
 				Config: CreateAccEndPointRetentionPolicyConfig(fvTenantName, rName),
 			},
 			{
-				Config: CreateAccEndPointRetentionPolicyConfigWithRequiredParams(rName,rNameUpdated),
+				Config: CreateAccEndPointRetentionPolicyConfigWithRequiredParams(rName, rNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciEndPointRetentionPolicyExists(resourceName, &end_point_retention_policy_updated),
-					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s",fvTenantName)),
-					resource.TestCheckResourceAttr(resourceName, "name",rNameUpdated),
+					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", fvTenantName)),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdated),
 					testAccCheckAciEndPointRetentionPolicyIdNotEqual(&end_point_retention_policy_default, &end_point_retention_policy_updated),
 				),
 			},
@@ -121,12 +115,12 @@ func TestAccAciEndPointRetentionPolicy_Update(t *testing.T) {
 	var end_point_retention_policy_updated models.EndPointRetentionPolicy
 	resourceName := "aci_end_point_retention_policy.test"
 	rName := makeTestVariable(acctest.RandString(5))
-	
+
 	fvTenantName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciEndPointRetentionPolicyDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciEndPointRetentionPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccEndPointRetentionPolicyConfig(fvTenantName, rName),
@@ -134,10 +128,10 @@ func TestAccAciEndPointRetentionPolicy_Update(t *testing.T) {
 					testAccCheckAciEndPointRetentionPolicyExists(resourceName, &end_point_retention_policy_default),
 				),
 			},
-			
+
 			{
-				
-				Config: CreateAccEndPointRetentionPolicyUpdatedAttrList(fvTenantName, rName, "bounce_trig", StringListtoString([]string{"protocol","rarp-flood"})),
+
+				Config: CreateAccEndPointRetentionPolicyUpdatedAttrList(fvTenantName, rName, "bounce_trig", StringListtoString([]string{"protocol", "rarp-flood"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciEndPointRetentionPolicyExists(resourceName, &end_point_retention_policy_updated),
 					resource.TestCheckResourceAttr(resourceName, "bounce_trig.#", "2"),
@@ -146,7 +140,7 @@ func TestAccAciEndPointRetentionPolicy_Update(t *testing.T) {
 				),
 			},
 			{
-				
+
 				Config: CreateAccEndPointRetentionPolicyUpdatedAttrList(fvTenantName, rName, "bounce_trig", StringListtoString([]string{"rarp-flood"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciEndPointRetentionPolicyExists(resourceName, &end_point_retention_policy_updated),
@@ -155,7 +149,7 @@ func TestAccAciEndPointRetentionPolicy_Update(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccEndPointRetentionPolicyUpdatedAttrList(fvTenantName, rName, "bounce_trig", StringListtoString([]string{"rarp-flood","protocol",})),
+				Config: CreateAccEndPointRetentionPolicyUpdatedAttrList(fvTenantName, rName, "bounce_trig", StringListtoString([]string{"rarp-flood", "protocol"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciEndPointRetentionPolicyExists(resourceName, &end_point_retention_policy_updated),
 					resource.TestCheckResourceAttr(resourceName, "bounce_trig.#", "2"),
@@ -172,15 +166,15 @@ func TestAccAciEndPointRetentionPolicy_Update(t *testing.T) {
 
 func TestAccAciEndPointRetentionPolicy_Negative(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
-	
+
 	fvTenantName := makeTestVariable(acctest.RandString(5))
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(5)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciEndPointRetentionPolicyDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciEndPointRetentionPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccEndPointRetentionPolicyConfig(fvTenantName, rName),
@@ -201,7 +195,7 @@ func TestAccAciEndPointRetentionPolicy_Negative(t *testing.T) {
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "name_alias", acctest.RandString(64)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
-			
+
 			{
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "bounce_age_intvl", randomValue),
 				ExpectError: regexp.MustCompile(`unknown property value`),
@@ -222,7 +216,7 @@ func TestAccAciEndPointRetentionPolicy_Negative(t *testing.T) {
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttrList(fvTenantName, rName, "bounce_trig", StringListtoString([]string{"protocol", "protocol"})),
 				ExpectError: regexp.MustCompile(`duplication is not supported in list`),
 			},
-			
+
 			{
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "hold_intvl", randomValue),
 				ExpectError: regexp.MustCompile(`unknown property value`),
@@ -235,7 +229,7 @@ func TestAccAciEndPointRetentionPolicy_Negative(t *testing.T) {
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "hold_intvl", "65536"),
 				ExpectError: regexp.MustCompile(`out of range`),
 			},
-			
+
 			{
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "local_ep_age_intvl", randomValue),
 				ExpectError: regexp.MustCompile(`unknown property value`),
@@ -248,7 +242,7 @@ func TestAccAciEndPointRetentionPolicy_Negative(t *testing.T) {
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "local_ep_age_intvl", "1"),
 				ExpectError: regexp.MustCompile(`out of range`),
 			},
-			
+
 			{
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "move_freq", randomValue),
 				ExpectError: regexp.MustCompile(`unknown property value`),
@@ -261,7 +255,7 @@ func TestAccAciEndPointRetentionPolicy_Negative(t *testing.T) {
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "move_freq", "65536"),
 				ExpectError: regexp.MustCompile(`out of range`),
 			},
-			
+
 			{
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "remote_ep_age_intvl", randomValue),
 				ExpectError: regexp.MustCompile(`unknown property value`),
@@ -274,7 +268,7 @@ func TestAccAciEndPointRetentionPolicy_Negative(t *testing.T) {
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "remote_ep_age_intvl", "1"),
 				ExpectError: regexp.MustCompile(`out of range`),
 			},
-			
+
 			{
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
@@ -288,12 +282,12 @@ func TestAccAciEndPointRetentionPolicy_Negative(t *testing.T) {
 
 func TestAccAciEndPointRetentionPolicy_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
-	
+
 	fvTenantName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciEndPointRetentionPolicyDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciEndPointRetentionPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccEndPointRetentionPolicyConfigMultiple(fvTenantName, rName),
@@ -330,17 +324,17 @@ func testAccCheckAciEndPointRetentionPolicyExists(name string, end_point_retenti
 	}
 }
 
-func testAccCheckAciEndPointRetentionPolicyDestroy(s *terraform.State) error {	
+func testAccCheckAciEndPointRetentionPolicyDestroy(s *terraform.State) error {
 	fmt.Println("=== STEP  testing end_point_retention_policy destroy")
 	client := testAccProvider.Meta().(*client.Client)
 	for _, rs := range s.RootModule().Resources {
-		 if rs.Type == "aci_end_point_retention_policy" {
-			cont,err := client.Get(rs.Primary.ID)
+		if rs.Type == "aci_end_point_retention_policy" {
+			cont, err := client.Get(rs.Primary.ID)
 			end_point_retention_policy := models.EndPointRetentionPolicyFromContainer(cont)
 			if err == nil {
-				return fmt.Errorf("End Point Retention Policy %s Still exists",end_point_retention_policy.DistinguishedName)
+				return fmt.Errorf("End Point Retention Policy %s Still exists", end_point_retention_policy.DistinguishedName)
 			}
-		}else{
+		} else {
 			continue
 		}
 	}
@@ -366,7 +360,7 @@ func testAccCheckAciEndPointRetentionPolicyIdNotEqual(m1, m2 *models.EndPointRet
 }
 
 func CreateEndPointRetentionPolicyWithoutRequired(fvTenantName, rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing end_point_retention_policy creation without ",attrName)
+	fmt.Println("=== STEP  Basic: testing end_point_retention_policy creation without ", attrName)
 	rBlock := `
 	
 	resource "aci_tenant" "test" {
@@ -391,7 +385,7 @@ func CreateEndPointRetentionPolicyWithoutRequired(fvTenantName, rName, attrName 
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock,fvTenantName, rName)
+	return fmt.Sprintf(rBlock, fvTenantName, rName)
 }
 
 func CreateAccEndPointRetentionPolicyConfigWithRequiredParams(fvTenantName, rName string) string {
@@ -411,7 +405,7 @@ func CreateAccEndPointRetentionPolicyConfigWithRequiredParams(fvTenantName, rNam
 	return resource
 }
 func CreateAccEndPointRetentionPolicyConfigUpdatedName(fvTenantName, rName string) string {
-	fmt.Println("=== STEP  testing end_point_retention_policy creation with invalid name = ",rName)
+	fmt.Println("=== STEP  testing end_point_retention_policy creation with invalid name = ", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -472,10 +466,9 @@ func CreateAccEndPointRetentionPolicyWithInValidParentDn(rName string) string {
 		tenant_dn  = aci_tenant.test.id
 		name  = "%s"	
 	}
-	`, rName ,rName)
+	`, rName, rName)
 	return resource
 }
-
 
 func CreateAccEndPointRetentionPolicyConfigWithOptionalValues(fvTenantName, rName string) string {
 	fmt.Println("=== STEP  Basic: testing end_point_retention_policy creation with optional parameters")
@@ -525,7 +518,7 @@ func CreateAccEndPointRetentionPolicyRemovingRequiredField() string {
 	return resource
 }
 
-func CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName,attribute,value string) string {
+func CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, attribute, value string) string {
 	fmt.Printf("=== STEP  testing end_point_retention_policy attribute: %s = %s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	
@@ -539,11 +532,11 @@ func CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName,attribute,v
 		name  = "%s"
 		%s = "%s"
 	}
-	`, fvTenantName, rName,attribute,value)
+	`, fvTenantName, rName, attribute, value)
 	return resource
 }
 
-func CreateAccEndPointRetentionPolicyUpdatedAttrList(fvTenantName, rName,attribute,value string) string {
+func CreateAccEndPointRetentionPolicyUpdatedAttrList(fvTenantName, rName, attribute, value string) string {
 	fmt.Printf("=== STEP  testing end_point_retention_policy attribute: %s = %s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	
@@ -557,6 +550,6 @@ func CreateAccEndPointRetentionPolicyUpdatedAttrList(fvTenantName, rName,attribu
 		name  = "%s"
 		%s = %s
 	}
-	`, fvTenantName, rName,attribute,value)
+	`, fvTenantName, rName, attribute, value)
 	return resource
 }
