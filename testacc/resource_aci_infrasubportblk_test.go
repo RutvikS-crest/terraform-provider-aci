@@ -109,6 +109,77 @@ func TestAccAciAccessSubPortBlock_Basic(t *testing.T) {
 	})
 }
 
+func TestAccAciAccessSubPortBlock_Update(t *testing.T) {
+	var access_sub_port_block_default models.AccessSubPortBlock
+	var access_sub_port_block_updated models.AccessSubPortBlock
+	resourceName := "aci_access_sub_port_block.test"
+	rName := makeTestVariable(acctest.RandString(5))
+
+	infraAccPortPName := makeTestVariable(acctest.RandString(5))
+	infraHPortSName := makeTestVariable(acctest.RandString(5))
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciAccessSubPortBlockDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccAccessSubPortBlockUpdatedCardAttr(infraAccPortPName, infraHPortSName, rName, "50", "55"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciAccessSubPortBlockExists(resourceName, &access_sub_port_block_updated),
+					resource.TestCheckResourceAttr(resourceName, "from_card", "50"),
+					resource.TestCheckResourceAttr(resourceName, "to_card", "55"),
+					testAccCheckAciAccessSubPortBlockIdNotEqual(&access_sub_port_block_default, &access_sub_port_block_updated),
+				),
+			},
+			{
+				Config: CreateAccAccessSubPortBlockUpdatedCardAttr(infraAccPortPName, infraHPortSName, rName, "100", "100"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciAccessSubPortBlockExists(resourceName, &access_sub_port_block_updated),
+					resource.TestCheckResourceAttr(resourceName, "from_card", "100"),
+					resource.TestCheckResourceAttr(resourceName, "to_card", "100"),
+					testAccCheckAciAccessSubPortBlockIdNotEqual(&access_sub_port_block_default, &access_sub_port_block_updated),
+				),
+			},
+			{
+				Config: CreateAccAccessSubPortBlockUpdatedPortAttr(infraAccPortPName, infraHPortSName, rName, "50", "55"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciAccessSubPortBlockExists(resourceName, &access_sub_port_block_updated),
+					resource.TestCheckResourceAttr(resourceName, "from_port", "50"),
+					resource.TestCheckResourceAttr(resourceName, "to_port", "55"),
+					testAccCheckAciAccessSubPortBlockIdNotEqual(&access_sub_port_block_default, &access_sub_port_block_updated),
+				),
+			},
+			{
+				Config: CreateAccAccessSubPortBlockUpdatedPortAttr(infraAccPortPName, infraHPortSName, rName, "127", "127"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciAccessSubPortBlockExists(resourceName, &access_sub_port_block_updated),
+					resource.TestCheckResourceAttr(resourceName, "from_port", "127"),
+					resource.TestCheckResourceAttr(resourceName, "to_port", "127"),
+					testAccCheckAciAccessSubPortBlockIdNotEqual(&access_sub_port_block_default, &access_sub_port_block_updated),
+				),
+			},
+			{
+				Config: CreateAccAccessSubPortBlockUpdatedSubPortAttr(infraAccPortPName, infraHPortSName, rName, "50", "55"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciAccessSubPortBlockExists(resourceName, &access_sub_port_block_updated),
+					resource.TestCheckResourceAttr(resourceName, "from_sub_port", "50"),
+					resource.TestCheckResourceAttr(resourceName, "to_sub_port", "55"),
+					testAccCheckAciAccessSubPortBlockIdNotEqual(&access_sub_port_block_default, &access_sub_port_block_updated),
+				),
+			},
+			{
+				Config: CreateAccAccessSubPortBlockUpdatedSubPortAttr(infraAccPortPName, infraHPortSName, rName, "64", "64"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciAccessSubPortBlockExists(resourceName, &access_sub_port_block_updated),
+					resource.TestCheckResourceAttr(resourceName, "from_sub_port", "64"),
+					resource.TestCheckResourceAttr(resourceName, "to_sub_port", "64"),
+					testAccCheckAciAccessSubPortBlockIdNotEqual(&access_sub_port_block_default, &access_sub_port_block_updated),
+				),
+			},
+		},
+	})
+}
+
 func TestAccAciAccessSubPortBlock_Negative(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 
@@ -219,7 +290,18 @@ func TestAccAciAccessSubPortBlock_Negative(t *testing.T) {
 				Config:      CreateAccAccessSubPortBlockUpdatedAttr(infraAccPortPName, infraHPortSName, rName, "to_sub_port", "65"),
 				ExpectError: regexp.MustCompile(`out of range`),
 			},
-
+			{
+				Config:      CreateAccAccessSubPortBlockUpdatedPortAttr(infraAccPortPName, infraHPortSName, rName, "55", "50"),
+				ExpectError: regexp.MustCompile(`cannot be less than`),
+			},
+			{
+				Config:      CreateAccAccessSubPortBlockUpdatedCardAttr(infraAccPortPName, infraHPortSName, rName, "55", "50"),
+				ExpectError: regexp.MustCompile(`cannot be less than`),
+			},
+			{
+				Config:      CreateAccAccessSubPortBlockUpdatedSubPortAttr(infraAccPortPName, infraHPortSName, rName, "55", "50"),
+				ExpectError: regexp.MustCompile(`cannot be less than`),
+			},
 			{
 				Config:      CreateAccAccessSubPortBlockUpdatedAttr(infraAccPortPName, infraHPortSName, rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
@@ -346,8 +428,84 @@ func CreateAccessSubPortBlockWithoutRequired(infraAccPortPName, infraHPortSName,
 	return fmt.Sprintf(rBlock, infraAccPortPName, infraHPortSName, rName)
 }
 
+
+func CreateAccAccessSubPortBlockUpdatedPortAttr(infraAccPortPName, infraHPortSName, rName, from, to string) string {
+	fmt.Printf("=== STEP  testing access_sub_port_block  from_port = \"%s\" and to_port = \"%s\" \n", from, to)
+	resource := fmt.Sprintf(`
+	
+	resource "aci_leaf_interface_profile" "test" {
+		name 		= "%s"
+	
+	}
+	
+	resource "aci_access_port_selector" "test" {
+		name 		= "%s"
+		access_port_selector_type  = "ALL"
+		leaf_interface_profile_dn = aci_leaf_interface_profile.test.id
+	}
+	
+	resource "aci_access_sub_port_block" "test" {
+		access_port_selector_dn  = aci_access_port_selector.test.id
+		name  = "%s"
+		from_port = "%s"
+		to_port = "%s"
+	}
+	`, infraAccPortPName, infraHPortSName, rName, from, to)
+	return resource
+}
+
+func CreateAccAccessSubPortBlockUpdatedCardAttr(infraAccPortPName, infraHPortSName, rName, from, to string) string {
+	fmt.Printf("=== STEP  testing access_sub_port_block  from_card = \"%s\" and to_card = \"%s\" \n", from, to)
+	resource := fmt.Sprintf(`
+	
+	resource "aci_leaf_interface_profile" "test" {
+		name 		= "%s"
+	
+	}
+	
+	resource "aci_access_port_selector" "test" {
+		name 		= "%s"
+		access_port_selector_type  = "ALL"
+		leaf_interface_profile_dn = aci_leaf_interface_profile.test.id
+	}
+	
+	resource "aci_access_sub_port_block" "test" {
+		access_port_selector_dn  = aci_access_port_selector.test.id
+		name  = "%s"
+		from_card = "%s"
+		to_card = "%s"
+	}
+	`, infraAccPortPName, infraHPortSName, rName, from, to)
+	return resource
+}
+
+func CreateAccAccessSubPortBlockUpdatedSubPortAttr(infraAccPortPName, infraHPortSName, rName, from, to string) string {
+	fmt.Printf("=== STEP  testing access_sub_port_block  from_sub_port = \"%s\" and to_sub_port = \"%s\" \n", from, to)
+	resource := fmt.Sprintf(`
+	
+	resource "aci_leaf_interface_profile" "test" {
+		name 		= "%s"
+	
+	}
+	
+	resource "aci_access_port_selector" "test" {
+		name 		= "%s"
+		access_port_selector_type  = "ALL"
+		leaf_interface_profile_dn = aci_leaf_interface_profile.test.id
+	}
+	
+	resource "aci_access_sub_port_block" "test" {
+		access_port_selector_dn  = aci_access_port_selector.test.id
+		name  = "%s"
+		from_sub_port = "%s"
+		to_sub_port = "%s"
+	}
+	`, infraAccPortPName, infraHPortSName, rName, from, to)
+	return resource
+}
 func CreateAccAccessSubPortBlockConfigWithRequiredParams(prName, rName string) string {
 	fmt.Printf("=== STEP  testing access_sub_port_block creation with parent resource name %s and name %s\n", prName, rName)
+
 	resource := fmt.Sprintf(`
 
 	resource "aci_leaf_interface_profile" "test" {

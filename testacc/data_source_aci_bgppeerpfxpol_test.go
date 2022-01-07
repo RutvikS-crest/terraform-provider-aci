@@ -85,7 +85,7 @@ func CreateAccBGPPeerPrefixConfigDataSource(fvTenantName, rName string) string {
 }
 
 func CreateBGPPeerPrefixDSWithoutRequired(fvTenantName, rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing bgp_peer_prefix creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing bgp_peer_prefix Data Source without ", attrName)
 	rBlock := `
 	resource "aci_tenant" "test" {
 		name 		= "%s"

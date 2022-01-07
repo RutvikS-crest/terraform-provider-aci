@@ -93,11 +93,10 @@ func CreateAccPortSecurityPolicyDSWithInvalidName(rName string) string {
 }
 
 func CreatePortSecurityPolicyDSWithoutRequired(rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing port_security_policy creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing port_security_policy data-source without ", attrName)
 	rBlock := `
 	
 	resource "aci_port_security_policy" "test" {
-	
 		name  = "%s"
 	}
 	`
@@ -105,7 +104,6 @@ func CreatePortSecurityPolicyDSWithoutRequired(rName, attrName string) string {
 	case "name":
 		rBlock += `
 	data "aci_port_security_policy" "test" {
-	
 	#	name  = "%s"
 		depends_on = [ aci_port_security_policy.test ]
 	}
