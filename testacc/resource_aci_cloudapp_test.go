@@ -243,7 +243,7 @@ func CreateCloudApplicationcontainerWithoutRequired(fvTenantName, rName, attrNam
 }
 
 func CreateAccCloudApplicationcontainerConfigWithRequiredParams(fvTenantName, rName string) string {
-	fmt.Println("=== STEP  testing cloud_applicationcontainer creation with required arguments only")
+	fmt.Printf("=== STEP  testing cloud_applicationcontainer with tenant name %s and resource name %s\n", fvTenantName, rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
