@@ -386,6 +386,24 @@ func TestAccAciPeerConnectivityProfile_Negative(t *testing.T) {
 	})
 }
 
+func TestAccAciPeerConnectivityProfile_MultipleCreateDelete(t *testing.T) {
+
+	addr, _ := acctest.RandIpAddress("10.0.0.0/16")
+	fvTenantName := makeTestVariable(acctest.RandString(5))
+	l3extOutName := makeTestVariable(acctest.RandString(5))
+	l3extLNodePName := makeTestVariable(acctest.RandString(5))
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciPeerConnectivityProfileDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccPeerConnectivityProfileConfigMultiple(fvTenantName, l3extOutName, l3extLNodePName, addr[:(len(addr)-1)]),
+			},
+		},
+	})
+}
+
 func testAccCheckAciPeerConnectivityProfileExists(name string, peer_connectivity_profile *models.BgpPeerConnectivityProfile) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
@@ -447,6 +465,34 @@ func testAccCheckAciPeerConnectivityProfileIdNotEqual(m1, m2 *models.BgpPeerConn
 		}
 		return nil
 	}
+}
+
+func CreateAccPeerConnectivityProfileConfigMultiple(fvTenantName, l3extOutName, l3extLNodePName, addr string) string {
+	fmt.Println("=== STEP  testing multiple peer_connectivity_profile creation with required arguments only")
+	resource := fmt.Sprintf(`
+	
+	resource "aci_tenant" "test" {
+		name 		= "%s"
+	
+	}
+	
+	resource "aci_l3_outside" "test" {
+		name 		= "%s"
+		tenant_dn = aci_tenant.test.id
+	}
+	
+	resource "aci_logical_node_profile" "test" {
+		name 		= "%s"
+		l3_outside_dn = aci_l3_outside.test.id
+	}
+	
+	resource "aci_bgp_peer_connectivity_profile" "test" {
+		parent_dn  = aci_logical_node_profile.test.id
+		addr  = "%s${count.index}/16"
+		count = 5
+	}
+	`, fvTenantName, l3extOutName, l3extLNodePName, addr)
+	return resource
 }
 
 func CreatePeerConnectivityProfileWithoutRequired(fvTenantName, l3extOutName, l3extLNodePName, addr, attrName string) string {
