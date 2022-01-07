@@ -207,7 +207,7 @@ func CreateAttachableAccessEntityProfileWithoutRequired(rName, attrName string) 
 }
 
 func CreateAccAttachableAccessEntityProfileConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing attachable_access_entity_profile creation with required arguments only ", rName)
+	fmt.Println("=== STEP  testing attachable_access_entity_profile creation with Updated required arguments only ", rName)
 	resource := fmt.Sprintf(`
 	resource "aci_attachable_access_entity_profile" "test" {
 		name  = "%s"
@@ -261,7 +261,7 @@ func CreateAccAttachableAccessEntityProfileConfigWithOptionalValues(rName string
 }
 
 func CreateAccAttachableAccessEntityProfileRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing attachable_access_entity_profile updation with required parameters")
+	fmt.Println("=== STEP  Basic: testing attachable_access_entity_profile updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_attachable_access_entity_profile" "test" {
 		description = "created while acceptance testing"
