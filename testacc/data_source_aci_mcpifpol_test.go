@@ -93,7 +93,7 @@ func CreateAccMiscablingProtocolInterfacePolicyDSWithInvalidName(rName string) s
 }
 
 func CreateMiscablingProtocolInterfacePolicyDSWithoutRequired(rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing miscabling_protocol_interface_policy creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing miscabling_protocol_interface_policy Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_miscabling_protocol_interface_policy" "test" {

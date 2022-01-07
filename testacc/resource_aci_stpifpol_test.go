@@ -181,8 +181,6 @@ func TestAccAciSpanningTreeInterfacePolicy_Negative(t *testing.T) {
 				Config:      CreateAccSpanningTreeInterfacePolicyUpdatedAttrList(rName, "ctrl", StringListtoString([]string{"bpdu-filter", "bpdu-filter"})),
 				ExpectError: regexp.MustCompile(`duplication is not supported in list`),
 			},
-			// TODO: add unspecified case for "ctrl" if applicable
-
 			{
 				Config:      CreateAccSpanningTreeInterfacePolicyUpdatedAttr(rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
