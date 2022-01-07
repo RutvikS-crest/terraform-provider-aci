@@ -39,7 +39,6 @@ func TestAccAciAccessPortSelectorDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "access_port_selector_type", resourceName, "access_port_selector_type"),
 				),
 			},
 			{
