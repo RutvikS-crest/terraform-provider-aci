@@ -401,7 +401,7 @@ func CreateAccAccessPortSelectorConfigWithOptionalValues(infraAccPortPName, rNam
 }
 
 func CreateAccAccessPortSelectorRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing access_port_selector updation with required parameters")
+	fmt.Println("=== STEP  Basic: testing access_port_selector updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_access_port_selector" "test" {
 		description = "created while acceptance testing"

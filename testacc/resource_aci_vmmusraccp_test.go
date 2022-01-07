@@ -285,7 +285,7 @@ func CreateAccVMMCredentialConfigUpdatedName(vmmDomPName, rName string) string {
 }
 
 func CreateAccVMMCredentialConfig(vmmDomPName, rName string) string {
-	fmt.Println("=== STEP  testing vmm_credential creation with required arguments only")
+	fmt.Println("=== STEP  testing vmm_credential creation without required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_vmm_domain" "test" {

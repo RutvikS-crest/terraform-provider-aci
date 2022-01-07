@@ -91,12 +91,7 @@ func TestAccAciCDPInterfacePolicy_MultipleCreateDelete(t *testing.T) {
 		CheckDestroy:      testAccCheckAciCDPInterfacePolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
-				resource "aci_cdp_interface_policy" "test" {
-					name  = "%s_${count.index}"
-					count = 5
-				}
-				`, rName),
+				Config: CreateAccCDPInterfacePolicyConfigs(rName),
 			},
 		},
 	})
@@ -226,12 +221,23 @@ func CreateCDPInterfacePolicyWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccCDPInterfacePolicyConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing cdp_interface_policy creation with required arguments only")
+	fmt.Printf("=== STEP  testing cdp_interface_policy creation with name = %s\n", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_cdp_interface_policy" "test" {
 	
 		name  = "%s"
+	}
+	`, rName)
+	return resource
+}
+
+func CreateAccCDPInterfacePolicyConfigs(rName string) string {
+	fmt.Println("=== STEP  testing multiple cdp_interface_policy creation with required arguments only")
+	resource := fmt.Sprintf(`
+	resource "aci_cdp_interface_policy" "test" {
+		name  = "%s_${count.index}"
+		count = 5
 	}
 	`, rName)
 	return resource
@@ -250,7 +256,7 @@ func CreateAccCDPInterfacePolicyConfig(rName string) string {
 }
 
 func CreateAccCDPInterfacePolicyConfigUpdatedName(rName string) string {
-	fmt.Println("=== STEP  testing cdp_interface_policy creation with updated name")
+	fmt.Println("=== STEP  testing cdp_interface_policy creation with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_cdp_interface_policy" "test" {
@@ -279,7 +285,7 @@ func CreateAccCDPInterfacePolicyConfigWithOptionalValues(rName string) string {
 }
 
 func CreateAccCDPInterfacePolicyRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing cdp_interface_policy creation with optional parameters")
+	fmt.Println("=== STEP  Basic: testing cdp_interface_policy update without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_cdp_interface_policy" "test" {
 		description = "created while acceptance testing"
