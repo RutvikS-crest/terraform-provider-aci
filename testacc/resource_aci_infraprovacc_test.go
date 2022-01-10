@@ -121,7 +121,7 @@ func TestAccAciVlanEncapsulationforVxlanTraffic_MultipleCreateDelete(t *testing.
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
-		CheckDestroy:      testAccCheckAciLeafInterfaceProfileDestroy,
+		CheckDestroy:      testAccCheckAciVlanEncapsulationforVxlanTrafficDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccVlanEncapsulationforVxlanTrafficConfigMultiple(rName),
