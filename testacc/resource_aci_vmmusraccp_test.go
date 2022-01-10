@@ -358,7 +358,7 @@ func CreateAccVMMCredentialConfigWithOptionalValues(vmmDomPName, rName string) s
 }
 
 func CreateAccVMMCredentialRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing vmm_credential updation with required parameters")
+	fmt.Println("=== STEP  Basic: testing vmm_credential updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_vmm_credential" "test" {
 		description = "created while acceptance testing"

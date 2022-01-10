@@ -428,7 +428,6 @@ func CreateAccessSubPortBlockWithoutRequired(infraAccPortPName, infraHPortSName,
 	return fmt.Sprintf(rBlock, infraAccPortPName, infraHPortSName, rName)
 }
 
-
 func CreateAccAccessSubPortBlockUpdatedPortAttr(infraAccPortPName, infraHPortSName, rName, from, to string) string {
 	fmt.Printf("=== STEP  testing access_sub_port_block  from_port = \"%s\" and to_port = \"%s\" \n", from, to)
 	resource := fmt.Sprintf(`

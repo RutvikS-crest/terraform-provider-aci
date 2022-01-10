@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"reflect"
 	"sort"
 	"strings"
 
@@ -129,8 +130,17 @@ func setCloudSubnetAttributes(cloudSubnet *models.CloudSubnet, d *schema.Resourc
 		scopeGet = append(scopeGet, strings.Trim(val, " "))
 	}
 	sort.Strings(scopeGet)
-	if len(scopeGet) == 1 && scopeGet[0] == "" {
-		d.Set("scope", make([]string, 0, 1))
+	if scopeInp, ok := d.GetOk("scope"); ok {
+		scopeAct := make([]string, 0, 1)
+		for _, val := range scopeInp.([]interface{}) {
+			scopeAct = append(scopeAct, val.(string))
+		}
+		sort.Strings(scopeAct)
+		if reflect.DeepEqual(scopeAct, scopeGet) {
+			d.Set("scope", d.Get("scope").([]interface{}))
+		} else {
+			d.Set("scope", scopeGet)
+		}
 	} else {
 		d.Set("scope", scopeGet)
 	}
