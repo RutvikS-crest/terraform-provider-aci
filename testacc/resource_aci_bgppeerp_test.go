@@ -99,7 +99,7 @@ func TestAccAciPeerConnectivityProfile_Basic(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"password"},
 			},
 			{
-				Config:      CreateAccPeerConnectivityProfileWithInavalidIP(rName, rName, rName, addr),
+				Config:      CreateAccPeerConnectivityProfileWithInvalidIP(rName, rName, rName, addr),
 				ExpectError: regexp.MustCompile(`unknown property value (.)+`),
 			},
 
@@ -108,10 +108,10 @@ func TestAccAciPeerConnectivityProfile_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccPeerConnectivityProfileConfigWithRequiredParams(rName, rName, rNameUpdated, addr),
+				Config: CreateAccPeerConnectivityProfileConfigWithRequiredParams(rName, addr),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s/out-%s/lnodep-%s", rName, rName, rNameUpdated)),
+					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s/out-%s/lnodep-%s", rName, rName, rName)),
 					resource.TestCheckResourceAttr(resourceName, "addr", addr),
 					testAccCheckAciPeerConnectivityProfileIdNotEqual(&peer_connectivity_profile_default, &peer_connectivity_profile_updated),
 				),
@@ -120,10 +120,10 @@ func TestAccAciPeerConnectivityProfile_Basic(t *testing.T) {
 				Config: CreateAccPeerConnectivityProfileConfig(fvTenantName, l3extOutName, l3extLNodePName, addr),
 			},
 			{
-				Config: CreateAccPeerConnectivityProfileConfigWithRequiredParams(rName, rName, rName, addrUpdated),
+				Config: CreateAccPeerConnectivityProfileConfigWithRequiredParams(rNameUpdated, addrUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciPeerConnectivityProfileExists(resourceName, &peer_connectivity_profile_updated),
-					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s/out-%s/lnodep-%s", rName, rName, rName)),
+					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s/out-%s/lnodep-%s", rNameUpdated, rNameUpdated, rNameUpdated)),
 					resource.TestCheckResourceAttr(resourceName, "addr", addrUpdated),
 					testAccCheckAciPeerConnectivityProfileIdNotEqual(&peer_connectivity_profile_default, &peer_connectivity_profile_updated),
 				),
@@ -488,8 +488,8 @@ func CreatePeerConnectivityProfileWithoutRequired(fvTenantName, l3extOutName, l3
 	return fmt.Sprintf(rBlock, fvTenantName, l3extOutName, l3extLNodePName, addr)
 }
 
-func CreateAccPeerConnectivityProfileConfigWithRequiredParams(fvTenantName, l3extOutName, l3extLNodePName, addr string) string {
-	fmt.Println("=== STEP  testing peer_connectivity_profile creation with required arguments only")
+func CreateAccPeerConnectivityProfileConfigWithRequiredParams(prName, addr string) string {
+	fmt.Printf("=== STEP  testing peer_connectivity_profile creation with parent resource name %s and address %s\n", prName, addr)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -511,7 +511,7 @@ func CreateAccPeerConnectivityProfileConfigWithRequiredParams(fvTenantName, l3ex
 		parent_dn  = aci_logical_node_profile.test.id
 		addr  = "%s"
 	}
-	`, fvTenantName, l3extOutName, l3extLNodePName, addr)
+	`, prName, prName, prName, addr)
 	return resource
 }
 
@@ -542,8 +542,8 @@ func CreateAccPeerConnectivityProfileConfig(fvTenantName, l3extOutName, l3extLNo
 	return resource
 }
 
-func CreateAccPeerConnectivityProfileWithInavalidIP(fvTenantName, l3extOutName, l3extLNodePName, addr string) string {
-	fmt.Println("=== STEP  testing peer_connectivity_profile creation with required arguments only")
+func CreateAccPeerConnectivityProfileWithInvalidIP(fvTenantName, l3extOutName, l3extLNodePName, addr string) string {
+	fmt.Println("=== STEP  testing peer_connectivity_profile creation with invalid IP")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
