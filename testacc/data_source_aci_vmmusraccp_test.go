@@ -85,7 +85,7 @@ func CreateAccVMMCredentialConfigDataSource(vmmDomPName, rName string) string {
 }
 
 func CreateVMMCredentialDSWithoutRequired(vmmDomPName, rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing vmm_credential creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing vmm_credential Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_vmm_domain" "test" {

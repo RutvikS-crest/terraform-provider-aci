@@ -87,7 +87,7 @@ func CreateAccAccessPortSelectorConfigDataSource(infraAccPortPName, rName, acces
 }
 
 func CreateAccessPortSelectorDSWithoutRequired(infraAccPortPName, rName, access_port_selector_type, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing access_port_selector creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing access_port_selector Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_leaf_interface_profile" "test" {

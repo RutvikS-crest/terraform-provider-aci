@@ -217,7 +217,7 @@ func CreateVlanEncapsulationforVxlanTrafficWithoutRequired(infraAttEntityPName, 
 }
 
 func CreateAccVlanEncapsulationforVxlanTrafficConfigWithRequiredParams(infraAttEntityPName string) string {
-	fmt.Println("=== STEP  testing vlan_encapsulationfor_vxlan_traffic creation with required arguments only")
+	fmt.Println("=== STEP  testing vlan_encapsulationfor_vxlan_traffic creation with Updated required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_attachable_access_entity_profile" "test" {
@@ -296,7 +296,7 @@ func CreateAccVlanEncapsulationforVxlanTrafficConfigWithOptionalValues(infraAttE
 }
 
 func CreateAccVlanEncapsulationforVxlanTrafficRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing vlan_encapsulationfor_vxlan_traffic creation with optional parameters")
+	fmt.Println("=== STEP  Basic: testing vlan_encapsulationfor_vxlan_traffic updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_vlan_encapsulationfor_vxlan_traffic" "test" {
 		description = "created while acceptance testing"
@@ -321,23 +321,6 @@ func CreateAccVlanEncapsulationforVxlanTrafficUpdatedAttr(infraAttEntityPName, a
 	resource "aci_vlan_encapsulationfor_vxlan_traffic" "test" {
 		attachable_access_entity_profile_dn  = aci_attachable_access_entity_profile.test.id
 		%s = "%s"
-	}
-	`, infraAttEntityPName, attribute, value)
-	return resource
-}
-
-func CreateAccVlanEncapsulationforVxlanTrafficUpdatedAttrList(infraAttEntityPName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing vlan_encapsulationfor_vxlan_traffic attribute: %s=%s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_attachable_access_entity_profile" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_vlan_encapsulationfor_vxlan_traffic" "test" {
-		attachable_access_entity_profile_dn  = aci_attachable_access_entity_profile.test.id
-		%s = %s
 	}
 	`, infraAttEntityPName, attribute, value)
 	return resource

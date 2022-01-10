@@ -63,7 +63,7 @@ func TestAccAciVLANPool_Basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config:      CreateAccVLANPoolConfig(acctest.RandString(65), allocMode),
+				Config:      CreateAccVLANPoolConfigUpdatedName(acctest.RandString(65), allocMode),
 				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
 			},
 			{
@@ -243,7 +243,7 @@ func CreateVLANPoolWithoutRequired(rName, allocMode, attrName string) string {
 }
 
 func CreateAccVLANPoolConfigWithRequiredParams(rName, allocMode string) string {
-	fmt.Println("=== STEP  testing vlan_pool creation with required arguments only")
+	fmt.Println("=== STEP  testing vlan_pool creation with Updated required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_vlan_pool" "test" {
@@ -268,7 +268,7 @@ func CreateAccVLANPoolConfigUpdatedName(rName, allocMode string) string {
 }
 
 func CreateAccVLANPoolConfig(rName, allocMode string) string {
-	fmt.Println("=== STEP  testing vlan_pool creation with required arguments ", rName)
+	fmt.Printf("=== STEP  testing vlan_pool creation with Name %s and alloc_mode %s\n", rName, allocMode)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_vlan_pool" "test" {
@@ -313,7 +313,7 @@ func CreateAccVLANPoolConfigWithOptionalValues(rName, allocMode string) string {
 }
 
 func CreateAccVLANPoolRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing vlan_pool updation with required parameters")
+	fmt.Println("=== STEP  Basic: testing vlan_pool updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_vlan_pool" "test" {
 		description = "created while acceptance testing"
