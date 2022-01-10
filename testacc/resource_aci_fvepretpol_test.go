@@ -108,6 +108,60 @@ func TestAccAciEndPointRetentionPolicy_Basic(t *testing.T) {
 	})
 }
 
+func TestAccAciEndPointRetentionPolicy_Update(t *testing.T) {
+	var end_point_retention_policy_default models.EndPointRetentionPolicy
+	var end_point_retention_policy_updated models.EndPointRetentionPolicy
+	resourceName := "aci_end_point_retention_policy.test"
+	rName := makeTestVariable(acctest.RandString(5))
+
+	fvTenantName := makeTestVariable(acctest.RandString(5))
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciEndPointRetentionPolicyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccEndPointRetentionPolicyConfig(fvTenantName, rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciEndPointRetentionPolicyExists(resourceName, &end_point_retention_policy_default),
+				),
+			},
+
+			{
+
+				Config: CreateAccEndPointRetentionPolicyUpdatedAttrList(fvTenantName, rName, "bounce_trig", StringListtoString([]string{"protocol", "rarp-flood"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciEndPointRetentionPolicyExists(resourceName, &end_point_retention_policy_updated),
+					resource.TestCheckResourceAttr(resourceName, "bounce_trig.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "bounce_trig.0", "protocol"),
+					resource.TestCheckResourceAttr(resourceName, "bounce_trig.1", "rarp-flood"),
+				),
+			},
+			{
+
+				Config: CreateAccEndPointRetentionPolicyUpdatedAttrList(fvTenantName, rName, "bounce_trig", StringListtoString([]string{"rarp-flood"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciEndPointRetentionPolicyExists(resourceName, &end_point_retention_policy_updated),
+					resource.TestCheckResourceAttr(resourceName, "bounce_trig.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "bounce_trig.0", "rarp-flood"),
+				),
+			},
+			{
+				Config: CreateAccEndPointRetentionPolicyUpdatedAttrList(fvTenantName, rName, "bounce_trig", StringListtoString([]string{"rarp-flood", "protocol"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciEndPointRetentionPolicyExists(resourceName, &end_point_retention_policy_updated),
+					resource.TestCheckResourceAttr(resourceName, "bounce_trig.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "bounce_trig.0", "rarp-flood"),
+					resource.TestCheckResourceAttr(resourceName, "bounce_trig.1", "protocol"),
+				),
+			},
+			{
+				Config: CreateAccEndPointRetentionPolicyConfig(fvTenantName, rName),
+			},
+		},
+	})
+}
+
 func TestAccAciEndPointRetentionPolicy_Negative(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 

@@ -456,7 +456,7 @@ func CreateAccCloudCIDRPoolConfigWithOptionalValues(fvTenantName, cloudCtxProfil
 }
 
 func CreateAccCloudCIDRPoolRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing cloud_cidr_pool updation with required parameters")
+	fmt.Println("=== STEP  Basic: testing cloud_cidr_pool updation without required parameters")
 	resource := fmt.Sprintln(`
 	resource "aci_cloud_cidr_pool" "test" {
 		description = "created while acceptance testing"

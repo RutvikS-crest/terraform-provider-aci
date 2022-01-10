@@ -85,10 +85,10 @@ func TestAccAciAccessSubPortBlock_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccAccessSubPortBlockConfigWithRequiredParams(infraAccPortPName, rNameUpdated, rName),
+				Config: CreateAccAccessSubPortBlockConfigWithRequiredParams(rNameUpdated, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciAccessSubPortBlockExists(resourceName, &access_sub_port_block_updated),
-					resource.TestCheckResourceAttr(resourceName, "access_port_selector_dn", fmt.Sprintf("uni/infra/accportprof-%s/hports-%s-typ-ALL", infraAccPortPName, rNameUpdated)),
+					resource.TestCheckResourceAttr(resourceName, "access_port_selector_dn", fmt.Sprintf("uni/infra/accportprof-%s/hports-%s-typ-ALL", rNameUpdated, rNameUpdated)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					testAccCheckAciAccessSubPortBlockIdNotEqual(&access_sub_port_block_default, &access_sub_port_block_updated),
 				),
@@ -97,10 +97,10 @@ func TestAccAciAccessSubPortBlock_Basic(t *testing.T) {
 				Config: CreateAccAccessSubPortBlockConfig(infraAccPortPName, infraHPortSName, rName),
 			},
 			{
-				Config: CreateAccAccessSubPortBlockConfigWithRequiredParams(infraAccPortPName, rName, rNameUpdated),
+				Config: CreateAccAccessSubPortBlockConfigWithRequiredParams(rName, rNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciAccessSubPortBlockExists(resourceName, &access_sub_port_block_updated),
-					resource.TestCheckResourceAttr(resourceName, "access_port_selector_dn", fmt.Sprintf("uni/infra/accportprof-%s/hports-%s-typ-ALL", infraAccPortPName, rName)),
+					resource.TestCheckResourceAttr(resourceName, "access_port_selector_dn", fmt.Sprintf("uni/infra/accportprof-%s/hports-%s-typ-ALL", rName, rName)),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdated),
 					testAccCheckAciAccessSubPortBlockIdNotEqual(&access_sub_port_block_default, &access_sub_port_block_updated),
 				),
@@ -502,8 +502,9 @@ func CreateAccAccessSubPortBlockUpdatedSubPortAttr(infraAccPortPName, infraHPort
 	`, infraAccPortPName, infraHPortSName, rName, from, to)
 	return resource
 }
-func CreateAccAccessSubPortBlockConfigWithRequiredParams(infraAccPortPName, infraHPortSName, rName string) string {
-	fmt.Println("=== STEP  testing access_sub_port_block creation with required arguments only")
+func CreateAccAccessSubPortBlockConfigWithRequiredParams(prName, rName string) string {
+	fmt.Printf("=== STEP  testing access_sub_port_block creation with parent resource name %s and name %s\n", prName, rName)
+
 	resource := fmt.Sprintf(`
 
 	resource "aci_leaf_interface_profile" "test" {
@@ -521,7 +522,7 @@ func CreateAccAccessSubPortBlockConfigWithRequiredParams(infraAccPortPName, infr
 		access_port_selector_dn  = aci_access_port_selector.test.id
 		name  = "%s"
 	}
-	`, infraAccPortPName, infraHPortSName, rName)
+	`, prName, prName, rName)
 	return resource
 }
 func CreateAccAccessSubPortBlockConfigUpdatedName(infraAccPortPName, infraHPortSName, rName string) string {

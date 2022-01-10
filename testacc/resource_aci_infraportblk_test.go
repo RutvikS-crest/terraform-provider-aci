@@ -81,10 +81,10 @@ func TestAccAciAccessPortBlock_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccAccessPortBlockConfigWithRequiredParams(rName, rNameUpdated, rName),
+				Config: CreateAccAccessPortBlockConfigWithRequiredParams(rNameUpdated, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciAccessPortBlockExists(resourceName, &access_port_block_updated),
-					resource.TestCheckResourceAttr(resourceName, "access_port_selector_dn", fmt.Sprintf("uni/infra/accportprof-%s/hports-%s-typ-ALL", rName, rNameUpdated)),
+					resource.TestCheckResourceAttr(resourceName, "access_port_selector_dn", fmt.Sprintf("uni/infra/accportprof-%s/hports-%s-typ-ALL", rNameUpdated, rNameUpdated)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					testAccCheckAciAccessPortBlockIdNotEqual(&access_port_block_default, &access_port_block_updated),
 				),
@@ -93,7 +93,7 @@ func TestAccAciAccessPortBlock_Basic(t *testing.T) {
 				Config: CreateAccAccessPortBlockConfig(infraAccPortPName, infraHPortSName, rName),
 			},
 			{
-				Config: CreateAccAccessPortBlockConfigWithRequiredParams(rName, rName, rNameUpdated),
+				Config: CreateAccAccessPortBlockConfigWithRequiredParams(rName, rNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciAccessPortBlockExists(resourceName, &access_port_block_updated),
 					resource.TestCheckResourceAttr(resourceName, "access_port_selector_dn", fmt.Sprintf("uni/infra/accportprof-%s/hports-%s-typ-ALL", rName, rName)),
@@ -376,8 +376,8 @@ func CreateAccessPortBlockWithoutRequired(infraAccPortPName, infraHPortSName, rN
 	return fmt.Sprintf(rBlock, infraAccPortPName, infraHPortSName, rName)
 }
 
-func CreateAccAccessPortBlockConfigWithRequiredParams(infraAccPortPName, infraHPortSName, rName string) string {
-	fmt.Println("=== STEP  testing access_port_block creation with required arguments only")
+func CreateAccAccessPortBlockConfigWithRequiredParams(prName, rName string) string {
+	fmt.Printf("=== STEP  testing access_port_block creation with parent resource name %s and resource name %s\n", prName, rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_leaf_interface_profile" "test" {
@@ -395,7 +395,7 @@ func CreateAccAccessPortBlockConfigWithRequiredParams(infraAccPortPName, infraHP
 		access_port_selector_dn  = aci_access_port_selector.test.id
 		name  = "%s"
 	}
-	`, infraAccPortPName, infraHPortSName, rName)
+	`, prName, prName, rName)
 	return resource
 }
 func CreateAccAccessPortBlockConfigUpdatedName(infraAccPortPName, infraHPortSName, rName string) string {
@@ -517,7 +517,7 @@ func CreateAccAccessPortBlockConfigWithOptionalValues(infraAccPortPName, infraHP
 }
 
 func CreateAccAccessPortBlockRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing access_port_block updation with required parameters")
+	fmt.Println("=== STEP  Basic: testing access_port_block updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_access_port_block" "test" {
 		description = "created while acceptance testing"

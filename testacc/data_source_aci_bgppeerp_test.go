@@ -47,7 +47,6 @@ func TestAccAciPeerConnectivityProfileDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "allowed_self_as_cnt", resourceName, "allowed_self_as_cnt"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "ctrl.#", resourceName, "ctrl.#"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "ctrl.0", resourceName, "ctrl.0"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "password", resourceName, "password"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "peer_ctrl.#", resourceName, "peer_ctrl.#"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "peer_ctrl.0", resourceName, "peer_ctrl.0"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "private_a_sctrl.#", resourceName, "private_a_sctrl.#"),

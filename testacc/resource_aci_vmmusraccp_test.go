@@ -358,7 +358,7 @@ func CreateAccVMMCredentialConfigWithOptionalValues(vmmDomPName, rName string) s
 }
 
 func CreateAccVMMCredentialRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing vmm_credential updation with required parameters")
+	fmt.Println("=== STEP  Basic: testing vmm_credential updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_vmm_credential" "test" {
 		description = "created while acceptance testing"
@@ -385,24 +385,6 @@ func CreateAccVMMCredentialUpdatedAttr(vmmDomPName, rName, attribute, value stri
 		vmm_domain_dn  = aci_vmm_domain.test.id
 		name  = "%s"
 		%s = "%s"
-	}
-	`, vmmDomPName, rName, attribute, value)
-	return resource
-}
-
-func CreateAccVMMCredentialUpdatedAttrList(vmmDomPName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing vmm_credential attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_vmm_domain" "test" {
-		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
-	}
-	
-	resource "aci_vmm_credential" "test" {
-		vmm_domain_dn  = aci_vmm_domain.test.id
-		name  = "%s"
-		%s = %s
 	}
 	`, vmmDomPName, rName, attribute, value)
 	return resource

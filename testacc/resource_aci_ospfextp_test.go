@@ -424,7 +424,7 @@ func CreateL3outOspfExternalPolicyWithoutRequired(fvTenantName, l3extOutName, at
 }
 
 func CreateAccL3outOspfExternalPolicyConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing l3out_ospf_external_policy creation with updated name")
+	fmt.Println("=== STEP  testing l3out_ospf_external_policy creation with updated l3_outside name")
 	resource := fmt.Sprintf(`
 
 	resource "aci_tenant" "test" {

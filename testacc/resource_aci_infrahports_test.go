@@ -273,7 +273,7 @@ func CreateAccessPortSelectorWithoutRequired(infraAccPortPName, rName, access_po
 }
 
 func CreateAccAccessPortSelectorConfigWithRequiredParams(infraAccPortPName, rName, access_port_selector_type string) string {
-	fmt.Println("=== STEP  testing access_port_selector creation with required arguments only")
+	fmt.Println("=== STEP  testing access_port_selector creation with Updated required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_leaf_interface_profile" "test" {
@@ -326,7 +326,7 @@ func CreateAccAccessPortSelectorConfigUpdatedType(infraAccPortPName, rName, acce
 }
 
 func CreateAccAccessPortSelectorConfig(infraAccPortPName, rName, access_port_selector_type string) string {
-	fmt.Println("=== STEP  testing access_port_selector creation with required arguments only")
+	fmt.Printf("=== STEP  testing access_port_selector creation with name %s and access port selector type %s required arguments only\n", rName, access_port_selector_type)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_leaf_interface_profile" "test" {
@@ -401,7 +401,7 @@ func CreateAccAccessPortSelectorConfigWithOptionalValues(infraAccPortPName, rNam
 }
 
 func CreateAccAccessPortSelectorRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing access_port_selector updation with required parameters")
+	fmt.Println("=== STEP  Basic: testing access_port_selector updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_access_port_selector" "test" {
 		description = "created while acceptance testing"
@@ -427,25 +427,6 @@ func CreateAccAccessPortSelectorUpdatedAttr(infraAccPortPName, rName, access_por
 		name  = "%s"
 		access_port_selector_type  = "%s"
 		%s = "%s"
-	}
-	`, infraAccPortPName, rName, access_port_selector_type, attribute, value)
-	return resource
-}
-
-func CreateAccAccessPortSelectorUpdatedAttrList(infraAccPortPName, rName, access_port_selector_type, attribute, value string) string {
-	fmt.Printf("=== STEP  testing access_port_selector attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_leaf_interface_profile" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_access_port_selector" "test" {
-		leaf_interface_profile_dn  = aci_leaf_interface_profile.test.id
-		name  = "%s"
-		access_port_selector_type  = "%s"
-		%s = %s
 	}
 	`, infraAccPortPName, rName, access_port_selector_type, attribute, value)
 	return resource

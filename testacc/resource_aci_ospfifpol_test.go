@@ -564,7 +564,7 @@ func CreateAccOSPFInterfacePolicyConfigWithOptionalValues(fvTenantName, rName st
 }
 
 func CreateAccOSPFInterfacePolicyRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing ospf_interface_policy updation with required parameters")
+	fmt.Println("=== STEP  Basic: testing ospf_interface_policy updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_ospf_interface_policy" "test" {
 		description = "created while acceptance testing"

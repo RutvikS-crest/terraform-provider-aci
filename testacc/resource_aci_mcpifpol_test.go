@@ -224,7 +224,7 @@ func CreateMiscablingProtocolInterfacePolicyWithoutRequired(rName, attrName stri
 }
 
 func CreateAccMiscablingProtocolInterfacePolicyConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing miscabling_protocol_interface_policy creation with required arguments only")
+	fmt.Println("=== STEP  testing miscabling_protocol_interface_policy creation with updated name", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_miscabling_protocol_interface_policy" "test" {

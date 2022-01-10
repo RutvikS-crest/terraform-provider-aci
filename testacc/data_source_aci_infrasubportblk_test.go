@@ -95,7 +95,7 @@ func CreateAccAccessSubPortBlockConfigDataSource(infraAccPortPName, infraHPortSN
 }
 
 func CreateAccessSubPortBlockDSWithoutRequired(infraAccPortPName, infraHPortSName, rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing access_sub_port_block creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing access_sub_port_block Data Source without ", attrName)
 	rBlock := `
 
 	resource "aci_leaf_interface_profile" "test" {
