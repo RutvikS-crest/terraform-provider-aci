@@ -109,7 +109,7 @@ func TestAccAciAccessSubPortBlock_Basic(t *testing.T) {
 	})
 }
 
-func TestAccAciAccessSubPortBlock_Update_PENDING(t *testing.T) {
+func TestAccAciAccessSubPortBlock_Update(t *testing.T) {
 	var access_sub_port_block_default models.AccessSubPortBlock
 	var access_sub_port_block_updated models.AccessSubPortBlock
 	resourceName := "aci_access_sub_port_block.test"
