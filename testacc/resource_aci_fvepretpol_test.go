@@ -43,8 +43,7 @@ func TestAccAciEndPointRetentionPolicy_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 					resource.TestCheckResourceAttr(resourceName, "bounce_age_intvl", "630"),
-					resource.TestCheckResourceAttr(resourceName, "bounce_trig.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "bounce_trig.0", "protocol"),
+					resource.TestCheckResourceAttr(resourceName, "bounce_trig", "protocol"),
 					resource.TestCheckResourceAttr(resourceName, "hold_intvl", "300"),
 					resource.TestCheckResourceAttr(resourceName, "local_ep_age_intvl", "900"),
 					resource.TestCheckResourceAttr(resourceName, "move_freq", "256"),
@@ -60,13 +59,12 @@ func TestAccAciEndPointRetentionPolicy_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_end_point_retention_policy"),
-					resource.TestCheckResourceAttr(resourceName, "bounce_age_intvl", "1"),
-					resource.TestCheckResourceAttr(resourceName, "bounce_trig.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "bounce_trig.0", "rarp-flood"),
+					resource.TestCheckResourceAttr(resourceName, "bounce_age_intvl", "600"),
+					resource.TestCheckResourceAttr(resourceName, "bounce_trig", "rarp-flood"),
 					resource.TestCheckResourceAttr(resourceName, "hold_intvl", "6"),
-					resource.TestCheckResourceAttr(resourceName, "local_ep_age_intvl", "1"),
+					resource.TestCheckResourceAttr(resourceName, "local_ep_age_intvl", "600"),
 					resource.TestCheckResourceAttr(resourceName, "move_freq", "1"),
-					resource.TestCheckResourceAttr(resourceName, "remote_ep_age_intvl", "1"),
+					resource.TestCheckResourceAttr(resourceName, "remote_ep_age_intvl", "600"),
 
 					testAccCheckAciEndPointRetentionPolicyIdEqual(&end_point_retention_policy_default, &end_point_retention_policy_updated),
 				),
@@ -89,7 +87,7 @@ func TestAccAciEndPointRetentionPolicy_Basic(t *testing.T) {
 				Config: CreateAccEndPointRetentionPolicyConfigWithRequiredParams(rNameUpdated, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciEndPointRetentionPolicyExists(resourceName, &end_point_retention_policy_updated),
-					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", fvTenantName)),
+					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rNameUpdated)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					testAccCheckAciEndPointRetentionPolicyIdNotEqual(&end_point_retention_policy_default, &end_point_retention_policy_updated),
 				),
@@ -101,7 +99,7 @@ func TestAccAciEndPointRetentionPolicy_Basic(t *testing.T) {
 				Config: CreateAccEndPointRetentionPolicyConfigWithRequiredParams(rName, rNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciEndPointRetentionPolicyExists(resourceName, &end_point_retention_policy_updated),
-					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", fvTenantName)),
+					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", rName)),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdated),
 					testAccCheckAciEndPointRetentionPolicyIdNotEqual(&end_point_retention_policy_default, &end_point_retention_policy_updated),
 				),
@@ -202,19 +200,15 @@ func TestAccAciEndPointRetentionPolicy_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "bounce_age_intvl", "-1"),
-				ExpectError: regexp.MustCompile(`out of range`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "bounce_age_intvl", "1"),
 				ExpectError: regexp.MustCompile(`out of range`),
 			},
 			{
-				Config:      CreateAccEndPointRetentionPolicyUpdatedAttrList(fvTenantName, rName, "bounce_trig", StringListtoString([]string{randomValue})),
+				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "bounce_trig", randomValue),
 				ExpectError: regexp.MustCompile(`expected (.)+ to be one of (.)+, got(.)+`),
-			},
-			{
-				Config:      CreateAccEndPointRetentionPolicyUpdatedAttrList(fvTenantName, rName, "bounce_trig", StringListtoString([]string{"protocol", "protocol"})),
-				ExpectError: regexp.MustCompile(`duplication is not supported in list`),
 			},
 
 			{
@@ -227,7 +221,7 @@ func TestAccAciEndPointRetentionPolicy_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "hold_intvl", "65536"),
-				ExpectError: regexp.MustCompile(`out of range`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 
 			{
@@ -236,7 +230,7 @@ func TestAccAciEndPointRetentionPolicy_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "local_ep_age_intvl", "-1"),
-				ExpectError: regexp.MustCompile(`out of range`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "local_ep_age_intvl", "1"),
@@ -249,11 +243,11 @@ func TestAccAciEndPointRetentionPolicy_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "move_freq", "-1"),
-				ExpectError: regexp.MustCompile(`out of range`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "move_freq", "65536"),
-				ExpectError: regexp.MustCompile(`out of range`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 
 			{
@@ -262,7 +256,7 @@ func TestAccAciEndPointRetentionPolicy_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "remote_ep_age_intvl", "-1"),
-				ExpectError: regexp.MustCompile(`out of range`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
 				Config:      CreateAccEndPointRetentionPolicyUpdatedAttr(fvTenantName, rName, "remote_ep_age_intvl", "1"),
@@ -462,8 +456,12 @@ func CreateAccEndPointRetentionPolicyWithInValidParentDn(rName string) string {
 	resource "aci_tenant" "test"{
 		name = "%s"
 	}
-	resource "aci_end_point_retention_policy" "test" {
+	resource "aci_application_profile" "test"{
+		name = "acctest_ap"
 		tenant_dn  = aci_tenant.test.id
+	}
+	resource "aci_end_point_retention_policy" "test" {
+		tenant_dn  = aci_application_profile.test.id
 		name  = "%s"	
 	}
 	`, rName, rName)
@@ -485,12 +483,12 @@ func CreateAccEndPointRetentionPolicyConfigWithOptionalValues(fvTenantName, rNam
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_end_point_retention_policy"
-		bounce_age_intvl = "1"
-		bounce_trig = ["rarp-flood"]
+		bounce_age_intvl = "600"
+		bounce_trig = "rarp-flood"
 		hold_intvl = "6"
-		local_ep_age_intvl = "1"
+		local_ep_age_intvl = "600"
 		move_freq = "1"
-		remote_ep_age_intvl = "1"
+		remote_ep_age_intvl = "600"
 		
 	}
 	`, fvTenantName, rName)
@@ -506,7 +504,7 @@ func CreateAccEndPointRetentionPolicyRemovingRequiredField() string {
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_end_point_retention_policy"
 		bounce_age_intvl = "1"
-		bounce_trig = ["rarp-flood"]
+		bounce_trig = "rarp-flood"
 		hold_intvl = "6"
 		local_ep_age_intvl = "1"
 		move_freq = "1"
