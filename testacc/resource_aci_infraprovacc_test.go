@@ -249,7 +249,7 @@ func CreateAccVlanEncapsulationforVxlanTrafficConfig(infraAttEntityPName string)
 }
 
 func CreateAccVlanEncapsulationforVxlanTrafficConfigMultiple(rName string) string {
-	fmt.Println("=== STEP  testing multiple leaf_interface_profile creation with required arguments only")
+	fmt.Println("=== STEP  testing multiple vlan_encapsulationfor_vxlan_traffic creation with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_leaf_interface_profile" "test" {
