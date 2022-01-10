@@ -268,7 +268,7 @@ func CreateAccVLANPoolConfigUpdatedName(rName, allocMode string) string {
 }
 
 func CreateAccVLANPoolConfig(rName, allocMode string) string {
-	fmt.Printf("=== STEP  testing vlan_pool creation with Name %s and alloc_mode %s\n", rName, allocMode)
+	fmt.Printf("=== STEP  testing vlan_pool creation with required arguments name %s and alloc_mode %s\n", rName, allocMode)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_vlan_pool" "test" {

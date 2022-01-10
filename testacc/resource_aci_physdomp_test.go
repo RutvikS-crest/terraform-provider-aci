@@ -205,7 +205,7 @@ func CreatePhysicalDomainWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccPhysicalDomainConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing physical_domain creation with required arguments only")
+	fmt.Println("=== STEP  testing physical_domain creation with Updated required arguments only")
 	resource := fmt.Sprintf(`
 	resource "aci_physical_domain" "test" {
 		name  = "%s"
@@ -258,7 +258,7 @@ func CreateAccPhysicalDomainConfigWithOptionalValues(rName string) string {
 }
 
 func CreateAccPhysicalDomainRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing physical_domain updation with required parameters")
+	fmt.Println("=== STEP  Basic: testing physical_domain updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_physical_domain" "test" {
 		annotation = "orchestrator:terraform_testacc"
