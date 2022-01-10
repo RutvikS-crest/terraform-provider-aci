@@ -243,7 +243,7 @@ func CreateVLANPoolWithoutRequired(rName, allocMode, attrName string) string {
 }
 
 func CreateAccVLANPoolConfigWithRequiredParams(rName, allocMode string) string {
-	fmt.Println("=== STEP  testing vlan_pool creation with required arguments only")
+	fmt.Println("=== STEP  testing vlan_pool creation with Updated required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_vlan_pool" "test" {

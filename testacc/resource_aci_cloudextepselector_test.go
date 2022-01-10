@@ -146,7 +146,7 @@ func TestAccAciCloudEndpointSelectorforExternalEPgs_Negative(t *testing.T) {
 				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
 			},
 			{
-				Config:      CreateAccCloudEndpointSelectorUpdatedAttr(rName, rName, rName, rName, "match_expression", acctest.RandStringFromCharSet(513, "abcdefghijklmnopqrstuvwxyz")),
+				Config:      CreateAccCloudEndpointSelectorforExternalEPgsUpdatedAttr(rName, rName, rName, subnet, rName, "match_expression", acctest.RandStringFromCharSet(513, "abcdefghijklmnopqrstuvwxyz")),
 				ExpectError: regexp.MustCompile(`failed validation for value ''`),
 			},
 			{
