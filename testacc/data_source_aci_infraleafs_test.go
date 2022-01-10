@@ -64,7 +64,7 @@ func TestAccAciSwitchAssociationDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccSwitchAssociationConfigDataSource(infraNodePName, rName, switch_association_type string) string {
-	fmt.Println("=== STEP  testing switch_association Data Source with required arguments only")
+	fmt.Println("=== STEP  testing leaf_selector Data Source with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_leaf_profile" "test" {
@@ -89,7 +89,7 @@ func CreateAccSwitchAssociationConfigDataSource(infraNodePName, rName, switch_as
 }
 
 func CreateSwitchAssociationDSWithoutRequired(infraNodePName, rName, switch_association_type, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing switch_association Data Source without ", attrName)
+	fmt.Println("=== STEP  Basic: testing leaf_selector Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_leaf_profile" "test" {
@@ -136,7 +136,7 @@ func CreateSwitchAssociationDSWithoutRequired(infraNodePName, rName, switch_asso
 }
 
 func CreateAccSwitchAssociationDSWithInvalidName(infraNodePName, rName, switch_association_type string) string {
-	fmt.Println("=== STEP  testing switch_association Data Source with invalid name")
+	fmt.Println("=== STEP  testing leaf_selector Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_leaf_profile" "test" {
@@ -161,7 +161,7 @@ func CreateAccSwitchAssociationDSWithInvalidName(infraNodePName, rName, switch_a
 }
 
 func CreateAccSwitchAssociationDataSourceUpdate(infraNodePName, rName, switch_association_type, key, value string) string {
-	fmt.Println("=== STEP  testing switch_association Data Source with random attribute")
+	fmt.Println("=== STEP  testing leaf_selector Data Source with random attribute")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_leaf_profile" "test" {
@@ -187,7 +187,7 @@ func CreateAccSwitchAssociationDataSourceUpdate(infraNodePName, rName, switch_as
 }
 
 func CreateAccSwitchAssociationDataSourceUpdatedResource(infraNodePName, rName, switch_association_type, key, value string) string {
-	fmt.Println("=== STEP  testing switch_association Data Source with updated resource")
+	fmt.Println("=== STEP  testing leaf_selector Data Source with updated resource")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_leaf_profile" "test" {
