@@ -335,25 +335,6 @@ func CreateAccStaticNodeMgmtAddressConfig(mgmtInBName, addrType, tDn string) str
 	return resource
 }
 
-func CreateAccStaticNodeMgmtAddressConfigMultiple(mgmtInBName, addrType, tDn string) string {
-	fmt.Println("=== STEP  testing multiple static_node_mgmt_address creation with required arguments only")
-	resource := fmt.Sprintf(`
-	
-	resource "aci_node_mgmt_epg" "test" {
-		type = "in_band"
-		name  = "%s"
-	}
-	
-	resource "aci_static_node_mgmt_address" "test" {
-		management_epg_dn  = aci_node_mgmt_epg.test.id
-		type = "%s"
-		t_dn  = "%s_${count.index}"
-		count = 5
-	}
-	`, mgmtInBName, addrType, tDn)
-	return resource
-}
-
 func CreateAccStaticNodeMgmtAddressWithInValidParentDn(rName, tDn string) string {
 	fmt.Println("=== STEP  Negative Case: testing static_node_mgmt_address creation with invalid parent Dn")
 	resource := fmt.Sprintf(`
