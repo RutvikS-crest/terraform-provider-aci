@@ -35,6 +35,10 @@ func TestAccAciSwitchSpineAssociation_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
+				Config:      CreateSwitchSpineAssociationWithoutRequired(infraSpinePName, rName, spine_switch_association_type, "spine_switch_association_type"),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+			{
 				Config: CreateAccSwitchSpineAssociationConfig(infraSpinePName, rName, spine_switch_association_type),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSwitchSpineAssociationExists(resourceName, &spine_switch_association_default),
@@ -111,6 +115,7 @@ func TestAccAciSwitchSpineAssociation_Basic(t *testing.T) {
 				Config: CreateAccSwitchSpineAssociationConfigWithRequiredParams(rName, rName, "ALL_IN_POD"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciSwitchSpineAssociationExists(resourceName, &spine_switch_association_updated),
+					resource.TestCheckResourceAttr(resourceName, "spine_profile_dn", fmt.Sprintf("uni/infra/spprof-%s", rName)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "spine_switch_association_type", "ALL_IN_POD"),
 					testAccCheckAciSwitchSpineAssociationIdNotEqual(&spine_switch_association_default, &spine_switch_association_updated),
@@ -276,7 +281,7 @@ func CreateSwitchSpineAssociationWithoutRequired(infraSpinePName, rName, spine_s
 		name  = "%s"
 	#	spine_switch_association_type  = "%s"
 	}
-		`
+	`
 	}
 	return fmt.Sprintf(rBlock, infraSpinePName, rName, spine_switch_association_type)
 }

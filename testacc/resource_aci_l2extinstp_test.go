@@ -48,6 +48,7 @@ func TestAccAciL2outExternalEpg_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "pref_gr_memb", "exclude"),
 					resource.TestCheckResourceAttr(resourceName, "prio", "unspecified"),
 					resource.TestCheckResourceAttr(resourceName, "target_dscp", "unspecified"),
+					resource.TestCheckResourceAttr(resourceName, "exception_tag", ""),
 				),
 			},
 			{
@@ -68,7 +69,7 @@ func TestAccAciL2outExternalEpg_Basic(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "prio", "level1"),
 					resource.TestCheckResourceAttr(resourceName, "target_dscp", "AF11"),
-
+					resource.TestCheckResourceAttr(resourceName, "exception_tag", "example"),
 					testAccCheckAciL2outExternalEpgIdEqual(&l2_out_extepg_default, &l2_out_extepg_updated),
 				),
 			},
@@ -425,29 +426,6 @@ func CreateAccL2outExternalEpgConfig(fvTenantName, l2extOutName, rName string) s
 	return resource
 }
 
-func CreateAccL2outExternalEpgConfigMultiple(fvTenantName, l2extOutName, rName string) string {
-	fmt.Println("=== STEP  testing multiple l2_out_extepg creation with required arguments only")
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_l2_outside" "test" {
-		name 		= "%s"
-		tenant_dn = aci_tenant.test.id
-	}
-	
-	resource "aci_l2out_extepg" "test" {
-		l2_outside_dn  = aci_l2_outside.test.id
-		name  = "%s_${count.index}"
-		count = 5
-	}
-	`, fvTenantName, l2extOutName, rName)
-	return resource
-}
-
 func CreateAccL2outExternalEpgWithInValidParentDn(rName string) string {
 	fmt.Println("=== STEP  Negative Case: testing l2_out_extepg creation with invalid parent Dn")
 	resource := fmt.Sprintf(`
@@ -487,7 +465,7 @@ func CreateAccL2outExternalEpgConfigWithOptionalValues(fvTenantName, l2extOutNam
 		pref_gr_memb = "include"
 		prio = "level1"
 		target_dscp = "AF11"
-		
+		exception_tag = "example"
 	}
 	`, fvTenantName, l2extOutName, rName)
 

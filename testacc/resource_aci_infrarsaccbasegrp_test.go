@@ -45,7 +45,7 @@ func TestAccAciAccessGroup_Basic(t *testing.T) {
 					testAccCheckAciAccessGroupExists(resourceName, &access_group_updated),
 					resource.TestCheckResourceAttr(resourceName, "access_port_selector_dn", fmt.Sprintf("uni/infra/accportprof-%s/hports-%s-typ-ALL", infraAccPortPName, infraHPortSName)),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
-					resource.TestCheckResourceAttr(resourceName, "fex_id", "102"),
+					resource.TestCheckResourceAttr(resourceName, "fex_id", "199"),
 
 					resource.TestCheckResourceAttr(resourceName, "tdn", "uni/infra/fexprof-acctest_fex/fexbundle-acctest_fex"),
 
@@ -76,6 +76,35 @@ func TestAccAciAccessGroup_Basic(t *testing.T) {
 	})
 }
 
+func TestAccAciAccessGroup_Update(t *testing.T) {
+	var access_group_default models.AccessAccessGroup
+	var access_group_updated models.AccessAccessGroup
+	resourceName := "aci_access_group.test"
+	infraAccPortPName := makeTestVariable(acctest.RandString(5))
+	infraHPortSName := makeTestVariable(acctest.RandString(5))
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciAccessGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccAccessGroupConfig(infraAccPortPName, infraHPortSName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciAccessGroupExists(resourceName, &access_group_default),
+				),
+			},
+			{
+				Config: CreateAccAccessGroupUpdatedAttr(infraAccPortPName, infraHPortSName, "fex_id", "150"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciAccessGroupExists(resourceName, &access_group_updated),
+					resource.TestCheckResourceAttr(resourceName, "fex_id", "150"),
+					testAccCheckAciAccessGroupIdEqual(&access_group_default, &access_group_updated),
+				),
+			},
+		},
+	})
+}
+
 func TestAccAciAccessGroup_Negative(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 	infraAccPortPName := makeTestVariable(acctest.RandString(5))
@@ -94,6 +123,10 @@ func TestAccAciAccessGroup_Negative(t *testing.T) {
 			{
 				Config:      CreateAccAccessGroupWithInValidParentDn(rName),
 				ExpectError: regexp.MustCompile(`unknown property value`),
+			},
+			{
+				Config:      CreateAccAccessGroupWithInValidTdn(rName),
+				ExpectError: regexp.MustCompile(`Invalid target DN`),
 			},
 			{
 				Config:      CreateAccAccessGroupUpdatedAttr(infraAccPortPName, infraHPortSName, "annotation", acctest.RandString(129)),
@@ -303,6 +336,32 @@ func CreateAccAccessGroupConfigMultiple(infraAccPortPName, infraHPortSName strin
 	return resource
 }
 
+func CreateAccAccessGroupWithInValidTdn(rName string) string {
+	fmt.Println("=== STEP  Negative Case: testing access_group creation with invalid tdn")
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test" {
+		name = "%s"
+	}
+	  
+	 resource "aci_leaf_interface_profile" "test" {
+		 name 		= "acctest_test"
+		  
+	 }
+	  
+	resource "aci_access_port_selector" "test" {
+		name 		= "acctest_test"
+		leaf_interface_profile_dn = aci_leaf_interface_profile.test.id
+		access_port_selector_type = "ALL"
+	}
+	  
+	 resource "aci_access_group" "test" {
+		access_port_selector_dn  = aci_access_port_selector.test.id
+		tdn = aci_tenant.test.id
+	}
+	`, rName)
+	return resource
+}
+
 func CreateAccAccessGroupWithInValidParentDn(rName string) string {
 	fmt.Println("=== STEP  Negative Case: testing access_group creation with invalid parent Dn")
 	resource := fmt.Sprintf(`
@@ -342,7 +401,7 @@ func CreateAccAccessGroupConfigWithOptionalValues(infraAccPortPName, infraHPortS
 	resource "aci_access_group" "test" {
 		access_port_selector_dn  = "${aci_access_port_selector.test.id}"
 		annotation = "orchestrator:terraform_testacc"
-		fex_id = "102"
+		fex_id = "199"
 		tdn = aci_fex_bundle_group.test.id
 		
 	}

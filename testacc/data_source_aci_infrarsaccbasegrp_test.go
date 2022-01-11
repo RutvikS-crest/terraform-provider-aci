@@ -24,13 +24,12 @@ func TestAccAciAccessGroupDataSource_Basic(t *testing.T) {
 			{
 				Config:      CreateAccessGroupDSWithoutRequired(rName, rName, "access_port_selector_dn"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
-			}, {
+			}, 
+			{
 				Config: CreateAccAccessGroupConfigDataSource(rName, rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "access_port_selector_dn", resourceName, "access_port_selector_dn"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "fex_id", resourceName, "fex_id"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "t_dn", resourceName, "t_dn"),
 				),
@@ -42,7 +41,7 @@ func TestAccAciAccessGroupDataSource_Basic(t *testing.T) {
 
 			{
 				Config:      CreateAccAccessGroupDSWithInvalidParentDn(rName, rName),
-				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
+				ExpectError: regexp.MustCompile(`Invalid RN`),
 			},
 
 			{
@@ -135,7 +134,7 @@ func CreateAccAccessGroupDSWithInvalidParentDn(infraAccPortPName, infraHPortSNam
 	}
 
 	data "aci_access_group" "test" {
-		access_port_selector_dn  = aci_access_port_selector.test.id
+		access_port_selector_dn  = "${aci_access_port_selector.test.id}_invalid"
 		depends_on = [ aci_access_group.test ]
 	}
 	`, infraAccPortPName, infraHPortSName)
