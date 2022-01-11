@@ -382,21 +382,3 @@ func CreateAccFexBundleGroupUpdatedAttr(infraFexPName, rName, attribute, value s
 	`, infraFexPName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccFexBundleGroupUpdatedAttrList(infraFexPName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing fex_bundle_group attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_fex_profile" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_fex_bundle_group" "test" {
-		fex_profile_dn  = aci_fex_profile.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, infraFexPName, rName, attribute, value)
-	return resource
-}
