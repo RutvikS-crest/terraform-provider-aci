@@ -220,25 +220,15 @@ func TestAccAciCloudEPg_Negative(t *testing.T) {
 				Config:      CreateAccCloudEPgUpdatedAttr(rName, rName, rName, "match_t", randomValue),
 				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
 			},
+			{
+				Config:      CreateAccCloudEPgUpdatedAttr(rName, rName, rName, "prio", randomValue),
+				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
+			},
 
 			{
 				Config:      CreateAccCloudEPgUpdatedAttr(rName, rName, rName, "pref_gr_memb", randomValue),
 				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
 			},
-
-			{
-				Config:      CreateAccCloudEPgUpdatedAttr(rName, rName, rName, "prio", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
-			},
-			{
-				Config:      CreateAccCloudEPgUpdatedAttr(rName, rName, rName, "prio", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
-			},
-			{
-				Config:      CreateAccCloudEPgUpdatedAttr(rName, rName, rName, "prio", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
-			},
-
 			{
 				Config:      CreateAccCloudEPgUpdatedAttr(rName, rName, rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
@@ -501,8 +491,6 @@ func CreateAccCloudEPgRemovingRequiredField() string {
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_cloud_epg"
-		az_application_security_group = ""
-		az_network_security_group = ""
 		flood_on_encap = "enabled"
 		match_t = "All"
 		pref_gr_memb = "include"
