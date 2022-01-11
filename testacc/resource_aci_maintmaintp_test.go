@@ -312,7 +312,7 @@ func CreateMaintenancePolicyWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccMaintenancePolicyConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing maintenance_policy creation with updated naming arguments")
+	fmt.Println("=== STEP  testing maintenance_policy creation with name =", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_maintenance_policy" "test" {

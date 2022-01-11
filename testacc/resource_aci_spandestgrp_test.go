@@ -248,7 +248,7 @@ func CreateSPANDestinationGroupWithoutRequired(fvTenantName, rName, attrName str
 }
 
 func CreateAccSPANDestinationGroupConfigWithRequiredParams(fvTenantName, rName string) string {
-	fmt.Println("=== STEP  testing span_destination_group creation with required arguments only")
+	fmt.Printf("=== STEP  testing span_destination_group creation with parent resource name %s and resource name %s\n", fvTenantName, rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {

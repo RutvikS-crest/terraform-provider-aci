@@ -248,7 +248,7 @@ func CreateActionRuleProfileWithoutRequired(fvTenantName, rName, attrName string
 }
 
 func CreateAccActionRuleProfileConfigWithRequiredParams(fvTenantName, rName string) string {
-	fmt.Println("=== STEP  testing action_rule_profile creation with required arguments only")
+	fmt.Printf("=== STEP  testing action_rule_profile creation with parent resource name %s and resource name %s", fvTenantName, rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {

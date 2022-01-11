@@ -313,7 +313,7 @@ func CreatePODMaintenanceGroupWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccPODMaintenanceGroupConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing pod_maintenance_group creation with updated naming arguments")
+	fmt.Println("=== STEP  testing pod_maintenance_group creation with name =", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_pod_maintenance_group" "test" {

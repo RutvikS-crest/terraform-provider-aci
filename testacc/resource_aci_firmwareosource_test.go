@@ -322,7 +322,7 @@ func CreateFirmwareDownloadTaskWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccFirmwareDownloadTaskConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing firmware_download_task creation with updated naming arguments")
+	fmt.Println("=== STEP  testing firmware_download_task creation with resource name =", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_firmware_download_task" "test" {

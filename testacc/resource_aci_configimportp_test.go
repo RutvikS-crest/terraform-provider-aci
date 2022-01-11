@@ -285,7 +285,7 @@ func CreateConfigurationImportPolicyWithoutRequired(rName, attrName string) stri
 }
 
 func CreateAccConfigurationImportPolicyConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing configuration_import_policy creation with updated naming arguments")
+	fmt.Println("=== STEP  testing configuration_import_policy creation with name =", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_configuration_import_policy" "test" {

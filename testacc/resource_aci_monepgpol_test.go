@@ -248,7 +248,7 @@ func CreateMonitoringPolicyWithoutRequired(fvTenantName, rName, attrName string)
 }
 
 func CreateAccMonitoringPolicyConfigWithRequiredParams(fvTenantName, rName string) string {
-	fmt.Println("=== STEP  testing monitoring_policy creation with required arguments only")
+	fmt.Printf("=== STEP  testing monitoring_policy creation with parent resource name %s and resource name %s\n", fvTenantName, rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {

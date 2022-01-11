@@ -216,7 +216,7 @@ func CreateTriggerSchedulerWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccTriggerSchedulerConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing trigger_scheduler creation with required arguments only")
+	fmt.Println("=== STEP  testing trigger_scheduler creation with name =", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_trigger_scheduler" "test" {
