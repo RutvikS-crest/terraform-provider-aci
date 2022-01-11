@@ -91,7 +91,7 @@ func CreateAccStaticNodeMgmtAddressConfigDataSource(nodeType, mgmtInBName, tDn s
 }
 
 func CreateStaticNodeMgmtAddressDSWithoutRequired(nodeType, mgmtInBName, tDn, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing static_node_mgmt_address creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing static_node_mgmt_address Data Source without ", attrName)
 	rBlock := `
 	
 	
