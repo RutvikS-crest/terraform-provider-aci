@@ -369,23 +369,3 @@ func CreateAccSpinePortSelectorUpdatedAttr(infraSpinePName, tDn, attribute, valu
 	`, infraSpinePName, tDn, attribute, value)
 	return resource
 }
-
-func CreateAccSpinePortSelectorUpdatedAttrList(infraSpinePName, tDn, attribute, value string) string {
-	fmt.Printf("=== STEP  testing spine_port_selector attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_spine_profile" "test" {
-		name 		= "%s"
-	
-	}
-	resource "aci_spine_interface_profile" "test" {
-		name        = "%s"
-	}
-	resource "aci_spine_port_selector" "test" {
-		spine_profile_dn  = aci_spine_profile.test.id
-		tdn  = aci_spine_interface_profile.test.id
-		%s = %s
-	}
-	`, infraSpinePName, tDn, attribute, value)
-	return resource
-}

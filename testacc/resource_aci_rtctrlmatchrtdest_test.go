@@ -560,26 +560,3 @@ func CreateAccMatchRouteDestinationRuleUpdatedAttr(fvTenantName, rtctrlSubjPName
 	`, fvTenantName, rtctrlSubjPName, ip, attribute, value)
 	return resource
 }
-
-func CreateAccMatchRouteDestinationRuleUpdatedAttrList(fvTenantName, rtctrlSubjPName, ip, attribute, value string) string {
-	fmt.Printf("=== STEP  testing match_route_destination_rule attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_match_rule" "test" {
-		name 		= "%s"
-		tenant_dn = aci_tenant.test.id
-	}
-	
-	resource "aci_match_route_destination_rule" "test" {
-		match_rule_dn  = aci_match_rule.test.id
-		ip  = "%s"
-		%s = %s
-	}
-	`, fvTenantName, rtctrlSubjPName, ip, attribute, value)
-	return resource
-}

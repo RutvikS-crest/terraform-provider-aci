@@ -480,16 +480,3 @@ func CreateAccRadiusProviderUpdatedAttr(rName, attribute, value string) string {
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccRadiusProviderUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing radius_provider attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_radius_provider" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

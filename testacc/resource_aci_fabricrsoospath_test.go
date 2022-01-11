@@ -301,16 +301,3 @@ func CreateAccOutofServiceFabricPathUpdatedAttr(tDn, attribute, value string) st
 	`, tDn, attribute, value)
 	return resource
 }
-
-func CreateAccOutofServiceFabricPathUpdatedAttrList(tDn, attribute, value string) string {
-	fmt.Printf("=== STEP  testing interface_blacklist attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_interface_blacklist" "test" {
-	
-		t_dn  = "%s"
-		%s = %s
-	}
-	`, tDn, attribute, value)
-	return resource
-}

@@ -415,17 +415,3 @@ func CreateAccConfigurationImportPolicyUpdatedAttr(rName, attribute, value strin
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccConfigurationImportPolicyUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing configuration_import_policy attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_configuration_import_policy" "test" {
-	
-		name  = "%s"
-		file_name  = "file.tar.gz"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

@@ -440,16 +440,3 @@ func CreateAccEndpointControlPolicyUpdatedAttr(rName, attribute, value string) s
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccEndpointControlPolicyUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing endpoint_controls attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_endpoint_controls" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

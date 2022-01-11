@@ -432,28 +432,3 @@ func CreateAccLogicalInterfaceContextUpdatedAttr(fvTenantName, vnsLDevCtxName, c
 	`, fvTenantName, vnsLDevCtxName, connNameOrLbl, attribute, value)
 	return resource
 }
-
-func CreateAccLogicalInterfaceContextUpdatedAttrList(fvTenantName, vnsLDevCtxName, connNameOrLbl, attribute, value string) string {
-	fmt.Printf("=== STEP  testing logical_interface_context attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_logical_device_context" "test" {
-		ctrct_name_or_lbl  = "%s"
-		graph_name_or_lbl = "any"
-		node_name_or_lbl  = "any"
-		tenant_dn = aci_tenant.test.id
-	}
-	
-	resource "aci_logical_interface_context" "test" {
-		logical_device_context_dn  = aci_logical_device_context.test.id
-		conn_name_or_lbl  = "%s"
-		%s = %s
-	}
-	`, fvTenantName, vnsLDevCtxName, connNameOrLbl, attribute, value)
-	return resource
-}

@@ -607,27 +607,3 @@ func CreateAccAccessPortBlockUpdatedPortAttr(infraAccPortPName, infraHPortSName,
 	`, infraAccPortPName, infraHPortSName, rName, from, to)
 	return resource
 }
-
-func CreateAccAccessPortBlockUpdatedAttrList(infraAccPortPName, infraHPortSName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing access_port_block attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_leaf_interface_profile" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_access_port_selector" "test" {
-		name 		= "%s"
-		access_port_selector_type  = "ALL"
-		leaf_interface_profile_dn = aci_leaf_interface_profile.test.id
-	}
-	
-	resource "aci_access_port_block" "test" {
-		access_port_selector_dn  = aci_access_port_selector.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, infraAccPortPName, infraHPortSName, rName, attribute, value)
-	return resource
-}

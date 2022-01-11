@@ -230,15 +230,3 @@ func CreateAccMgmtconnectivitypreferenceUpdatedAttr(attribute, value string) str
 	`, attribute, value)
 	return resource
 }
-
-func CreateAccMgmtconnectivitypreferenceUpdatedAttrList(attribute, value string) string {
-	fmt.Printf("=== STEP  testing mgmt_preference attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_mgmt_preference" "test" {
-	
-		%s = %s
-	}
-	`, attribute, value)
-	return resource
-}

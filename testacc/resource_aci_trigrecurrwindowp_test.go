@@ -667,21 +667,3 @@ func CreateAccRecurringWindowUpdatedAttr(trigSchedPName, rName, attribute, value
 	`, trigSchedPName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccRecurringWindowUpdatedAttrList(trigSchedPName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing recurring_window attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_trigger_scheduler" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_recurring_window" "test" {
-		scheduler_dn  = aci_trigger_scheduler.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, trigSchedPName, rName, attribute, value)
-	return resource
-}

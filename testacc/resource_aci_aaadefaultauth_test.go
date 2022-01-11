@@ -342,15 +342,3 @@ func CreateAccDefaultAuthenticationUpdatedAttr(attribute, value string) string {
 	`, attribute, value)
 	return resource
 }
-
-func CreateAccDefaultAuthenticationUpdatedAttrList(attribute, value string) string {
-	fmt.Printf("=== STEP  testing default_authentication attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_default_authentication" "test" {
-	
-		%s = %s
-	}
-	`, attribute, value)
-	return resource
-}

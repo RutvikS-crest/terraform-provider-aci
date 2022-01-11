@@ -342,21 +342,3 @@ func CreateAccAccessGenericUpdatedAttr(infraAttEntityPName, rName, attribute, va
 	`, infraAttEntityPName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccAccessGenericUpdatedAttrList(infraAttEntityPName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing access_generic attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_attachable_access_entity_profile" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_access_generic" "test" {
-		attachable_access_entity_profile_dn  = aci_attachable_access_entity_profile.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, infraAttEntityPName, rName, attribute, value)
-	return resource
-}

@@ -306,16 +306,3 @@ func CreateAccManagedNodeConnectivityGroupUpdatedAttr(rName, attribute, value st
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccManagedNodeConnectivityGroupUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing managed_node_connectivity_group attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_managed_node_connectivity_group" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

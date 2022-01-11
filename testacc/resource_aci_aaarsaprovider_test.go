@@ -480,16 +480,3 @@ func CreateAccRSAProviderUpdatedAttr(rName, attribute, value string) string {
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccRSAProviderUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing rsa_provider attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_rsa_provider" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

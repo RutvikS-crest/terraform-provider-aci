@@ -306,15 +306,3 @@ func CreateAccConsoleAuthenticationUpdatedAttr(attribute, value string) string {
 	`, attribute, value)
 	return resource
 }
-
-func CreateAccConsoleAuthenticationUpdatedAttrList(attribute, value string) string {
-	fmt.Printf("=== STEP  testing console_authentication attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_console_authentication" "test" {
-	
-		%s = %s
-	}
-	`, attribute, value)
-	return resource
-}

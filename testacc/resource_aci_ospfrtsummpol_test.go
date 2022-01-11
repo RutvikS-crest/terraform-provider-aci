@@ -430,21 +430,3 @@ func CreateAccOspfRouteSummarizationUpdatedAttr(fvTenantName, rName, attribute, 
 	`, fvTenantName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccOspfRouteSummarizationUpdatedAttrList(fvTenantName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing ospf_route_summarization attribute: %s=%s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_ospf_route_summarization" "test" {
-		tenant_dn  = aci_tenant.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, fvTenantName, rName, attribute, value)
-	return resource
-}

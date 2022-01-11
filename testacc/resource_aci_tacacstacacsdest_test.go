@@ -426,22 +426,3 @@ func CreateAccTACACSAccountingDestinationUpdatedAttr(tacacsGroupName, host, port
 	`, tacacsGroupName, host, port, attribute, value)
 	return resource
 }
-
-func CreateAccTACACSAccountingDestinationUpdatedAttrList(tacacsGroupName, host, port, attribute, value string) string {
-	fmt.Printf("=== STEP  testing tacacs_accounting_destination attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tacacs_accounting" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_tacacs_accounting_destination" "test" {
-		tacacs_accounting_dn   = aci_tacacs_accounting.test.id
-		host  = "%s"
-		port  = "%s"
-		%s = %s
-	}
-	`, tacacsGroupName, host, port, attribute, value)
-	return resource
-}

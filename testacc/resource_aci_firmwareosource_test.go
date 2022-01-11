@@ -434,16 +434,3 @@ func CreateAccFirmwareDownloadTaskUpdatedAttr(rName, attribute, value string) st
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccFirmwareDownloadTaskUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing firmware_download_task attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_firmware_download_task" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

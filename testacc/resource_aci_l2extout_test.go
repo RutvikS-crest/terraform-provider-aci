@@ -395,21 +395,3 @@ func CreateAccL2OutsideUpdatedAttr(fvTenantName, rName, attribute, value string)
 	`, fvTenantName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccL2OutsideUpdatedAttrList(fvTenantName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing l2_outside attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_l2_outside" "test" {
-		tenant_dn  = aci_tenant.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, fvTenantName, rName, attribute, value)
-	return resource
-}

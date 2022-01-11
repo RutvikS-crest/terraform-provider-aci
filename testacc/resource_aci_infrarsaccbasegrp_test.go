@@ -391,34 +391,3 @@ func CreateAccAccessGroupUpdatedAttr(infraAccPortPName, infraHPortSName, attribu
 	`, infraAccPortPName, infraHPortSName, attribute, value)
 	return resource
 }
-
-func CreateAccAccessGroupUpdatedAttrList(infraAccPortPName, infraHPortSName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing access_group attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_leaf_interface_profile" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_access_port_selector" "test" {
-		name 		= "%s"
-		leaf_interface_profile_dn = aci_leaf_interface_profile.test.id
-		access_port_selector_type = "ALL"
-	}
-
-	resource "aci_fex_profile" "test" {
-		name        = "acctest_fex"
-	}
-	resource "aci_fex_bundle_group" "test" {
-		fex_profile_dn  = aci_fex_profile.test.id
-		name            = "acctest_fex"
-	}
-	
-	resource "aci_access_group" "test" {
-		access_port_selector_dn  = aci_access_port_selector.test.id
-		%s = %s
-	}
-	`, infraAccPortPName, infraHPortSName, attribute, value)
-	return resource
-}

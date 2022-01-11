@@ -382,21 +382,3 @@ func CreateAccMatchRuleUpdatedAttr(fvTenantName, rName, attribute, value string)
 	`, fvTenantName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccMatchRuleUpdatedAttrList(fvTenantName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing match_rule attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_match_rule" "test" {
-		tenant_dn  = aci_tenant.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, fvTenantName, rName, attribute, value)
-	return resource
-}

@@ -306,16 +306,3 @@ func CreateAccRadiusProviderGroupUpdatedAttr(rName, attribute, value string) str
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccRadiusProviderGroupUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing radius_provider_group attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_radius_provider_group" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

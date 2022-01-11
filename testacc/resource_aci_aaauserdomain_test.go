@@ -382,21 +382,3 @@ func CreateAccUserSecurityDomainUpdatedAttr(aaaUserName, rName, attribute, value
 	`, aaaUserName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccUserSecurityDomainUpdatedAttrList(aaaUserName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing user_security_domain attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_local_user" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_user_security_domain" "test" {
-		local_user_dn  = aci_local_user.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, aaaUserName, rName, attribute, value)
-	return resource
-}

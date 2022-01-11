@@ -430,22 +430,3 @@ func CreateAccStaticNodeMgmtAddressUpdatedAttr(mgmtInBName, addrType, tDn, attri
 	`, mgmtInBName, addrType, tDn, attribute, value)
 	return resource
 }
-
-func CreateAccStaticNodeMgmtAddressUpdatedAttrList(mgmtInBName, addrType, tDn, attribute, value string) string {
-	fmt.Printf("=== STEP  testing static_node_mgmt_address attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_node_mgmt_epg" "test" {
-		type = "in_band"
-		name  = "%s"
-	}
-	
-	resource "aci_static_node_mgmt_address" "test" {
-		management_epg_dn  = aci_node_mgmt_epg.test.id
-		type = "%s"
-		t_dn  = "%s"
-		%s = %s
-	}
-	`, mgmtInBName, addrType, tDn, attribute, value)
-	return resource
-}

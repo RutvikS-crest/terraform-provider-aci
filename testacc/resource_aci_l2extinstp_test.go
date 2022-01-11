@@ -535,26 +535,3 @@ func CreateAccL2outExternalEpgUpdatedAttr(fvTenantName, l2extOutName, rName, att
 	`, fvTenantName, l2extOutName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccL2outExternalEpgUpdatedAttrList(fvTenantName, l2extOutName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing l2_out_extepg attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_l2_outside" "test" {
-		name 		= "%s"
-		tenant_dn = aci_tenant.test.id
-	}
-	
-	resource "aci_l2out_extepg" "test" {
-		l2_outside_dn  = aci_l2_outside.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, fvTenantName, l2extOutName, rName, attribute, value)
-	return resource
-}

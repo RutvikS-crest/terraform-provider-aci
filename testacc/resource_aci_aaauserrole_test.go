@@ -430,26 +430,3 @@ func CreateAccUserSecurityDomainRoleUpdatedAttr(aaaUserName, aaaUserDomainName, 
 	`, aaaUserName, aaaUserDomainName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccUserSecurityDomainRoleUpdatedAttrList(aaaUserName, aaaUserDomainName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing user_security_domain_role attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_local_user" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_user_domain" "test" {
-		name 		= "%s"
-		local_user_dn = aci_local_user.test.id
-	}
-	
-	resource "aci_user_security_domain_role" "test" {
-		user_domain_dn  = aci_user_domain.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, aaaUserName, aaaUserDomainName, rName, attribute, value)
-	return resource
-}

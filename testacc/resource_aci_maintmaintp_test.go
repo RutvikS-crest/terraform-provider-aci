@@ -418,16 +418,3 @@ func CreateAccMaintenancePolicyUpdatedAttr(rName, attribute, value string) strin
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccMaintenancePolicyUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing maintenance_policy attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_maintenance_policy" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

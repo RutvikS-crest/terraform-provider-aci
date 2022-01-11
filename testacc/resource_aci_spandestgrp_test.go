@@ -386,21 +386,3 @@ func CreateAccSPANDestinationGroupUpdatedAttr(fvTenantName, rName, attribute, va
 	`, fvTenantName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccSPANDestinationGroupUpdatedAttrList(fvTenantName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing span_destination_group attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_span_destination_group" "test" {
-		tenant_dn  = aci_tenant.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, fvTenantName, rName, attribute, value)
-	return resource
-}

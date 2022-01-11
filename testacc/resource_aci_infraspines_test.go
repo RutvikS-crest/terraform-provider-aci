@@ -423,22 +423,3 @@ func CreateAccSwitchSpineAssociationUpdatedAttr(infraSpinePName, rName, spine_sw
 	`, infraSpinePName, rName, spine_switch_association_type, attribute, value)
 	return resource
 }
-
-func CreateAccSwitchSpineAssociationUpdatedAttrList(infraSpinePName, rName, spine_switch_association_type, attribute, value string) string {
-	fmt.Printf("=== STEP  testing spine_switch_association attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_spine_profile" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_spine_switch_association" "test" {
-		spine_profile_dn  = aci_spine_profile.test.id
-		name  = "%s"
-		spine_switch_association_type  = "%s"
-		%s = %s
-	}
-	`, infraSpinePName, rName, spine_switch_association_type, attribute, value)
-	return resource
-}

@@ -330,15 +330,3 @@ func CreateAccFabricWideSettingsPolicyUpdatedAttr(attribute, value string) strin
 	`, attribute, value)
 	return resource
 }
-
-func CreateAccFabricWideSettingsPolicyUpdatedAttrList(attribute, value string) string {
-	fmt.Printf("=== STEP  testing fabric_wide_settings attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_fabric_wide_settings" "test" {
-	
-		%s = %s
-	}
-	`, attribute, value)
-	return resource
-}

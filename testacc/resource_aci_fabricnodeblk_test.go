@@ -476,21 +476,3 @@ func CreateAccNodeBlockFWUpdatedAttr(firmwareFwGrpName, rName, attribute, value 
 	`, firmwareFwGrpName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccNodeBlockFWUpdatedAttrList(firmwareFwGrpName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing node_block_firmware attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_firmware_group" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_node_block_firmware" "test" {
-		firmware_group_dn  = aci_firmware_group.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, firmwareFwGrpName, rName, attribute, value)
-	return resource
-}
