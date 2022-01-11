@@ -199,7 +199,7 @@ func CreateLeafAccessPortPolicyGroupWithoutRequired(rName, attrName string) stri
 }
 
 func CreateAccLeafAccessPortPolicyGroupConfigWithUpdatedRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing leaf_access_port_policy_group creation with updation required arguments ", rName)
+	fmt.Println("=== STEP  testing leaf_access_port_policy_group creation with updated required arguments ", rName)
 	resource := fmt.Sprintf(`
 	resource "aci_leaf_access_port_policy_group" "test" {
 		name  = "%s"
@@ -252,7 +252,7 @@ func CreateAccLeafAccessPortPolicyGroupConfigWithOptionalValues(rName string) st
 }
 
 func CreateAccLeafAccessPortPolicyGroupRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing leaf_access_port_policy_group updation with required parameters")
+	fmt.Println("=== STEP  Basic: testing leaf_access_port_policy_group updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_leaf_access_port_policy_group" "test" {
 		description = "created while acceptance testing"

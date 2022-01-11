@@ -268,6 +268,14 @@ func TestAccAciOSPFInterfacePolicy_Negative(t *testing.T) {
 				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
+				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "cost", "-1"),
+				ExpectError: regexp.MustCompile(`unknown property value`),
+			},
+			{
+				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "cost", "65536"),
+				ExpectError: regexp.MustCompile(`unknown property value`),
+			},
+			{
 				Config:      CreateAccOSPFInterfacePolicyUpdatedAttrList(fvTenantName, rName, "ctrl", StringListtoString([]string{randomValue})),
 				ExpectError: regexp.MustCompile(`expected (.)+ to be one of (.)+, got(.)+`),
 			},
@@ -284,12 +292,20 @@ func TestAccAciOSPFInterfacePolicy_Negative(t *testing.T) {
 				ExpectError: regexp.MustCompile(`out of range`),
 			},
 			{
+				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "dead_intvl", "65536"),
+				ExpectError: regexp.MustCompile(`unknown property value`),
+			},
+			{
 				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "hello_intvl", randomValue),
 				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
 				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "hello_intvl", "0"),
 				ExpectError: regexp.MustCompile(`out of range`),
+			},
+			{
+				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "hello_intvl", "65536"),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
 				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "nw_t", randomValue),
@@ -304,6 +320,10 @@ func TestAccAciOSPFInterfacePolicy_Negative(t *testing.T) {
 				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
+				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "prio", "-1"),
+				ExpectError: regexp.MustCompile(`unknown property value`),
+			},
+			{
 				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "prio", "256"),
 				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
@@ -314,6 +334,10 @@ func TestAccAciOSPFInterfacePolicy_Negative(t *testing.T) {
 			{
 				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "rexmit_intvl", "0"),
 				ExpectError: regexp.MustCompile(`out of range`),
+			},
+			{
+				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "rexmit_intvl", "65536"),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
 				Config:      CreateAccOSPFInterfacePolicyUpdatedAttr(fvTenantName, rName, "xmit_delay", randomValue),

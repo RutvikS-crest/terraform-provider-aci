@@ -301,7 +301,7 @@ func CreateAccLeafAccessBundlePolicyGroupConfigWithOptionalValues(rName string) 
 }
 
 func CreateAccLeafAccessBundlePolicyGroupRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing leaf_access_bundle_policy_group updation with required parameters")
+	fmt.Println("=== STEP  Basic: testing leaf_access_bundle_policy_group updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_leaf_access_bundle_policy_group" "test" {
 		description = "created while acceptance testing"
