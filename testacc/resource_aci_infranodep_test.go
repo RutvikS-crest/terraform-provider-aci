@@ -356,7 +356,7 @@ func CreateLeafProfileWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccLeafProfileConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing leaf_profile creation with required arguments only")
+	fmt.Println("=== STEP  testing leaf_profile creation with name =", rName)
 	resource := fmt.Sprintf(`
 
 	resource "aci_leaf_profile" "test" {

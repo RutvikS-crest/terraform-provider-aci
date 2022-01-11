@@ -85,7 +85,7 @@ func CreateAccNodeMgmtEpgConfigDataSource(nodeType, rName string) string {
 }
 
 func CreateNodeMgmtEpgDSWithoutRequired(nodeType, rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing node_mgmt_epg creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing node_mgmt_epg Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_node_mgmt_epg" "test" {
