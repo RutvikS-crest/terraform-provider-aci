@@ -402,16 +402,3 @@ func CreateAccRemotePathofaFileUpdatedAttr(rName, attribute, value string) strin
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccRemotePathofaFileUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing file_remote_path attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_file_remote_path" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

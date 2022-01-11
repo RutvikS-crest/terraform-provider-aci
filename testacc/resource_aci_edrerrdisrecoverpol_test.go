@@ -364,16 +364,3 @@ func CreateAccErrorDisabledRecoveryPolicyUpdatedAttr(rName, attribute, value str
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccErrorDisabledRecoveryPolicyUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing error_disable_recovery attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_error_disable_recovery" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

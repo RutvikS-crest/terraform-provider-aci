@@ -306,16 +306,3 @@ func CreateAccSpineSwitchPolicyGroupUpdatedAttr(rName, attribute, value string) 
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccSpineSwitchPolicyGroupUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing spine_switch_policy_group attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_spine_switch_policy_group" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

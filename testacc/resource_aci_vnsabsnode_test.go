@@ -598,26 +598,3 @@ func CreateAccFunctionNodeUpdatedAttr(fvTenantName, vnsAbsGraphName, rName, attr
 	`, fvTenantName, vnsAbsGraphName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccFunctionNodeUpdatedAttrList(fvTenantName, vnsAbsGraphName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing function_node attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_l4_l7_service_graph_template" "test" {
-		name 		= "%s"
-		tenant_dn = aci_tenant.test.id
-	}
-	
-	resource "aci_function_node" "test" {
-		l4_l7_service_graph_template_dn  = aci_l4_l7_service_graph_template.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, fvTenantName, vnsAbsGraphName, rName, attribute, value)
-	return resource
-}

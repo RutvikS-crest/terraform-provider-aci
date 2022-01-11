@@ -74,7 +74,7 @@ func CreateAccSpinePortPolicyGroupConfigDataSource(rName string) string {
 }
 
 func CreateSpinePortPolicyGroupDSWithoutRequired(rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing spine_port_policy_group creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing spine_port_policy_group Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_spine_port_policy_group" "test" {

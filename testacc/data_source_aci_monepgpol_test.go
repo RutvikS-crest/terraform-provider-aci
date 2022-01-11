@@ -84,7 +84,7 @@ func CreateAccMonitoringPolicyConfigDataSource(fvTenantName, rName string) strin
 }
 
 func CreateMonitoringPolicyDSWithoutRequired(fvTenantName, rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing monitoring_policy creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing monitoring_policy Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_tenant" "test" {

@@ -45,7 +45,6 @@ func TestAccAciSwitchAssociation_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
-					resource.TestCheckResourceAttr(resourceName, "switch_association_type", "ALL"),
 				),
 			},
 			{
@@ -58,7 +57,6 @@ func TestAccAciSwitchAssociation_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_leaf_selector"),
-					resource.TestCheckResourceAttr(resourceName, "switch_association_type", "ALL"),
 					testAccCheckAciSwitchAssociationIdEqual(&leaf_selector_default, &leaf_selector_updated),
 				),
 			},

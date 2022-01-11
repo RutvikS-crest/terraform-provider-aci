@@ -513,16 +513,3 @@ func CreateAccNodeMgmtEpgUpdatedAttr(nodeType, rName, attribute, value string) s
 	`, nodeType, rName, attribute, value)
 	return resource
 }
-
-func CreateAccNodeMgmtEpgUpdatedAttrList(nodeType, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing node_mgmt_epg attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_node_mgmt_epg" "test" {
-		type = "%s"
-		name = "%s"
-		%s = %s
-	}
-	`, nodeType, rName, attribute, value)
-	return resource
-}

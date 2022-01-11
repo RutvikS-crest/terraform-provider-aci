@@ -184,6 +184,20 @@ func TestAccAciLeafBreakoutPortGroup_Negative(t *testing.T) {
 	})
 }
 
+func TestAccAciLeafBreakoutPortGroup_MultipleCreateDelete(t *testing.T) {
+	rName := makeTestVariable(acctest.RandString(5))
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciLeafBreakoutPortGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccLeafBreakoutPortGroupConfigMultiple(rName),
+			},
+		},
+	})
+}
+
 func testAccCheckAciLeafBreakoutPortGroupExists(name string, leaf_breakout_port_group *models.LeafBreakoutPortGroup) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
@@ -256,9 +270,7 @@ func CreateLeafBreakoutPortGroupWithoutRequired(rName, attrName string) string {
 	case "name":
 		rBlock += `
 	resource "aci_leaf_breakout_port_group" "test" {
-	
 	#	name  = "%s"
-		description = "created while acceptance testing"
 	}
 		`
 	}
@@ -272,6 +284,18 @@ func CreateAccLeafBreakoutPortGroupConfigWithRequiredParams(rName string) string
 	resource "aci_leaf_breakout_port_group" "test" {
 	
 		name  = "%s"
+	}
+	`, rName)
+	return resource
+}
+
+func CreateAccLeafBreakoutPortGroupConfigMultiple(rName string) string {
+	fmt.Println("=== STEP  testing leaf_breakout_port_group multiple creation with required arguments only")
+	resource := fmt.Sprintf(`
+	
+	resource "aci_leaf_breakout_port_group" "test" {
+		count = 5
+		name  = "%s_${count.index}"
 	}
 	`, rName)
 	return resource
@@ -319,7 +343,7 @@ func CreateAccLeafBreakoutPortGroupConfigWithOptionalValues(rName string) string
 }
 
 func CreateAccLeafBreakoutPortGroupRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing leaf_breakout_port_group creation with optional parameters")
+	fmt.Println("=== STEP  Basic: testing leaf_breakout_port_group update without required parameters")
 	resource := `
 	resource "aci_leaf_breakout_port_group" "test" {
 		description = "created while acceptance testing"

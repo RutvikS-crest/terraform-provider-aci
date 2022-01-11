@@ -395,22 +395,3 @@ func CreateAccMgmtZoneUpdatedAttr(mgmtGrpName, zoneType, rName, attribute, value
 	`, mgmtGrpName, zoneType, rName, attribute, value)
 	return resource
 }
-
-func CreateAccMgmtZoneUpdatedAttrList(mgmtGrpName, zoneType, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing mgmt_zone attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_managed_node_connectivity_group" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_mgmt_zone" "test" {
-		managed_node_connectivity_group_dn  = aci_managed_node_connectivity_group.test.id
-		type = "%s"
-		name = "%s"
-		%s = %s
-	}
-	`, mgmtGrpName, zoneType, rName, attribute, value)
-	return resource
-}

@@ -316,16 +316,3 @@ func CreateAccIPAgingPolicyUpdatedAttr(rName, attribute, value string) string {
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccIPAgingPolicyUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing endpoint_ip_aging_profile attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_endpoint_ip_aging_profile" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

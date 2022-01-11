@@ -84,7 +84,7 @@ func CreateAccSpanDestinationGroupConfigDataSource(fvTenantName, rName string) s
 }
 
 func CreateSpanDestinationGroupDSWithoutRequired(fvTenantName, rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing span_destination_group creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing span_destination_group Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_tenant" "test" {

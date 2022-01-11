@@ -449,31 +449,3 @@ func CreateAccCloudEndpointSelectorUpdatedAttr(fvTenantName, cloudAppName, cloud
 	`, fvTenantName, cloudAppName, cloudEPgName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccCloudEndpointSelectorUpdatedAttrList(fvTenantName, cloudAppName, cloudEPgName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing cloud_endpoint_selector attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_cloud_applicationcontainer" "test" {
-		name 		= "%s"
-		tenant_dn = aci_tenant.test.id
-	}
-	
-	resource "aci_cloud_epg" "test" {
-		name 		= "%s"
-		cloud_applicationcontainer_dn = aci_cloud_applicationcontainer.test.id
-	}
-	
-	resource "aci_cloud_endpoint_selector" "test" {
-		cloud_epg_dn  = aci_cloud_epg.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, fvTenantName, cloudAppName, cloudEPgName, rName, attribute, value)
-	return resource
-}

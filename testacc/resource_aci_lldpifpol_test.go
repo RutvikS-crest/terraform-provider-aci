@@ -316,16 +316,3 @@ func CreateAccLLDPInterfacePolicyUpdatedAttr(rName, attribute, value string) str
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccLLDPInterfacePolicyUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing lldp_interface_policy attribute: %s=%s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_lldp_interface_policy" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

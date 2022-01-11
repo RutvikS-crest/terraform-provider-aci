@@ -376,21 +376,3 @@ func CreateAccAnnotationUpdatedAttr(faultInstName, key, attribute, value string)
 	`, faultInstName, key, attribute, value)
 	return resource
 }
-
-func CreateAccAnnotationUpdatedAttrList(faultInstName, key, attribute, value string) string {
-	fmt.Printf("=== STEP  testing annotation attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_fault_inst" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_annotation" "test" {
-		fault_inst_dn  = aci_fault_inst.test.id
-		key  = "%s"
-		%s = %s
-	}
-	`, faultInstName, key, attribute, value)
-	return resource
-}

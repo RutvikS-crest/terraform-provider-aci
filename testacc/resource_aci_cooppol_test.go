@@ -316,16 +316,3 @@ func CreateAccCoopPolicyUpdatedAttr(rName, attribute, value string) string {
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccCoopPolicyUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing coop_policy attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_coop_policy" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

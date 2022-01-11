@@ -310,16 +310,3 @@ func CreateAccCDPInterfacePolicyUpdatedAttr(rName, attribute, value string) stri
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccCDPInterfacePolicyUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing cdp_interface_policy attribute: %s=%s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_cdp_interface_policy" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

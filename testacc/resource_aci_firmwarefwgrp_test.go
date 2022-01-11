@@ -241,7 +241,7 @@ func CreateFirmwareGroupWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccFirmwareGroupConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing firmware_group creation with required arguements only")
+	fmt.Println("=== STEP  testing firmware_group creation with resource name =", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_firmware_group" "test" {

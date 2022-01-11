@@ -93,7 +93,7 @@ func CreateAccL2OutExtepgConfigDataSource(fvTenantName, l2extOutName, rName stri
 }
 
 func CreateL2OutExtepgDSWithoutRequired(fvTenantName, l2extOutName, rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing l2_out_extepg creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing l2_out_extepg Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_tenant" "test" {

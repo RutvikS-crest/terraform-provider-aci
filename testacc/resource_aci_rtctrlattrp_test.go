@@ -248,7 +248,7 @@ func CreateActionRuleProfileWithoutRequired(fvTenantName, rName, attrName string
 }
 
 func CreateAccActionRuleProfileConfigWithRequiredParams(fvTenantName, rName string) string {
-	fmt.Println("=== STEP  testing action_rule_profile creation with required arguments only")
+	fmt.Printf("=== STEP  testing action_rule_profile creation with parent resource name %s and resource name %s", fvTenantName, rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -382,24 +382,6 @@ func CreateAccActionRuleProfileUpdatedAttr(fvTenantName, rName, attribute, value
 		tenant_dn  = aci_tenant.test.id
 		name  = "%s"
 		%s = "%s"
-	}
-	`, fvTenantName, rName, attribute, value)
-	return resource
-}
-
-func CreateAccActionRuleProfileUpdatedAttrList(fvTenantName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing action_rule_profile attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_action_rule_profile" "test" {
-		tenant_dn  = aci_tenant.test.id
-		name  = "%s"
-		%s = %s
 	}
 	`, fvTenantName, rName, attribute, value)
 	return resource

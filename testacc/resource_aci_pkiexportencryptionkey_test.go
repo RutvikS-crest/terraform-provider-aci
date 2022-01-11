@@ -261,15 +261,3 @@ func CreateAccEncryptionKeyUpdatedAttr(attribute, value string) string {
 	`, attribute, value)
 	return resource
 }
-
-func CreateAccEncryptionKeyUpdatedAttrList(attribute, value string) string {
-	fmt.Printf("=== STEP  testing encryption_key attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_encryption_key" "test" {
-	
-		%s = %s
-	}
-	`, attribute, value)
-	return resource
-}

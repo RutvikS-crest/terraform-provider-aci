@@ -74,7 +74,7 @@ func CreateAccSpineProfileConfigDataSource(rName string) string {
 }
 
 func CreateSpineProfileDSWithoutRequired(rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing spine_profile creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing spine_profile Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_spine_profile" "test" {

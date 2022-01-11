@@ -306,16 +306,3 @@ func CreateAccLoginDomainUpdatedAttr(rName, attribute, value string) string {
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccLoginDomainUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing login_domain attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_login_domain" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

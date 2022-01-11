@@ -377,21 +377,3 @@ func CreateAccTagUpdatedAttr(fvTenantName, key, attribute, value string) string 
 	`, fvTenantName, key, attribute, value)
 	return resource
 }
-
-func CreateAccTagUpdatedAttrList(fvTenantName, key, attribute, value string) string {
-	fmt.Printf("=== STEP  testing tag attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_fault_inst" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_tag" "test" {
-		parent_dn  = aci_fault_inst.test.id
-		key  = "%s"
-		%s = %s
-	}
-	`, fvTenantName, key, attribute, value)
-	return resource
-}

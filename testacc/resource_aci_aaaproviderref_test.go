@@ -441,21 +441,3 @@ func CreateAccLoginDomainProviderUpdatedAttr(aaaDuoProviderGroupName, rName, att
 	`, aaaDuoProviderGroupName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccLoginDomainProviderUpdatedAttrList(aaaDuoProviderGroupName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing login_domain_provider attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_duo_provider_group" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_login_domain_provider" "test" {
-		duo_provider_group_dn  = aci_duo_provider_group.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, aaaDuoProviderGroupName, rName, attribute, value)
-	return resource
-}

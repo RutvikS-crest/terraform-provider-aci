@@ -166,6 +166,14 @@ func TestAccAciNodeBlock_Negative(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Property (.)+ is out of range`),
 			},
 			{
+				Config:      CreateAccNodeBlockUpdatedAttr(rName, rName, rName, "from_", randomValue),
+				ExpectError: regexp.MustCompile(`unknown property value`),
+			},
+			{
+				Config:      CreateAccNodeBlockUpdatedAttr(rName, rName, rName, "to_", randomValue),
+				ExpectError: regexp.MustCompile(`unknown property value`),
+			},
+			{
 				Config:      CreateAccNodeBlockUpdatedAttr(rName, rName, rName, "from_", "16001"),
 				ExpectError: regexp.MustCompile(`Property (.)+ is out of range`),
 			},

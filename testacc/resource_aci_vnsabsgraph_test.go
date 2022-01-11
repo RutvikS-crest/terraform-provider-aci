@@ -519,21 +519,3 @@ func CreateAccL4L7ServiceGraphTemplateUpdatedAttr(fvTenantName, rName, attribute
 	`, fvTenantName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccL4L7ServiceGraphTemplateUpdatedAttrList(fvTenantName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing l4_l7_service_graph_template attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_l4_l7_service_graph_template" "test" {
-		tenant_dn  = aci_tenant.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, fvTenantName, rName, attribute, value)
-	return resource
-}

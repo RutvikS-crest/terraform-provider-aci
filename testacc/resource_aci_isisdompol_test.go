@@ -397,16 +397,3 @@ func CreateAccISISDomainPolicyUpdatedAttr(rName, attribute, value string) string
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccISISDomainPolicyUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing isis_domain_policy attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_isis_domain_policy" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

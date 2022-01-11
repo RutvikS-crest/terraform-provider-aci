@@ -177,6 +177,22 @@ func TestAccAciCloudEPg_Update(t *testing.T) {
 				),
 			},
 			{
+				Config: CreateAccCloudEPgUpdatedAttr(rName, rName, rName, "exception_tag", "512"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciCloudEPgExists(resourceName, &cloud_epg_updated),
+					resource.TestCheckResourceAttr(resourceName, "exception_tag", "512"),
+					testAccCheckAciCloudEPgIdEqual(&cloud_epg_default, &cloud_epg_updated),
+				),
+			},
+			{
+				Config: CreateAccCloudEPgUpdatedAttr(rName, rName, rName, "exception_tag", "256"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciCloudEPgExists(resourceName, &cloud_epg_updated),
+					resource.TestCheckResourceAttr(resourceName, "exception_tag", "256"),
+					testAccCheckAciCloudEPgIdEqual(&cloud_epg_default, &cloud_epg_updated),
+				),
+			},
+			{
 				Config: CreateAccCloudEPgConfig(rName, rName, rName),
 			},
 		},
@@ -495,7 +511,7 @@ func CreateAccCloudEPgRemovingRequiredField() string {
 		match_t = "All"
 		pref_gr_memb = "include"
 		prio = "level1"
-
+		exception_tag = "0"
 	}
 	`)
 
