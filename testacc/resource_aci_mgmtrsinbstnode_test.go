@@ -300,7 +300,7 @@ func CreateStaticNodeMgmtAddressWithoutRequired(mgmtInBName, addrType, tDn, attr
 }
 
 func CreateAccStaticNodeMgmtAddressConfigWithRequiredParams(mgmtInBName, addrType, tDn string) string {
-	fmt.Println("=== STEP  testing static_node_mgmt_address creation with required arguments only")
+	fmt.Printf("=== STEP  testing static_node_mgmt_address creation with parent resource name %s, type %s and tdn %s\n", mgmtInBName, addrType, tDn)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_node_mgmt_epg" "test" {
