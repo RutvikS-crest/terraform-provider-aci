@@ -38,7 +38,7 @@ func TestAccAciStaticNodeMgmtAddressDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "t_dn", resourceName, "t_dn"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "type", resourceName, "type"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "addr", resourceName, "addr"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "gw", resourceName, "gw"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "v6_addr", resourceName, "v6_addr"),

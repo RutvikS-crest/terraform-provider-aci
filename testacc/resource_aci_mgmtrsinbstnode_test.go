@@ -48,6 +48,7 @@ func TestAccAciStaticNodeMgmtAddress_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "gw", "0.0.0.0"),
 					resource.TestCheckResourceAttr(resourceName, "v6_addr", "::"),
 					resource.TestCheckResourceAttr(resourceName, "v6_gw", "::"),
+					resource.TestCheckResourceAttr(resourceName, "type", addrType),
 				),
 			},
 			{
@@ -60,6 +61,7 @@ func TestAccAciStaticNodeMgmtAddress_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "addr", "1.0.0.1/24"),
 					resource.TestCheckResourceAttr(resourceName, "gw", "1.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "type", addrType),
 					// resource.TestCheckResourceAttr(resourceName, "v6_addr", "2001:0db8:85a3:0000:0000:8a2e:0370:7334/64"),
 					// resource.TestCheckResourceAttr(resourceName, "v6_gw", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"),
 					testAccCheckAciStaticNodeMgmtAddressIdEqual(&static_node_mgmt_address_default, &static_node_mgmt_address_updated),
