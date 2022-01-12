@@ -72,7 +72,7 @@ func CreateAccFirmwareGroupConfigDataSource(rName string) string {
 }
 
 func CreateAccFirmwareGroupDataSourceUpdate(rName, key, value string) string {
-	fmt.Println("=== STEP  testing firmware_group creation with required arguements only")
+	fmt.Println("=== STEP  testing firmware_group Data Source with random attributes")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_firmware_group" "test" {
@@ -93,7 +93,7 @@ func CreateAccFirmwareGroupDataSourceUpdate(rName, key, value string) string {
 }
 
 func CreateFirmwareGroupDSWithoutRequired(rName string) string {
-	fmt.Println("=== STEP  Basic: testing firmware_group data source reading without giving name")
+	fmt.Println("=== STEP  Basic: testing firmware_group Data Source without name")
 	resource := fmt.Sprintf(`
 
 	resource "aci_firmware_group" "test" {

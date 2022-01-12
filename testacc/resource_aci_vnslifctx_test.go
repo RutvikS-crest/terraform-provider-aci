@@ -72,7 +72,10 @@ func TestAccAciLogicalInterfaceContext_Basic(t *testing.T) {
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"logical_device_context_dn"},
 			},
-
+			{
+				Config:      CreateAccLogicalInterfaceContextConfigWithInvalidName(fvTenantName, acctest.RandString(65)),
+				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
+			},
 			{
 				Config:      CreateAccLogicalInterfaceContextRemovingRequiredField(),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
@@ -293,6 +296,31 @@ func CreateAccLogicalInterfaceContextConfigWithRequiredParams(fvTenantName, vnsL
 		conn_name_or_lbl  = "%s"
 	}
 	`, fvTenantName, vnsLDevCtxName, connNameOrLbl)
+	return resource
+}
+
+func CreateAccLogicalInterfaceContextConfigWithInvalidName(rName, connNameOrLbl string) string {
+	fmt.Println("=== STEP  testing logical_interface_context creation with invalid conn_name_or_lbl =", connNameOrLbl)
+	resource := fmt.Sprintf(`
+	
+	resource "aci_tenant" "test" {
+		name 		= "%s"
+	
+	}
+	
+	resource "aci_logical_device_context" "test" {
+		tenant_dn = aci_tenant.test.id
+		ctrct_name_or_lbl  = "%s"
+		graph_name_or_lbl = "any"
+		node_name_or_lbl  = "any"
+	}
+	
+	resource "aci_logical_interface_context" "test" {
+		logical_device_context_dn  = aci_logical_device_context.test.id
+		conn_name_or_lbl  = "%s"
+
+	}
+	`, rName, rName, connNameOrLbl)
 	return resource
 }
 
