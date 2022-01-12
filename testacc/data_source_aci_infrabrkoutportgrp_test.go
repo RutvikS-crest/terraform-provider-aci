@@ -72,7 +72,7 @@ func CreateAccLeafBreakoutPortGroupConfigDataSource(rName string) string {
 }
 
 func CreateLeafBreakoutPortGroupDSWithoutRequired(rName, attr string) string {
-	fmt.Println("=== STEP  testing leaf_breakout_port_group creation without required arguments")
+	fmt.Println("=== STEP  testing leaf_breakout_port_group Data Source without required arguments")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_leaf_breakout_port_group" "test" {
