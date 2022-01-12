@@ -74,7 +74,7 @@ func CreateAccTriggerSchedulerConfigDataSource(rName string) string {
 }
 
 func CreateTriggerSchedulerDSWithoutRequired(rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing trigger_scheduler creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing trigger_scheduler Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_trigger_scheduler" "test" {
@@ -96,7 +96,7 @@ func CreateTriggerSchedulerDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccTriggerSchedulerDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing trigger_scheduler Data Source with required arguments only")
+	fmt.Println("=== STEP  testing trigger_scheduler Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_trigger_scheduler" "test" {
@@ -107,7 +107,6 @@ func CreateAccTriggerSchedulerDSWithInvalidName(rName string) string {
 	data "aci_trigger_scheduler" "test" {
 	
 		name  = "${aci_trigger_scheduler.test.name}_invalid"
-		name  = aci_trigger_scheduler.test.name
 		depends_on = [ aci_trigger_scheduler.test ]
 	}
 	`, rName)

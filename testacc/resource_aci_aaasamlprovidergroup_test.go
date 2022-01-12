@@ -306,16 +306,3 @@ func CreateAccSAMLProviderGroupUpdatedAttr(rName, attribute, value string) strin
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccSAMLProviderGroupUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing saml_provider_group attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_saml_provider_group" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

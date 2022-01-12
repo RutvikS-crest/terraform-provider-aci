@@ -204,6 +204,10 @@ func resourceAciCloudSubnetCreate(ctx context.Context, d *schema.ResourceData, m
 		for _, val := range Scope.([]interface{}) {
 			scopeList = append(scopeList, val.(string))
 		}
+		err := checkDuplicate(scopeList)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 		Scope := strings.Join(scopeList, ",")
 		cloudSubnetAttr.Scope = Scope
 	}
@@ -287,6 +291,10 @@ func resourceAciCloudSubnetUpdate(ctx context.Context, d *schema.ResourceData, m
 		scopeList := make([]string, 0, 1)
 		for _, val := range Scope.([]interface{}) {
 			scopeList = append(scopeList, val.(string))
+		}
+		err := checkDuplicate(scopeList)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 		Scope := strings.Join(scopeList, ",")
 		cloudSubnetAttr.Scope = Scope

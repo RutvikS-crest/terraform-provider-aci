@@ -84,7 +84,7 @@ func CreateAccActionRuleProfileConfigDataSource(fvTenantName, rName string) stri
 }
 
 func CreateActionRuleProfileDSWithoutRequired(fvTenantName, rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing action_rule_profile creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing action_rule_profile Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_tenant" "test" {

@@ -326,18 +326,3 @@ func CreateAccOutofServiceFabricPathUpdatedAttr(podId, NodeId, Interface, attrib
 	`, podId, NodeId, Interface, attribute, value)
 	return resource
 }
-
-func CreateAccOutofServiceFabricPathUpdatedAttrList(podId, NodeId, Interface, attribute, value string) string {
-	fmt.Printf("=== STEP  testing interface_blacklist attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_interface_blacklist" "test" {
-	
-		pod_id  = %s
-  		node_id = %s
- 		interface = "%s"
-		%s = %s
-	}
-	`, podId, NodeId, Interface, attribute, value)
-	return resource
-}

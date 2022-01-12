@@ -306,16 +306,3 @@ func CreateAccSpinePortPolicyGroupUpdatedAttr(rName, attribute, value string) st
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccSpinePortPolicyGroupUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing spine_port_policy_group attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_spine_port_policy_group" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

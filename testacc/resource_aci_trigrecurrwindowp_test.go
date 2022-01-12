@@ -511,7 +511,7 @@ func CreateRecurringWindowWithoutRequired(trigSchedPName, rName, attrName string
 }
 
 func CreateAccRecurringWindowConfigWithRequiredParams(trigSchedPName, rName string) string {
-	fmt.Println("=== STEP  testing recurring_window creation with updated naming arguments")
+	fmt.Printf("=== STEP  testing recurring_window creation with parent resource name %s and resource name %s\n", trigSchedPName, rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_trigger_scheduler" "test" {
@@ -655,24 +655,6 @@ func CreateAccRecurringWindowUpdatedAttr(trigSchedPName, rName, attribute, value
 		scheduler_dn  = aci_trigger_scheduler.test.id
 		name  = "%s"
 		%s = "%s"
-	}
-	`, trigSchedPName, rName, attribute, value)
-	return resource
-}
-
-func CreateAccRecurringWindowUpdatedAttrList(trigSchedPName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing recurring_window attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_trigger_scheduler" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_recurring_window" "test" {
-		scheduler_dn  = aci_trigger_scheduler.test.id
-		name  = "%s"
-		%s = %s
 	}
 	`, trigSchedPName, rName, attribute, value)
 	return resource

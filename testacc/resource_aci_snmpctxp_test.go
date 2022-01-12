@@ -340,25 +340,3 @@ func CreateAccVRFSnmpContextUpdatedAttr(fvTenantName, fvCtxName, attribute, valu
 	`, fvTenantName, fvCtxName, attribute, value)
 	return resource
 }
-
-func CreateAccVRFSnmpContextUpdatedAttrList(fvTenantName, fvCtxName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing vrf_snmp_context attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_vrf" "test" {
-		name 		= "%s"
-		tenant_dn = aci_tenant.test.id
-	}
-	
-	resource "aci_vrf_snmp_context" "test" {
-		vrf_dn  = aci_vrf.test.id
-		%s = %s
-	}
-	`, fvTenantName, fvCtxName, attribute, value)
-	return resource
-}

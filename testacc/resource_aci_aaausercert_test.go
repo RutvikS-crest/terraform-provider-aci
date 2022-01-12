@@ -392,21 +392,3 @@ func CreateAccX509CertificateUpdatedAttr(aaaUserName, rName, attribute, value st
 	`, aaaUserName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccX509CertificateUpdatedAttrList(aaaUserName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing x509_certificate attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_local_user" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_x509_certificate" "test" {
-		local_user_dn  = aci_local_user.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, aaaUserName, rName, attribute, value)
-	return resource
-}

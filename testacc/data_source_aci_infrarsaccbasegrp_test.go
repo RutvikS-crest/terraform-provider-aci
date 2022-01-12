@@ -29,9 +29,7 @@ func TestAccAciAccessGroupDataSource_Basic(t *testing.T) {
 				Config: CreateAccAccessGroupConfigDataSource(rName, rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "access_port_selector_dn", resourceName, "access_port_selector_dn"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "fex_id", resourceName, "fex_id"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "t_dn", resourceName, "t_dn"),
 				),
@@ -43,7 +41,7 @@ func TestAccAciAccessGroupDataSource_Basic(t *testing.T) {
 
 			{
 				Config:      CreateAccAccessGroupDSWithInvalidParentDn(rName, rName),
-				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
+				ExpectError: regexp.MustCompile(`Invalid RN`),
 			},
 
 			{

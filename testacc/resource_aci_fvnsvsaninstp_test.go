@@ -329,17 +329,3 @@ func CreateAccVSANPoolUpdatedAttr(rName, allocMode, attribute, value string) str
 	`, rName, allocMode, attribute, value)
 	return resource
 }
-
-func CreateAccVSANPoolUpdatedAttrList(rName, allocMode, attribute, value string) string {
-	fmt.Printf("=== STEP  testing vsan_pool attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_vsan_pool" "test" {
-	
-		name  = "%s"
-		alloc_mode  = "%s"
-		%s = %s
-	}
-	`, rName, allocMode, attribute, value)
-	return resource
-}

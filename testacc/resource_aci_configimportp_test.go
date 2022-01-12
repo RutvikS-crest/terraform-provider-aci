@@ -285,7 +285,7 @@ func CreateConfigurationImportPolicyWithoutRequired(rName, attrName string) stri
 }
 
 func CreateAccConfigurationImportPolicyConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing configuration_import_policy creation with updated naming arguments")
+	fmt.Println("=== STEP  testing configuration_import_policy creation with name =", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_configuration_import_policy" "test" {
@@ -411,20 +411,6 @@ func CreateAccConfigurationImportPolicyUpdatedAttr(rName, attribute, value strin
 		name  = "%s"
 		file_name  = "file.tar.gz"
 		%s = "%s"
-	}
-	`, rName, attribute, value)
-	return resource
-}
-
-func CreateAccConfigurationImportPolicyUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing configuration_import_policy attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_configuration_import_policy" "test" {
-	
-		name  = "%s"
-		file_name  = "file.tar.gz"
-		%s = %s
 	}
 	`, rName, attribute, value)
 	return resource

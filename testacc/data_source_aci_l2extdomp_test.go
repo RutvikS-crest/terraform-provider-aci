@@ -74,7 +74,7 @@ func CreateAccL2DomainConfigDataSource(rName string) string {
 }
 
 func CreateL2DomainDSWithoutRequired(rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing l2_domain creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing l2_domain Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_l2_domain" "test" {

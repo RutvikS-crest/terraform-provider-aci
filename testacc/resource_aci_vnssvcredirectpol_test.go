@@ -551,21 +551,3 @@ func CreateAccServiceRedirectPolicyUpdatedAttr(fvTenantName, rName, attribute, v
 	`, fvTenantName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccServiceRedirectPolicyUpdatedAttrList(fvTenantName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing service_redirect_policy attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_service_redirect_policy" "test" {
-		tenant_dn  = aci_tenant.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, fvTenantName, rName, attribute, value)
-	return resource
-}

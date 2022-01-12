@@ -216,7 +216,7 @@ func CreateTriggerSchedulerWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccTriggerSchedulerConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing trigger_scheduler creation with required arguments only")
+	fmt.Println("=== STEP  testing trigger_scheduler creation with name =", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_trigger_scheduler" "test" {
@@ -302,19 +302,6 @@ func CreateAccTriggerSchedulerUpdatedAttr(rName, attribute, value string) string
 	
 		name  = "%s"
 		%s = "%s"
-	}
-	`, rName, attribute, value)
-	return resource
-}
-
-func CreateAccTriggerSchedulerUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing trigger_scheduler attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_trigger_scheduler" "test" {
-	
-		name  = "%s"
-		%s = %s
 	}
 	`, rName, attribute, value)
 	return resource

@@ -417,16 +417,3 @@ func CreateAccPortTrackingUpdatedAttr(rName, attribute, value string) string {
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccPortTrackingUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing port_tracking attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_port_tracking" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

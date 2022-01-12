@@ -442,18 +442,3 @@ func CreateAccFabricNodeMemberUpdatedAttr(serial, rName, attribute, value string
 	`, serial, rName, FabricNodeMemberNodeId, attribute, value)
 	return resource
 }
-
-func CreateAccFabricNodeMemberUpdatedAttrList(serial, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing fabric_node_member attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_fabric_node_member" "test" {
-	
-		serial  = "%s"
-		name  = "%s"
-		node_id = "%s"
-		%s = %s
-	}
-	`, serial, rName, FabricNodeMemberNodeId, attribute, value)
-	return resource
-}

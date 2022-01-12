@@ -460,23 +460,3 @@ func CreateAccLogicalDeviceContextUpdatedAttr(fvTenantName, ctrctNameOrLbl, grap
 	`, fvTenantName, ctrctNameOrLbl, graphNameOrLbl, nodeNameOrLbl, attribute, value)
 	return resource
 }
-
-func CreateAccLogicalDeviceContextUpdatedAttrList(fvTenantName, ctrctNameOrLbl, graphNameOrLbl, nodeNameOrLbl, attribute, value string) string {
-	fmt.Printf("=== STEP  testing logical_device_context attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_logical_device_context" "test" {
-		tenant_dn  = aci_tenant.test.id
-		ctrct_name_or_lbl  = "%s"
-		graph_name_or_lbl  = "%s"
-		node_name_or_lbl  = "%s"
-		%s = %s
-	}
-	`, fvTenantName, ctrctNameOrLbl, graphNameOrLbl, nodeNameOrLbl, attribute, value)
-	return resource
-}

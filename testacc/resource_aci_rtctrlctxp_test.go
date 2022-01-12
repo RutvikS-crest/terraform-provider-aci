@@ -495,26 +495,3 @@ func CreateAccRouteControlContextUpdatedAttr(fvTenantName, rtctrlProfileName, rN
 	`, fvTenantName, rtctrlProfileName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccRouteControlContextUpdatedAttrList(fvTenantName, rtctrlProfileName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing route_control_context attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_bgp_route_control_profile" "test" {
-		name 		= "%s"
-		parent_dn = aci_tenant.test.id
-	}
-	
-	resource "aci_route_control_context" "test" {
-		route_control_profile_dn  = aci_bgp_route_control_profile.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, fvTenantName, rtctrlProfileName, rName, attribute, value)
-	return resource
-}

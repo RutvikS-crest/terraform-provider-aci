@@ -309,16 +309,3 @@ func CreateAccAccessSwitchPolicyGroupUpdatedAttr(rName, attribute, value string)
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccAccessSwitchPolicyGroupUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing access_switch_policy_group attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_access_switch_policy_group" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

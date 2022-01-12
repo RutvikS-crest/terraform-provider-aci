@@ -402,17 +402,3 @@ func CreateAccRemotePathofaFileUpdatedPasswd(rName, host, attribute, value strin
 	return resource
 }
 
-func CreateAccRemotePathofaFileUpdatedAttrList(rName, host, attribute, value string) string {
-	fmt.Printf("=== STEP  testing file_remote_path attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_file_remote_path" "test" {
-	
-		name  = "%s"
-		host = "%s"
-		user_passwd = "cisco"
-		%s = %s
-	}
-	`, rName, host, attribute, value)
-	return resource
-}

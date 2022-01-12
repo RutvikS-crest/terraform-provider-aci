@@ -343,21 +343,3 @@ func CreateAccAnnotationUpdatedAttr(fvTenantName, key, value, attribute, val str
 	return resource
 }
 
-func CreateAccAnnotationUpdatedAttrList(fvTenantName, key, value, attribute, val string) string {
-	fmt.Printf("=== STEP  testing annotation attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_annotation" "test" {
-		parent_dn  = aci_tenant.test.id
-		key  = "%s"
-		value = "%s"
-		%s = %s
-	}
-	`, fvTenantName, key, value, attribute, val)
-	return resource
-}

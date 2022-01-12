@@ -306,16 +306,3 @@ func CreateAccSpineInterfaceProfileUpdatedAttr(rName, attribute, value string) s
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccSpineInterfaceProfileUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing spine_interface_profile attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_spine_interface_profile" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

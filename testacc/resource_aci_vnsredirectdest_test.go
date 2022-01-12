@@ -541,27 +541,3 @@ func CreateAccDestinationOfRedirectedTrafficUpdatedAttr(fvTenantName, vnsSvcRedi
 	`, fvTenantName, vnsSvcRedirectPolName, ip, attribute, value)
 	return resource
 }
-
-func CreateAccDestinationOfRedirectedTrafficUpdatedAttrList(fvTenantName, vnsSvcRedirectPolName, ip, attribute, value string) string {
-	fmt.Printf("=== STEP  testing destination_of_redirected_traffic attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_service_redirect_policy" "test" {
-		name 		= "%s"
-		tenant_dn = aci_tenant.test.id
-	}
-	
-	resource "aci_destination_of_redirected_traffic" "test" {
-		service_redirect_policy_dn  = aci_service_redirect_policy.test.id
-		ip  = "%s"
-		mac = "12:25:56:98:45:74"
-		%s = %s
-	}
-	`, fvTenantName, vnsSvcRedirectPolName, ip, attribute, value)
-	return resource
-}

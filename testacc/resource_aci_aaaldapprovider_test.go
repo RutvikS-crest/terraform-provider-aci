@@ -530,16 +530,3 @@ func CreateAccLDAPProviderUpdatedAttr(rName, attribute, value string) string {
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccLDAPProviderUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing ldap_provider attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_ldap_provider" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

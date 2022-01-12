@@ -440,26 +440,3 @@ func CreateAccBDDHCPLabelUpdatedAttr(fvTenantName, fvBDName, rName, attribute, v
 	`, fvTenantName, fvBDName, rName, attribute, value)
 	return resource
 }
-
-func CreateAccBDDHCPLabelUpdatedAttrList(fvTenantName, fvBDName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing bd_dhcp_label attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_bridge_domain" "test" {
-		name 		= "%s"
-		tenant_dn = aci_tenant.test.id
-	}
-	
-	resource "aci_bd_dhcp_label" "test" {
-		bridge_domain_dn  = aci_bridge_domain.test.id
-		name  = "%s"
-		%s = %s
-	}
-	`, fvTenantName, fvBDName, rName, attribute, value)
-	return resource
-}

@@ -295,16 +295,3 @@ func CreateAccFCDomainUpdatedAttr(rName, attribute, value string) string {
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccFCDomainUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing fc_domain attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_fc_domain" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

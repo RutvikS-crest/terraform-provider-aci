@@ -413,10 +413,8 @@ func CreateAccFabricNodeRemovingRequiredField() string {
 	fmt.Println("=== STEP  Basic: testing logical_node_to_fabric_node updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_logical_node_to_fabric_node" "test" {
-		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
-		name_alias = "test_fabric_node"
-		config_issues = ["anchor-node-mismatch"]
+		config_issues = "anchor-node-mismatch"
 		rtr_id = ""
 		rtr_id_loop_back = "no"
 		

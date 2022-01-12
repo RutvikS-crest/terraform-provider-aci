@@ -29,7 +29,7 @@ func TestAccAciLeafBreakoutPortGroupDataSource_Basic(t *testing.T) {
 			{
 				Config: CreateAccLeafBreakoutPortGroupConfigDataSource(rName),
 				Check: resource.ComposeTestCheckFunc(
-
+					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),

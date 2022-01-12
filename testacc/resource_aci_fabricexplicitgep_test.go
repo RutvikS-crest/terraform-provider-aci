@@ -312,16 +312,3 @@ func CreateAccVPCExplicitProtectionGroupUpdatedAttr(rName, attribute, value stri
 	`, rName, attribute, value)
 	return resource
 }
-
-func CreateAccVPCExplicitProtectionGroupUpdatedAttrList(rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing vpc_explicit_protection_group attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_vpc_explicit_protection_group" "test" {
-	
-		name  = "%s"
-		%s = %s
-	}
-	`, rName, attribute, value)
-	return resource
-}

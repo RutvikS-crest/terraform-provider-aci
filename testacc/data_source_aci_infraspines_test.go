@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAccAciSpineSwitchAssociationDataSource_Basic(t *testing.T) {
+func TestAccAciSwitchSpineAssociationDataSource_Basic(t *testing.T) {
 	resourceName := "aci_spine_switch_association.test"
 	dataSourceName := "data.aci_spine_switch_association.test"
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")
@@ -30,15 +30,18 @@ func TestAccAciSpineSwitchAssociationDataSource_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
+				Config:      CreateSpineSwitchAssociationDSWithoutRequired(rName, rName, "ALL", "spine_switch_association_type"),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+			{
 				Config: CreateAccSpineSwitchAssociationConfigDataSource(rName, rName, "ALL"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "spine_profile_dn", resourceName, "spine_profile_dn"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "switch_association_type", resourceName, "switch_association_type"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "switch_association_type", resourceName, "switch_association_type"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "spine_switch_association_type", resourceName, "spine_switch_association_type"),
 				),
 			},
 			{
@@ -48,7 +51,7 @@ func TestAccAciSpineSwitchAssociationDataSource_Basic(t *testing.T) {
 
 			{
 				Config:      CreateAccSpineSwitchAssociationDSWithInvalidParentDn(rName, rName, "ALL"),
-				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
+				ExpectError: regexp.MustCompile(`Invalid RN`),
 			},
 
 			{
@@ -61,7 +64,7 @@ func TestAccAciSpineSwitchAssociationDataSource_Basic(t *testing.T) {
 	})
 }
 
-func CreateAccSpineSwitchAssociationConfigDataSource(infraSpinePName, rName, switch_association_type string) string {
+func CreateAccSpineSwitchAssociationConfigDataSource(infraSpinePName, rName, spine_switch_association_type string) string {
 	fmt.Println("=== STEP  testing spine_switch_association Data Source with required arguments only")
 	resource := fmt.Sprintf(`
 	
@@ -73,21 +76,21 @@ func CreateAccSpineSwitchAssociationConfigDataSource(infraSpinePName, rName, swi
 	resource "aci_spine_switch_association" "test" {
 		spine_profile_dn  = aci_spine_profile.test.id
 		name  = "%s"
-		switch_association_type  = "%s"
+		spine_switch_association_type  = "%s"
 	}
 
 	data "aci_spine_switch_association" "test" {
 		spine_profile_dn  = aci_spine_profile.test.id
 		name  = aci_spine_switch_association.test.name
-		switch_association_type  = aci_spine_switch_association.test.switch_association_type
+		spine_switch_association_type  = aci_spine_switch_association.test.spine_switch_association_type
 		depends_on = [ aci_spine_switch_association.test ]
 	}
-	`, infraSpinePName, rName, switch_association_type)
+	`, infraSpinePName, rName, spine_switch_association_type)
 	return resource
 }
 
-func CreateSpineSwitchAssociationDSWithoutRequired(infraSpinePName, rName, switch_association_type, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing spine_switch_association creation without ", attrName)
+func CreateSpineSwitchAssociationDSWithoutRequired(infraSpinePName, rName, spine_switch_association_type, attrName string) string {
+	fmt.Println("=== STEP  Basic: testing spine_switch_association Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_spine_profile" "test" {
@@ -98,7 +101,7 @@ func CreateSpineSwitchAssociationDSWithoutRequired(infraSpinePName, rName, switc
 	resource "aci_spine_switch_association" "test" {
 		spine_profile_dn  = aci_spine_profile.test.id
 		name  = "%s"
-		switch_association_type  = "%s"
+		spine_switch_association_type  = "%s"
 	}
 	`
 	switch attrName {
@@ -106,7 +109,8 @@ func CreateSpineSwitchAssociationDSWithoutRequired(infraSpinePName, rName, switc
 		rBlock += `
 	data "aci_spine_switch_association" "test" {
 	#	spine_profile_dn  = aci_spine_profile.test.id
-		name  = aci_spine_switch_association.test.name	switch_association_type  = aci_spine_switch_association.test.switch_association_type
+		name  = aci_spine_switch_association.test.name	
+		spine_switch_association_type  = aci_spine_switch_association.test.spine_switch_association_type
 		depends_on = [ aci_spine_switch_association.test ]
 	}
 		`
@@ -115,24 +119,24 @@ func CreateSpineSwitchAssociationDSWithoutRequired(infraSpinePName, rName, switc
 	data "aci_spine_switch_association" "test" {
 		spine_profile_dn  = aci_spine_profile.test.id
 	#	name  = aci_spine_switch_association.test.name
-		switch_association_type  = aci_spine_switch_association.test.switch_association_type
+		spine_switch_association_type  = aci_spine_switch_association.test.spine_switch_association_type
 		depends_on = [ aci_spine_switch_association.test ]
 	}
 		`
-	case "switch_association_type":
+	case "spine_switch_association_type":
 		rBlock += `
 	data "aci_spine_switch_association" "test" {
 		spine_profile_dn  = aci_spine_profile.test.id
 		name  = aci_spine_switch_association.test.name
-	#	switch_association_type  = aci_spine_switch_association.test.switch_association_type
+	#	spine_switch_association_type  = aci_spine_switch_association.test.spine_switch_association_type
 		depends_on = [ aci_spine_switch_association.test ]
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock, infraSpinePName, rName, switch_association_type)
+	return fmt.Sprintf(rBlock, infraSpinePName, rName, spine_switch_association_type)
 }
 
-func CreateAccSpineSwitchAssociationDSWithInvalidParentDn(infraSpinePName, rName, switch_association_type string) string {
+func CreateAccSpineSwitchAssociationDSWithInvalidParentDn(infraSpinePName, rName, spine_switch_association_type string) string {
 	fmt.Println("=== STEP  testing spine_switch_association Data Source with Invalid Parent Dn")
 	resource := fmt.Sprintf(`
 	
@@ -144,20 +148,20 @@ func CreateAccSpineSwitchAssociationDSWithInvalidParentDn(infraSpinePName, rName
 	resource "aci_spine_switch_association" "test" {
 		spine_profile_dn  = aci_spine_profile.test.id
 		name  = "%s"
-		switch_association_type  = "%s"
+		spine_switch_association_type  = "%s"
 	}
 
 	data "aci_spine_switch_association" "test" {
 		spine_profile_dn  = aci_spine_profile.test.id
 		name  = "${aci_spine_switch_association.test.name}_invalid"
-		switch_association_type  = "${aci_spine_switch_association.test.switch_association_type}_invalid"
+		spine_switch_association_type  = "${aci_spine_switch_association.test.spine_switch_association_type}_invalid"
 		depends_on = [ aci_spine_switch_association.test ]
 	}
-	`, infraSpinePName, rName, switch_association_type)
+	`, infraSpinePName, rName, spine_switch_association_type)
 	return resource
 }
 
-func CreateAccSpineSwitchAssociationDataSourceUpdate(infraSpinePName, rName, switch_association_type, key, value string) string {
+func CreateAccSpineSwitchAssociationDataSourceUpdate(infraSpinePName, rName, spine_switch_association_type, key, value string) string {
 	fmt.Println("=== STEP  testing spine_switch_association Data Source with random attribute")
 	resource := fmt.Sprintf(`
 	
@@ -169,21 +173,21 @@ func CreateAccSpineSwitchAssociationDataSourceUpdate(infraSpinePName, rName, swi
 	resource "aci_spine_switch_association" "test" {
 		spine_profile_dn  = aci_spine_profile.test.id
 		name  = "%s"
-		switch_association_type  = "%s"
+		spine_switch_association_type  = "%s"
 	}
 
 	data "aci_spine_switch_association" "test" {
 		spine_profile_dn  = aci_spine_profile.test.id
 		name  = aci_spine_switch_association.test.name
-		switch_association_type  = aci_spine_switch_association.test.switch_association_type
+		spine_switch_association_type  = aci_spine_switch_association.test.spine_switch_association_type
 		%s = "%s"
 		depends_on = [ aci_spine_switch_association.test ]
 	}
-	`, infraSpinePName, rName, switch_association_type, key, value)
+	`, infraSpinePName, rName, spine_switch_association_type, key, value)
 	return resource
 }
 
-func CreateAccSpineSwitchAssociationDataSourceUpdatedResource(infraSpinePName, rName, switch_association_type, key, value string) string {
+func CreateAccSpineSwitchAssociationDataSourceUpdatedResource(infraSpinePName, rName, spine_switch_association_type, key, value string) string {
 	fmt.Println("=== STEP  testing spine_switch_association Data Source with updated resource")
 	resource := fmt.Sprintf(`
 	
@@ -195,16 +199,16 @@ func CreateAccSpineSwitchAssociationDataSourceUpdatedResource(infraSpinePName, r
 	resource "aci_spine_switch_association" "test" {
 		spine_profile_dn  = aci_spine_profile.test.id
 		name  = "%s"
-		switch_association_type  = "%s"
+		spine_switch_association_type  = "%s"
 		%s = "%s"
 	}
 
 	data "aci_spine_switch_association" "test" {
 		spine_profile_dn  = aci_spine_profile.test.id
 		name  = aci_spine_switch_association.test.name
-		switch_association_type  = aci_spine_switch_association.test.switch_association_type
+		spine_switch_association_type  = aci_spine_switch_association.test.spine_switch_association_type
 		depends_on = [ aci_spine_switch_association.test ]
 	}
-	`, infraSpinePName, rName, switch_association_type, key, value)
+	`, infraSpinePName, rName, spine_switch_association_type, key, value)
 	return resource
 }

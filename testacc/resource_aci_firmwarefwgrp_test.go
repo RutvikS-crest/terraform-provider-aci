@@ -57,7 +57,11 @@ func TestAccAciFirmwareGroup_Basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config:      CreateAccFirmwareGroupConfigUpdatedName(acctest.RandString(65)),
+				Config:      CreateAccFirmwareGroupRemovingRequiredField(),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+			{
+				Config:      CreateAccFirmwareGroupConfigInvalidName(acctest.RandString(65)),
 				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
 			},
 
@@ -239,8 +243,20 @@ func CreateFirmwareGroupWithoutRequired(rName, attrName string) string {
 	return fmt.Sprintf(rBlock, rName)
 }
 
+func CreateAccFirmwareGroupConfigInvalidName(rName string) string {
+	fmt.Println("=== STEP  testing firmware_group creation with invalid name =", rName)
+	resource := fmt.Sprintf(`
+	
+	resource "aci_firmware_group" "test" {
+	
+		name  = "%s"
+	}
+	`, rName)
+	return resource
+}
+
 func CreateAccFirmwareGroupConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing firmware_group creation with required arguements only")
+	fmt.Println("=== STEP  testing firmware_group creation with resource name =", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_firmware_group" "test" {
@@ -281,7 +297,7 @@ func CreateAccFirmwareGroupConfigWithOptionalValues(rName string) string {
 }
 
 func CreateAccFirmwareGroupRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing firmware_group creation with optional parameters")
+	fmt.Println("=== STEP  Basic: testing firmware_group update without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_firmware_group" "test" {
 		description = "created while acceptance testing"

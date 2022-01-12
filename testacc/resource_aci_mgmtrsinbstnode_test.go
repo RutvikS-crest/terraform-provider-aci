@@ -48,6 +48,7 @@ func TestAccAciStaticNodeMgmtAddress_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "gw", "0.0.0.0"),
 					resource.TestCheckResourceAttr(resourceName, "v6_addr", "::"),
 					resource.TestCheckResourceAttr(resourceName, "v6_gw", "::"),
+					resource.TestCheckResourceAttr(resourceName, "type", addrType),
 				),
 			},
 			{
@@ -60,6 +61,7 @@ func TestAccAciStaticNodeMgmtAddress_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "addr", "1.0.0.1/24"),
 					resource.TestCheckResourceAttr(resourceName, "gw", "1.0.0.1"),
+					resource.TestCheckResourceAttr(resourceName, "type", addrType),
 					// resource.TestCheckResourceAttr(resourceName, "v6_addr", "2001:0db8:85a3:0000:0000:8a2e:0370:7334/64"),
 					// resource.TestCheckResourceAttr(resourceName, "v6_gw", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"),
 					testAccCheckAciStaticNodeMgmtAddressIdEqual(&static_node_mgmt_address_default, &static_node_mgmt_address_updated),
@@ -298,7 +300,7 @@ func CreateStaticNodeMgmtAddressWithoutRequired(mgmtInBName, addrType, tDn, attr
 }
 
 func CreateAccStaticNodeMgmtAddressConfigWithRequiredParams(mgmtInBName, addrType, tDn string) string {
-	fmt.Println("=== STEP  testing static_node_mgmt_address creation with required arguments only")
+	fmt.Printf("=== STEP  testing static_node_mgmt_address creation with parent resource name %s, type %s and tdn %s\n", mgmtInBName, addrType, tDn)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_node_mgmt_epg" "test" {
@@ -330,25 +332,6 @@ func CreateAccStaticNodeMgmtAddressConfig(mgmtInBName, addrType, tDn string) str
 		t_dn  = "%s"
 	}
 	`, addrType, mgmtInBName, addrType, tDn)
-	return resource
-}
-
-func CreateAccStaticNodeMgmtAddressConfigMultiple(mgmtInBName, addrType, tDn string) string {
-	fmt.Println("=== STEP  testing multiple static_node_mgmt_address creation with required arguments only")
-	resource := fmt.Sprintf(`
-	
-	resource "aci_node_mgmt_epg" "test" {
-		type = "in_band"
-		name  = "%s"
-	}
-	
-	resource "aci_static_node_mgmt_address" "test" {
-		management_epg_dn  = aci_node_mgmt_epg.test.id
-		type = "%s"
-		t_dn  = "%s_${count.index}"
-		count = 5
-	}
-	`, mgmtInBName, addrType, tDn)
 	return resource
 }
 
@@ -424,25 +407,6 @@ func CreateAccStaticNodeMgmtAddressUpdatedAttr(mgmtInBName, addrType, tDn, attri
 		type = "%s"
 		t_dn  = "%s"
 		%s = "%s"
-	}
-	`, mgmtInBName, addrType, tDn, attribute, value)
-	return resource
-}
-
-func CreateAccStaticNodeMgmtAddressUpdatedAttrList(mgmtInBName, addrType, tDn, attribute, value string) string {
-	fmt.Printf("=== STEP  testing static_node_mgmt_address attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_node_mgmt_epg" "test" {
-		type = "in_band"
-		name  = "%s"
-	}
-	
-	resource "aci_static_node_mgmt_address" "test" {
-		management_epg_dn  = aci_node_mgmt_epg.test.id
-		type = "%s"
-		t_dn  = "%s"
-		%s = %s
 	}
 	`, mgmtInBName, addrType, tDn, attribute, value)
 	return resource

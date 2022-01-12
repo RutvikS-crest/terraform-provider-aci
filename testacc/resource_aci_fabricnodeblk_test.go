@@ -336,7 +336,7 @@ func CreateNodeBlockFWWithoutRequired(firmwareFwGrpName, rName, attrName string)
 }
 
 func CreateAccNodeBlockFWConfigWithRequiredParams(firmwareFwGrpName, rName string) string {
-	fmt.Println("=== STEP  testing node_block_firmware creation with updated naming arguments")
+	fmt.Printf("=== STEP  testing node_block_firmware creation with parent resource name %s and resource name %s\n", firmwareFwGrpName, rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_firmware_group" "test" {
@@ -472,24 +472,6 @@ func CreateAccNodeBlockFWUpdatedAttr(firmwareFwGrpName, rName, attribute, value 
 		firmware_group_dn  = aci_firmware_group.test.id
 		name  = "%s"
 		%s = "%s"
-	}
-	`, firmwareFwGrpName, rName, attribute, value)
-	return resource
-}
-
-func CreateAccNodeBlockFWUpdatedAttrList(firmwareFwGrpName, rName, attribute, value string) string {
-	fmt.Printf("=== STEP  testing node_block_firmware attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_firmware_group" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_node_block_firmware" "test" {
-		firmware_group_dn  = aci_firmware_group.test.id
-		name  = "%s"
-		%s = %s
 	}
 	`, firmwareFwGrpName, rName, attribute, value)
 	return resource

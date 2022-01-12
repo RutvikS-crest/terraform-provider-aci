@@ -35,9 +35,7 @@ func TestAccAciSpinePortSelectorDataSource_Basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "spine_profile_dn", resourceName, "spine_profile_dn"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "tdn", resourceName, "tdn"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
 				),
 			},
 			{
@@ -88,7 +86,7 @@ func CreateAccSpinePortSelectorConfigDataSource(infraSpinePName, rName, tDn stri
 }
 
 func CreateSpinePortSelectorDSWithoutRequired(infraSpinePName, rName, tDn, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing spine_port_selector creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing spine_port_selector Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_spine_profile" "test" {
