@@ -44,11 +44,6 @@ func TestAccAciFabricWideSettingsDataSource_Basic(t *testing.T) {
 				Config:      CreateAccFabricWideSettingsDataSourceUpdate(randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
-
-			{
-				Config:      CreateAccFabricWideSettingsDSWithInvalidName(),
-				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
-			},
 			{
 				Config: CreateAccFabricWideSettingsDataSourceUpdatedResource("annotation", "orchestrator:terraform-testacc"),
 				Check: resource.ComposeTestCheckFunc(
@@ -60,22 +55,6 @@ func TestAccAciFabricWideSettingsDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccFabricWideSettingsConfigDataSource() string {
-	fmt.Println("=== STEP  testing fabric_wide_settings Data Source with required arguments only")
-	resource := fmt.Sprintf(`
-	
-	resource "aci_fabric_wide_settings" "test" {
-	
-	}
-
-	data "aci_fabric_wide_settings" "test" {
-	
-		depends_on = [ aci_fabric_wide_settings.test ]
-	}
-	`)
-	return resource
-}
-
-func CreateAccFabricWideSettingsDSWithInvalidName() string {
 	fmt.Println("=== STEP  testing fabric_wide_settings Data Source with required arguments only")
 	resource := fmt.Sprintf(`
 	

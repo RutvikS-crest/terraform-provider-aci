@@ -101,7 +101,7 @@ func CreateEndpointLoopProtectionDSWithoutRequired(rName, attrName string) strin
 }
 
 func CreateAccEndpointLoopProtectionDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing endpoint_loop_protection Data Source with required arguments only")
+	fmt.Println("=== STEP  testing endpoint_loop_protection Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_endpoint_loop_protection" "test" {
@@ -112,7 +112,6 @@ func CreateAccEndpointLoopProtectionDSWithInvalidName(rName string) string {
 	data "aci_endpoint_loop_protection" "test" {
 	
 		name  = "${aci_endpoint_loop_protection.test.name}_invalid"
-		name  = aci_endpoint_loop_protection.test.name
 		depends_on = [ aci_endpoint_loop_protection.test ]
 	}
 	`, rName)

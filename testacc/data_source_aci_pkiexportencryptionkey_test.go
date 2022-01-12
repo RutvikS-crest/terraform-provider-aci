@@ -37,11 +37,6 @@ func TestAccAciEncryptionKeyDataSource_Basic(t *testing.T) {
 				Config:      CreateAccEncryptionKeyDataSourceUpdate(randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
-
-			{
-				Config:      CreateAccEncryptionKeyDSWithInvalidName(),
-				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
-			},
 			{
 				Config: CreateAccEncryptionKeyDataSourceUpdatedResource("annotation", "orchestrator:terraform-testacc"),
 				Check: resource.ComposeTestCheckFunc(
@@ -53,22 +48,6 @@ func TestAccAciEncryptionKeyDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccEncryptionKeyConfigDataSource() string {
-	fmt.Println("=== STEP  testing encryption_key Data Source with required arguments only")
-	resource := fmt.Sprintf(`
-	
-	resource "aci_encryption_key" "test" {
-	
-	}
-
-	data "aci_encryption_key" "test" {
-	
-		depends_on = [ aci_encryption_key.test ]
-	}
-	`)
-	return resource
-}
-
-func CreateAccEncryptionKeyDSWithInvalidName() string {
 	fmt.Println("=== STEP  testing encryption_key Data Source with required arguments only")
 	resource := fmt.Sprintf(`
 	

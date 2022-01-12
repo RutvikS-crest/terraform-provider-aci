@@ -97,7 +97,7 @@ func CreateLDAPGroupMapRuleDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccLDAPGroupMapRuleDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing ldap_group_map_rule Data Source with required arguments only")
+	fmt.Println("=== STEP  testing ldap_group_map_rule Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_ldap_group_map_rule" "test" {
@@ -108,7 +108,6 @@ func CreateAccLDAPGroupMapRuleDSWithInvalidName(rName string) string {
 	data "aci_ldap_group_map_rule" "test" {
 	
 		name  = "${aci_ldap_group_map_rule.test.name}_invalid"
-		name  = aci_ldap_group_map_rule.test.name
 		depends_on = [ aci_ldap_group_map_rule.test ]
 	}
 	`, rName)

@@ -119,6 +119,14 @@ func TestAccAciNodeBlockFW_Update(t *testing.T) {
 				),
 			},
 			{
+				Config: CreateAccNodeBlockFWUpdatedAttr(firmwareFwGrpName, rName, "to_", "16000"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciNodeBlockFWExists(resourceName, &node_block_firmware_updated),
+					resource.TestCheckResourceAttr(resourceName, "to_", "16000"),
+					testAccCheckAciNodeBlockFWIdEqual(&node_block_firmware_default, &node_block_firmware_updated),
+				),
+			},
+			{
 				Config: CreateAccNodeBlockFWUpdatedAttr(firmwareFwGrpName, rName, "from_", "16000"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciNodeBlockFWExists(resourceName, &node_block_firmware_updated),
@@ -135,14 +143,6 @@ func TestAccAciNodeBlockFW_Update(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccNodeBlockFWUpdatedAttr(firmwareFwGrpName, rName, "to_", "16000"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciNodeBlockFWExists(resourceName, &node_block_firmware_updated),
-					resource.TestCheckResourceAttr(resourceName, "to_", "16000"),
-					testAccCheckAciNodeBlockFWIdEqual(&node_block_firmware_default, &node_block_firmware_updated),
-				),
-			},
-			{
 				Config: CreateAccNodeBlockFWUpdatedAttr(firmwareFwGrpName, rName, "to_", "7999"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciNodeBlockFWExists(resourceName, &node_block_firmware_updated),
@@ -150,7 +150,6 @@ func TestAccAciNodeBlockFW_Update(t *testing.T) {
 					testAccCheckAciNodeBlockFWIdEqual(&node_block_firmware_default, &node_block_firmware_updated),
 				),
 			},
-
 			{
 				Config: CreateAccNodeBlockFWConfig(firmwareFwGrpName, rName),
 			},

@@ -42,6 +42,14 @@ func TestAccAciIPAgingPolicy_Basic(t *testing.T) {
 				),
 			},
 			{
+				Config:      CreateAccIPAgingPolicyUpdatedAttr("admin_st", "disabled"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciIPAgingPolicyExists(resourceName, &endpoint_ip_aging_profile_updated),
+					resource.TestCheckResourceAttr(resourceName, "admin_st", "disabled"),
+					testAccCheckAciIPAgingPolicyIdEqual(&endpoint_ip_aging_profile_default, &endpoint_ip_aging_profile_updated),
+				),
+			},
+			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -155,16 +163,6 @@ func testAccCheckAciIPAgingPolicyIdNotEqual(m1, m2 *models.IPAgingPolicy) resour
 	}
 }
 
-func CreateAccIPAgingPolicyConfigWithRequiredParams() string {
-	fmt.Println("=== STEP  testing endpoint_ip_aging_profile creation with updated naming arguments")
-	resource := fmt.Sprintf(`
-	
-	resource "aci_endpoint_ip_aging_profile" "test" {
-	}
-	`)
-	return resource
-}
-
 func CreateAccIPAgingPolicyConfig() string {
 	fmt.Println("=== STEP  testing endpoint_ip_aging_profile creation with required arguments only")
 	resource := fmt.Sprintf(`
@@ -185,21 +183,6 @@ func CreateAccIPAgingPolicyConfigWithOptionalValues() string {
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_endpoint_ip_aging_profile"
 		admin_st = "enabled"
-	}
-	`)
-
-	return resource
-}
-
-func CreateAccIPAgingPolicyRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing endpoint_ip_aging_profile updation without required parameters")
-	resource := fmt.Sprintf(`
-	resource "aci_endpoint_ip_aging_profile" "test" {
-		description = "created while acceptance testing"
-		annotation = "orchestrator:terraform_testacc"
-		name_alias = "test_endpoint_ip_aging_profile"
-		admin_st = "enabled"
-		
 	}
 	`)
 

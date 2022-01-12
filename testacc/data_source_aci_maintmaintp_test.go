@@ -35,14 +35,11 @@ func TestAccAciMaintenancePolicyDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "admin_st", resourceName, "admin_st"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "download_st", resourceName, "download_st"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "graceful", resourceName, "graceful"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "ignore_compat", resourceName, "ignore_compat"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "internal_label", resourceName, "internal_label"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "notif_cond", resourceName, "notif_cond"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "run_mode", resourceName, "run_mode"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "sr_upgrade", resourceName, "sr_upgrade"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "sr_version", resourceName, "sr_version"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "version", resourceName, "version"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "version_check_override", resourceName, "version_check_override"),
 				),
@@ -107,7 +104,7 @@ func CreateMaintenancePolicyDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccMaintenancePolicyDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing maintenance_policy Data Source with required arguments only")
+	fmt.Println("=== STEP  testing maintenance_policy Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_maintenance_policy" "test" {

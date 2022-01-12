@@ -108,7 +108,7 @@ func CreateFirmwareDownloadTaskDSWithoutRequired(rName, attrName string) string 
 }
 
 func CreateAccFirmwareDownloadTaskDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing firmware_download_task Data Source with required arguments only")
+	fmt.Println("=== STEP  testing firmware_download_task Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_firmware_download_task" "test" {

@@ -96,7 +96,7 @@ func CreateSpinePortPolicyGroupDSWithoutRequired(rName, attrName string) string 
 }
 
 func CreateAccSpinePortPolicyGroupDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing spine_port_policy_group Data Source with required arguments only")
+	fmt.Println("=== STEP  testing spine_port_policy_group Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_spine_port_policy_group" "test" {

@@ -96,7 +96,7 @@ func CreateLoginDomainDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccLoginDomainDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing login_domain Data Source with required arguments only")
+	fmt.Println("=== STEP  testing login_domain Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_login_domain" "test" {
@@ -107,7 +107,6 @@ func CreateAccLoginDomainDSWithInvalidName(rName string) string {
 	data "aci_login_domain" "test" {
 	
 		name  = "${aci_login_domain.test.name}_invalid"
-		name  = aci_login_domain.test.name
 		depends_on = [ aci_login_domain.test ]
 	}
 	`, rName)

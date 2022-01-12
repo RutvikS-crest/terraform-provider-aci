@@ -96,7 +96,7 @@ func CreateSAMLCertificateDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccSAMLCertificateDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing saml_certificate Data Source with required arguments only")
+	fmt.Println("=== STEP  testing saml_certificate Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_saml_certificate" "test" {
@@ -107,7 +107,6 @@ func CreateAccSAMLCertificateDSWithInvalidName(rName string) string {
 	data "aci_saml_certificate" "test" {
 	
 		name  = "${aci_saml_certificate.test.name}_invalid"
-		name  = aci_saml_certificate.test.name
 		depends_on = [ aci_saml_certificate.test ]
 	}
 	`, rName)

@@ -106,7 +106,7 @@ func CreateQosInstancePolicyDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccQosInstancePolicyDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing qos_instance_policy Data Source with required arguments only")
+	fmt.Println("=== STEP  testing qos_instance_policy Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_qos_instance_policy" "test" {
@@ -117,7 +117,6 @@ func CreateAccQosInstancePolicyDSWithInvalidName(rName string) string {
 	data "aci_qos_instance_policy" "test" {
 	
 		name  = "${aci_qos_instance_policy.test.name}_invalid"
-		name  = aci_qos_instance_policy.test.name
 		depends_on = [ aci_qos_instance_policy.test ]
 	}
 	`, rName)

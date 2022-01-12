@@ -97,7 +97,7 @@ func CreateVPCExplicitProtectionGroupDSWithoutRequired(rName, attrName string) s
 }
 
 func CreateAccVPCExplicitProtectionGroupDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing vpc_explicit_protection_group Data Source with required arguments only")
+	fmt.Println("=== STEP  testing vpc_explicit_protection_group Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_vpc_explicit_protection_group" "test" {
@@ -108,7 +108,6 @@ func CreateAccVPCExplicitProtectionGroupDSWithInvalidName(rName string) string {
 	data "aci_vpc_explicit_protection_group" "test" {
 	
 		name  = "${aci_vpc_explicit_protection_group.test.name}_invalid"
-		name  = aci_vpc_explicit_protection_group.test.name
 		depends_on = [ aci_vpc_explicit_protection_group.test ]
 	}
 	`, rName)

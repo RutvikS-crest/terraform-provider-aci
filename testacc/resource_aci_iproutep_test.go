@@ -358,7 +358,7 @@ func CreateAccL3outStaticRouteWithInavalidIP(rName, tdn, ip string) string {
 }
 
 func CreateAccL3outStaticRouteWithInValidParentDn(rName, ip string) string {
-	fmt.Println("=== STEP  testing l3out_static_route creation with required arguments only")
+	fmt.Println("=== STEP  testing l3out_static_route creation with invalid parent dn")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name 		= "%s"

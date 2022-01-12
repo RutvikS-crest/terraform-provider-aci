@@ -98,7 +98,7 @@ func CreatePodMaintenanceGroupDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccPodMaintenanceGroupDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing pod_maintenance_group Data Source with required arguments only")
+	fmt.Println("=== STEP  testing pod_maintenance_group Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_pod_maintenance_group" "test" {
@@ -109,7 +109,6 @@ func CreateAccPodMaintenanceGroupDSWithInvalidName(rName string) string {
 	data "aci_pod_maintenance_group" "test" {
 	
 		name  = "${aci_pod_maintenance_group.test.name}_invalid"
-		name  = aci_pod_maintenance_group.test.name
 		depends_on = [ aci_pod_maintenance_group.test ]
 	}
 	`, rName)

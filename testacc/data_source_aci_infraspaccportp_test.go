@@ -96,7 +96,7 @@ func CreateSpineInterfaceProfileDSWithoutRequired(rName, attrName string) string
 }
 
 func CreateAccSpineInterfaceProfileDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing spine_interface_profile Data Source with required arguments only")
+	fmt.Println("=== STEP  testing spine_interface_profile Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_spine_interface_profile" "test" {

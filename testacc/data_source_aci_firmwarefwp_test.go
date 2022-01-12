@@ -103,7 +103,7 @@ func CreateFirmwarePolicyDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccFirmwarePolicyDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing firmware_policy Data Source with required arguments only")
+	fmt.Println("=== STEP  testing firmware_policy Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_firmware_policy" "test" {

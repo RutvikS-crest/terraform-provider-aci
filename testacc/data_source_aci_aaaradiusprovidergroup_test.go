@@ -96,7 +96,7 @@ func CreateRadiusProviderGroupDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccRadiusProviderGroupDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing radius_provider_group Data Source with required arguments only")
+	fmt.Println("=== STEP  testing radius_provider_group Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_radius_provider_group" "test" {
@@ -107,7 +107,6 @@ func CreateAccRadiusProviderGroupDSWithInvalidName(rName string) string {
 	data "aci_radius_provider_group" "test" {
 	
 		name  = "${aci_radius_provider_group.test.name}_invalid"
-		name  = aci_radius_provider_group.test.name
 		depends_on = [ aci_radius_provider_group.test ]
 	}
 	`, rName)

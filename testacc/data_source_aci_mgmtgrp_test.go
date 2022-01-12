@@ -96,7 +96,7 @@ func CreateManagedNodeConnectivityGroupDSWithoutRequired(rName, attrName string)
 }
 
 func CreateAccManagedNodeConnectivityGroupDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing managed_node_connectivity_group Data Source with required arguments only")
+	fmt.Println("=== STEP  testing managed_node_connectivity_group Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_managed_node_connectivity_group" "test" {

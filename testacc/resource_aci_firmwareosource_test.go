@@ -206,6 +206,11 @@ func TestAccAciFirmwareDownloadTask_Negative(t *testing.T) {
 			},
 
 			{
+				Config:      CreateAccFirmwareDownloadTaskUpdatedAttr(rName, "load_catalog_if_exists_and_newer", randomValue),
+				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
+			},
+
+			{
 				Config:      CreateAccFirmwareDownloadTaskUpdatedAttr(rName, "polling_interval", randomValue),
 				ExpectError: regexp.MustCompile(`unknown property value`),
 			},

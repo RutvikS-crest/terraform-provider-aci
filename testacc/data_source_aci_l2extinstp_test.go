@@ -10,8 +10,8 @@ import (
 )
 
 func TestAccAciL2OutExtepgDataSource_Basic(t *testing.T) {
-	resourceName := "aci_l2_out_extepg.test"
-	dataSourceName := "data.aci_l2_out_extepg.test"
+	resourceName := "aci_l2out_extepg.test"
+	dataSourceName := "data.aci_l2out_extepg.test"
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(10)
 	rName := makeTestVariable(acctest.RandString(5))
@@ -42,6 +42,7 @@ func TestAccAciL2OutExtepgDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "pref_gr_memb", resourceName, "pref_gr_memb"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "prio", resourceName, "prio"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "target_dscp", resourceName, "target_dscp"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "exception_tag", resourceName, "exception_tag"),
 				),
 			},
 			{
@@ -65,7 +66,7 @@ func TestAccAciL2OutExtepgDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccL2OutExtepgConfigDataSource(fvTenantName, l2extOutName, rName string) string {
-	fmt.Println("=== STEP  testing l2_out_extepg Data Source with required arguments only")
+	fmt.Println("=== STEP  testing l2out_extepg Data Source with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -78,22 +79,22 @@ func CreateAccL2OutExtepgConfigDataSource(fvTenantName, l2extOutName, rName stri
 		tenant_dn = aci_tenant.test.id
 	}
 	
-	resource "aci_l2_out_extepg" "test" {
+	resource "aci_l2out_extepg" "test" {
 		l2_outside_dn  = aci_l2_outside.test.id
 		name  = "%s"
 	}
 
-	data "aci_l2_out_extepg" "test" {
+	data "aci_l2out_extepg" "test" {
 		l2_outside_dn  = aci_l2_outside.test.id
-		name  = aci_l2_out_extepg.test.name
-		depends_on = [ aci_l2_out_extepg.test ]
+		name  = aci_l2out_extepg.test.name
+		depends_on = [ aci_l2out_extepg.test ]
 	}
 	`, fvTenantName, l2extOutName, rName)
 	return resource
 }
 
 func CreateL2OutExtepgDSWithoutRequired(fvTenantName, l2extOutName, rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing l2_out_extepg Data Source without ", attrName)
+	fmt.Println("=== STEP  Basic: testing l2out_extepg Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_tenant" "test" {
@@ -106,7 +107,7 @@ func CreateL2OutExtepgDSWithoutRequired(fvTenantName, l2extOutName, rName, attrN
 		tenant_dn = aci_tenant.test.id
 	}
 	
-	resource "aci_l2_out_extepg" "test" {
+	resource "aci_l2out_extepg" "test" {
 		l2_outside_dn  = aci_l2_outside.test.id
 		name  = "%s"
 	}
@@ -114,18 +115,18 @@ func CreateL2OutExtepgDSWithoutRequired(fvTenantName, l2extOutName, rName, attrN
 	switch attrName {
 	case "l2_outside_dn":
 		rBlock += `
-	data "aci_l2_out_extepg" "test" {
+	data "aci_l2out_extepg" "test" {
 	#	l2_outside_dn  = aci_l2_outside.test.id
-		name  = aci_l2_out_extepg.test.name
-		depends_on = [ aci_l2_out_extepg.test ]
+		name  = aci_l2out_extepg.test.name
+		depends_on = [ aci_l2out_extepg.test ]
 	}
 		`
 	case "name":
 		rBlock += `
-	data "aci_l2_out_extepg" "test" {
+	data "aci_l2out_extepg" "test" {
 		l2_outside_dn  = aci_l2_outside.test.id
-	#	name  = aci_l2_out_extepg.test.name
-		depends_on = [ aci_l2_out_extepg.test ]
+	#	name  = aci_l2out_extepg.test.name
+		depends_on = [ aci_l2out_extepg.test ]
 	}
 		`
 	}
@@ -133,7 +134,7 @@ func CreateL2OutExtepgDSWithoutRequired(fvTenantName, l2extOutName, rName, attrN
 }
 
 func CreateAccL2OutExtepgDSWithInvalidParentDn(fvTenantName, l2extOutName, rName string) string {
-	fmt.Println("=== STEP  testing l2_out_extepg Data Source with Invalid Parent Dn")
+	fmt.Println("=== STEP  testing l2out_extepg Data Source with Invalid Parent Dn")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -146,22 +147,22 @@ func CreateAccL2OutExtepgDSWithInvalidParentDn(fvTenantName, l2extOutName, rName
 		tenant_dn = aci_tenant.test.id
 	}
 	
-	resource "aci_l2_out_extepg" "test" {
+	resource "aci_l2out_extepg" "test" {
 		l2_outside_dn  = aci_l2_outside.test.id
 		name  = "%s"
 	}
 
-	data "aci_l2_out_extepg" "test" {
+	data "aci_l2out_extepg" "test" {
 		l2_outside_dn  = aci_l2_outside.test.id
-		name  = "${aci_l2_out_extepg.test.name}_invalid"
-		depends_on = [ aci_l2_out_extepg.test ]
+		name  = "${aci_l2out_extepg.test.name}_invalid"
+		depends_on = [ aci_l2out_extepg.test ]
 	}
 	`, fvTenantName, l2extOutName, rName)
 	return resource
 }
 
 func CreateAccL2OutExtepgDataSourceUpdate(fvTenantName, l2extOutName, rName, key, value string) string {
-	fmt.Println("=== STEP  testing l2_out_extepg Data Source with random attribute")
+	fmt.Println("=== STEP  testing l2out_extepg Data Source with random attribute")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -174,23 +175,23 @@ func CreateAccL2OutExtepgDataSourceUpdate(fvTenantName, l2extOutName, rName, key
 		tenant_dn = aci_tenant.test.id
 	}
 	
-	resource "aci_l2_out_extepg" "test" {
+	resource "aci_l2out_extepg" "test" {
 		l2_outside_dn  = aci_l2_outside.test.id
 		name  = "%s"
 	}
 
-	data "aci_l2_out_extepg" "test" {
+	data "aci_l2out_extepg" "test" {
 		l2_outside_dn  = aci_l2_outside.test.id
-		name  = aci_l2_out_extepg.test.name
+		name  = aci_l2out_extepg.test.name
 		%s = "%s"
-		depends_on = [ aci_l2_out_extepg.test ]
+		depends_on = [ aci_l2out_extepg.test ]
 	}
 	`, fvTenantName, l2extOutName, rName, key, value)
 	return resource
 }
 
 func CreateAccL2OutExtepgDataSourceUpdatedResource(fvTenantName, l2extOutName, rName, key, value string) string {
-	fmt.Println("=== STEP  testing l2_out_extepg Data Source with updated resource")
+	fmt.Println("=== STEP  testing l2out_extepg Data Source with updated resource")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -203,16 +204,16 @@ func CreateAccL2OutExtepgDataSourceUpdatedResource(fvTenantName, l2extOutName, r
 		tenant_dn = aci_tenant.test.id
 	}
 	
-	resource "aci_l2_out_extepg" "test" {
+	resource "aci_l2out_extepg" "test" {
 		l2_outside_dn  = aci_l2_outside.test.id
 		name  = "%s"
 		%s = "%s"
 	}
 
-	data "aci_l2_out_extepg" "test" {
+	data "aci_l2out_extepg" "test" {
 		l2_outside_dn  = aci_l2_outside.test.id
-		name  = aci_l2_out_extepg.test.name
-		depends_on = [ aci_l2_out_extepg.test ]
+		name  = aci_l2out_extepg.test.name
+		depends_on = [ aci_l2out_extepg.test ]
 	}
 	`, fvTenantName, l2extOutName, rName, key, value)
 	return resource

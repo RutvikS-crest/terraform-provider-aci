@@ -36,11 +36,6 @@ func TestAccAciDefaultAuthenticationDataSource_Basic(t *testing.T) {
 				Config:      CreateAccDefaultAuthenticationDataSourceUpdate(randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
-
-			{
-				Config:      CreateAccDefaultAuthenticationDSWithInvalidName(),
-				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
-			},
 			{
 				Config: CreateAccDefaultAuthenticationDataSourceUpdatedResource("annotation", "orchestrator:terraform-testacc"),
 				Check: resource.ComposeTestCheckFunc(
@@ -80,22 +75,6 @@ func CreateDefaultAuthenticationDSWithoutRequired(attrName string) string {
 	}
 	`
 	return fmt.Sprintf(rBlock)
-}
-
-func CreateAccDefaultAuthenticationDSWithInvalidName() string {
-	fmt.Println("=== STEP  testing default_authentication Data Source with required arguments only")
-	resource := fmt.Sprintf(`
-	
-	resource "aci_default_authentication" "test" {
-	
-	}
-
-	data "aci_default_authentication" "test" {
-	
-		depends_on = [ aci_default_authentication.test ]
-	}
-	`)
-	return resource
 }
 
 func CreateAccDefaultAuthenticationDataSourceUpdate(key, value string) string {

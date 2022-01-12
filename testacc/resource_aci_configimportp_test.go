@@ -71,31 +71,6 @@ func TestAccAciConfigurationImportPolicy_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccConfigurationImportPolicyConfigSecondWithOptionalValues(rName),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciConfigurationImportPolicyExists(resourceName, &configuration_import_policy_updated),
-
-					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
-					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
-					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_configuration_import_policy"),
-
-					resource.TestCheckResourceAttr(resourceName, "admin_st", "triggered"),
-
-					resource.TestCheckResourceAttr(resourceName, "fail_on_decrypt_errors", "no"),
-
-					resource.TestCheckResourceAttr(resourceName, "file_name", "file2.tar.gz"),
-
-					resource.TestCheckResourceAttr(resourceName, "import_mode", "atomic"),
-
-					resource.TestCheckResourceAttr(resourceName, "import_type", "replace"),
-
-					resource.TestCheckResourceAttr(resourceName, "snapshot", "yes"),
-
-					testAccCheckAciConfigurationImportPolicyIdEqual(&configuration_import_policy_default, &configuration_import_policy_updated),
-				),
-			},
-			{
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,

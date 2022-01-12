@@ -116,7 +116,7 @@ func CreateVsanPoolDSWithoutRequired(rName, allocMode, attrName string) string {
 }
 
 func CreateAccVsanPoolDSWithInvalidName(rName, allocMode string) string {
-	fmt.Println("=== STEP  testing vsan_pool Data Source with required arguments only")
+	fmt.Println("=== STEP  testing vsan_pool Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_vsan_pool" "test" {
@@ -128,7 +128,6 @@ func CreateAccVsanPoolDSWithInvalidName(rName, allocMode string) string {
 	data "aci_vsan_pool" "test" {
 	
 		name  = "${aci_vsan_pool.test.name}_invalid"
-		name  = aci_vsan_pool.test.name
 		alloc_mode  = aci_vsan_pool.test.allocMode
 		depends_on = [ aci_vsan_pool.test ]
 	}

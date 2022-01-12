@@ -105,7 +105,7 @@ func CreateFileRemotePathDSWithoutRequired(rName, host, attrName string) string 
 }
 
 func CreateAccFileRemotePathDSWithInvalidName(rName, host string) string {
-	fmt.Println("=== STEP  testing file_remote_path Data Source with required arguments only")
+	fmt.Println("=== STEP  testing file_remote_path Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_file_remote_path" "test" {

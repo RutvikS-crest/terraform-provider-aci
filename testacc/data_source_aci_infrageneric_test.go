@@ -83,7 +83,7 @@ func CreateAccAccessGenericConfigDataSource(infraAttEntityPName, rName string) s
 }
 
 func CreateAccessGenericDSWithoutRequired(infraAttEntityPName, rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing access_generic creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing access_generic Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_attachable_access_entity_profile" "test" {

@@ -9,12 +9,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAccAciMgmtPreferenceDataSource_Basic(t *testing.T) {
+func TestAccAciMgmtconnectivitypreferenceDataSource_Basic(t *testing.T) {
 	resourceName := "aci_mgmt_preference.test"
 	dataSourceName := "data.aci_mgmt_preference.test"
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(10)
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		CheckDestroy:      testAccCheckAciMgmtconnectivitypreferenceDestroy,
@@ -33,11 +33,6 @@ func TestAccAciMgmtPreferenceDataSource_Basic(t *testing.T) {
 				Config:      CreateAccMgmtPreferenceDataSourceUpdate(randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
-
-			{
-				Config:      CreateAccMgmtPreferenceDSWithInvalidName(),
-				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
-			},
 			{
 				Config: CreateAccMgmtPreferenceDataSourceUpdatedResource("annotation", "orchestrator:terraform-testacc"),
 				Check: resource.ComposeTestCheckFunc(
@@ -49,22 +44,6 @@ func TestAccAciMgmtPreferenceDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccMgmtPreferenceConfigDataSource() string {
-	fmt.Println("=== STEP  testing mgmt_preference Data Source with required arguments only")
-	resource := fmt.Sprintf(`
-	
-	resource "aci_mgmt_preference" "test" {
-	
-	}
-
-	data "aci_mgmt_preference" "test" {
-	
-		depends_on = [ aci_mgmt_preference.test ]
-	}
-	`)
-	return resource
-}
-
-func CreateAccMgmtPreferenceDSWithInvalidName() string {
 	fmt.Println("=== STEP  testing mgmt_preference Data Source with required arguments only")
 	resource := fmt.Sprintf(`
 	

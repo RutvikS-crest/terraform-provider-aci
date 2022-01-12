@@ -392,6 +392,11 @@ func TestAccAciRecurringWindow_Negative(t *testing.T) {
 			},
 
 			{
+				Config:      CreateAccRecurringWindowUpdatedAttr(trigSchedPName, rName, "time_cap", "01:23:59:59.000"),
+				ExpectError: regexp.MustCompile(`Max Duration cannot exceed 24 hours`),
+			},
+
+			{
 				Config:      CreateAccRecurringWindowUpdatedAttr(trigSchedPName, rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},

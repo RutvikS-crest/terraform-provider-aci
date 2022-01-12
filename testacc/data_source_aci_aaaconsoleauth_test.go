@@ -35,11 +35,6 @@ func TestAccAciConsoleAuthenticationDataSource_Basic(t *testing.T) {
 				Config:      CreateAccConsoleAuthenticationDataSourceUpdate(randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
-
-			{
-				Config:      CreateAccConsoleAuthenticationDSWithInvalidName(),
-				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
-			},
 			{
 				Config: CreateAccConsoleAuthenticationDataSourceUpdatedResource("annotation", "orchestrator:terraform-testacc"),
 				Check: resource.ComposeTestCheckFunc(
@@ -77,22 +72,6 @@ func CreateConsoleAuthenticationDSWithoutRequired(attrName string) string {
 	}
 	`
 	return fmt.Sprintf(rBlock)
-}
-
-func CreateAccConsoleAuthenticationDSWithInvalidName() string {
-	fmt.Println("=== STEP  testing console_authentication Data Source with required arguments only")
-	resource := fmt.Sprintf(`
-	
-	resource "aci_console_authentication" "test" {
-	
-	}
-
-	data "aci_console_authentication" "test" {
-	
-		depends_on = [ aci_console_authentication.test ]
-	}
-	`)
-	return resource
 }
 
 func CreateAccConsoleAuthenticationDataSourceUpdate(key, value string) string {

@@ -73,10 +73,10 @@ func TestAccAciVRFSnmpContextCommunity_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccVRFSnmpContextCommunityConfigWithRequiredParams(rName, rNameUpdated, rName),
+				Config: CreateAccVRFSnmpContextCommunityConfigWithRequiredParams(rNameUpdated, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciVRFSnmpContextCommunityExists(resourceName, &vrf_snmp_context_community_updated),
-					resource.TestCheckResourceAttr(resourceName, "vrf_snmp_context_dn", fmt.Sprintf("uni/tn-%s/ctx-%s/snmpctx", rName, rNameUpdated)),
+					resource.TestCheckResourceAttr(resourceName, "vrf_snmp_context_dn", fmt.Sprintf("uni/tn-%s/ctx-%s/snmpctx", rNameUpdated, rNameUpdated)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					testAccCheckAciVRFSnmpContextCommunityIdNotEqual(&vrf_snmp_context_community_default, &vrf_snmp_context_community_updated),
 				),
@@ -85,7 +85,7 @@ func TestAccAciVRFSnmpContextCommunity_Basic(t *testing.T) {
 				Config: CreateAccVRFSnmpContextCommunityConfig(fvTenantName, fvCtxName, rName),
 			},
 			{
-				Config: CreateAccVRFSnmpContextCommunityConfigWithRequiredParams(rName, rName, rNameUpdated),
+				Config: CreateAccVRFSnmpContextCommunityConfigWithRequiredParams(rName, rNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciVRFSnmpContextCommunityExists(resourceName, &vrf_snmp_context_community_updated),
 					resource.TestCheckResourceAttr(resourceName, "vrf_snmp_context_dn", fmt.Sprintf("uni/tn-%s/ctx-%s/snmpctx", rName, rName)),
@@ -260,8 +260,8 @@ func CreateVRFSnmpContextCommunityWithoutRequired(fvTenantName, fvCtxName, rName
 	return fmt.Sprintf(rBlock, fvTenantName, fvCtxName, rName)
 }
 
-func CreateAccVRFSnmpContextCommunityConfigWithRequiredParams(fvTenantName, fvCtxName, rName string) string {
-	fmt.Println("=== STEP  testing vrf_snmp_context_community creation with updated naming arguments")
+func CreateAccVRFSnmpContextCommunityConfigWithRequiredParams(prName, rName string) string {
+	fmt.Printf("=== STEP  testing vrf_snmp_context_community creation with parent resource name %s and resource name %s\n", prName, rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {
@@ -276,14 +276,14 @@ func CreateAccVRFSnmpContextCommunityConfigWithRequiredParams(fvTenantName, fvCt
 
 	resource "aci_vrf_snmp_context" "test" {
 		vrf_dn = aci_vrf.test.id
-		name = "example"
+		name = "%s"
 	}
 	
 	resource "aci_vrf_snmp_context_community" "test" {
 		vrf_snmp_context_dn  = aci_vrf_snmp_context.test.id
 		name  = "%s"
 	}
-	`, fvTenantName, fvCtxName, rName)
+	`, prName, prName, prName, rName)
 	return resource
 }
 func CreateAccVRFSnmpContextCommunityConfigUpdatedName(fvTenantName, fvCtxName, rName string) string {

@@ -105,7 +105,7 @@ func CreateMCPInstancePolicyDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccMCPInstancePolicyDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing mcp_instance_policy Data Source with required arguments only")
+	fmt.Println("=== STEP  testing mcp_instance_policy Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_mcp_instance_policy" "test" {
@@ -116,7 +116,6 @@ func CreateAccMCPInstancePolicyDSWithInvalidName(rName string) string {
 	data "aci_mcp_instance_policy" "test" {
 	
 		name  = "${aci_mcp_instance_policy.test.name}_invalid"
-		name  = aci_mcp_instance_policy.test.name
 		depends_on = [ aci_mcp_instance_policy.test ]
 	}
 	`, rName)

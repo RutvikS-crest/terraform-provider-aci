@@ -42,9 +42,7 @@ func TestAccAciRadiusProviderDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "auth_port", resourceName, "auth_port"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "auth_protocol", resourceName, "auth_protocol"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "key", resourceName, "key"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "monitor_server", resourceName, "monitor_server"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "monitoring_password", resourceName, "monitoring_password"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "monitoring_user", resourceName, "monitoring_user"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "retries", resourceName, "retries"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "timeout", resourceName, "timeout"),
@@ -79,7 +77,7 @@ func TestAccAciRadiusProviderDataSource_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
 			},
 			{
-				Config:      CreateAccRadiusProviderConfigDataSource(rName, acctest.RandString(5)),
+				Config:      CreateAccRadiusProviderConfigDataSourceWithInvalidType(rName, acctest.RandString(5)),
 				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
 			},
 			{
@@ -90,6 +88,27 @@ func TestAccAciRadiusProviderDataSource_Basic(t *testing.T) {
 			},
 		},
 	})
+}
+
+func CreateAccRadiusProviderConfigDataSourceWithInvalidType(rName, providerType string) string {
+	fmt.Println("=== STEP  testing radius_provider Data Source with invalid type")
+	resource := fmt.Sprintf(`
+	
+	resource "aci_radius_provider" "test" {
+	
+		name  = "%s"
+		type  = "duo"
+		timeout = 60
+	}
+
+	data "aci_radius_provider" "test" {
+	
+		name  = aci_radius_provider.test.name
+		type  = "%s"
+		depends_on = [ aci_radius_provider.test ]
+	}
+	`, rName, providerType)
+	return resource
 }
 
 func CreateAccRadiusProviderConfigDataSource(rName, providerType string) string {
@@ -147,7 +166,7 @@ func CreateRadiusProviderDSWithoutRequired(rName, providerType, attrName string)
 }
 
 func CreateAccRadiusProviderDSWithInvalidName(rName, providerType string) string {
-	fmt.Println("=== STEP  testing radius_provider Data Source with required arguments only")
+	fmt.Println("=== STEP  testing radius_provider Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_radius_provider" "test" {

@@ -97,7 +97,7 @@ func CreateCoopPolicyDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccCoopPolicyDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing coop_policy Data Source with required arguments only")
+	fmt.Println("=== STEP  testing coop_policy Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_coop_policy" "test" {
@@ -108,7 +108,6 @@ func CreateAccCoopPolicyDSWithInvalidName(rName string) string {
 	data "aci_coop_policy" "test" {
 	
 		name  = "${aci_coop_policy.test.name}_invalid"
-		name  = aci_coop_policy.test.name
 		depends_on = [ aci_coop_policy.test ]
 	}
 	`, rName)
