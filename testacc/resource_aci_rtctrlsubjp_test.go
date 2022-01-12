@@ -40,8 +40,6 @@ func TestAccAciMatchRule_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", fvTenantName)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
-					resource.TestCheckResourceAttr(resourceName, "description", ""),
-					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 				),
 			},
 			{
@@ -51,16 +49,15 @@ func TestAccAciMatchRule_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", fvTenantName)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
-					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
-					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_match_rule"),
 
 					testAccCheckAciMatchRuleIdEqual(&match_rule_default, &match_rule_updated),
 				),
 			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"tenant_dn"},
 			},
 			{
 				Config:      CreateAccMatchRuleConfigUpdatedName(fvTenantName, acctest.RandString(65)),
@@ -116,15 +113,7 @@ func TestAccAciMatchRule_Negative(t *testing.T) {
 				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
-				Config:      CreateAccMatchRuleUpdatedAttr(fvTenantName, rName, "description", acctest.RandString(129)),
-				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
-			},
-			{
 				Config:      CreateAccMatchRuleUpdatedAttr(fvTenantName, rName, "annotation", acctest.RandString(129)),
-				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
-			},
-			{
-				Config:      CreateAccMatchRuleUpdatedAttr(fvTenantName, rName, "name_alias", acctest.RandString(64)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
 
@@ -321,11 +310,15 @@ func CreateAccMatchRuleWithInValidParentDn(rName string) string {
 	resource "aci_tenant" "test"{
 		name = "%s"
 	}
-	resource "aci_match_rule" "test" {
+	resource "aci_application_profile" "test"{
 		tenant_dn  = aci_tenant.test.id
+		name = "%s"
+	}
+	resource "aci_match_rule" "test" {
+		tenant_dn  = aci_application_profile.test.id
 		name  = "%s"	
 	}
-	`, rName, rName)
+	`, rName, rName, rName)
 	return resource
 }
 
@@ -341,9 +334,7 @@ func CreateAccMatchRuleConfigWithOptionalValues(fvTenantName, rName string) stri
 	resource "aci_match_rule" "test" {
 		tenant_dn  = "${aci_tenant.test.id}"
 		name  = "%s"
-		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
-		name_alias = "test_match_rule"
 		
 	}
 	`, fvTenantName, rName)
@@ -355,9 +346,7 @@ func CreateAccMatchRuleRemovingRequiredField() string {
 	fmt.Println("=== STEP  Basic: testing match_rule updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_match_rule" "test" {
-		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
-		name_alias = "test_match_rule"
 		
 	}
 	`)

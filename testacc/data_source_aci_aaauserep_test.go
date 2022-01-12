@@ -50,7 +50,7 @@ func TestAccAciGlobalSecurityDataSource_Basic(t *testing.T) {
 
 func CreateAccGlobalSecurityConfigDataSource() string {
 	fmt.Println("=== STEP  testing global_security Data Source with required arguments only")
-	resource := fmt.Sprintf(`
+	resource := `
 	
 	resource "aci_global_security" "test" {
 	
@@ -60,13 +60,13 @@ func CreateAccGlobalSecurityConfigDataSource() string {
 	
 		depends_on = [ aci_global_security.test ]
 	}
-	`)
+	`
 	return resource
 }
 
 func CreateAccGlobalSecurityDSWithInvalidName() string {
 	fmt.Println("=== STEP  testing global_security Data Source with required arguments only")
-	resource := fmt.Sprintf(`
+	resource := `
 	
 	resource "aci_global_security" "test" {
 	
@@ -76,7 +76,7 @@ func CreateAccGlobalSecurityDSWithInvalidName() string {
 	
 		depends_on = [ aci_global_security.test ]
 	}
-	`)
+	`
 	return resource
 }
 

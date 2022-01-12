@@ -42,8 +42,7 @@ func TestAccAciFirmwareGroup_Basic(t *testing.T) {
 				),
 			},
 			{
-				// in this step all optional attribute expect realational attribute are given for the same resource and then compared
-				Config: CreateAccFirmwareGroupConfigWithOptionalValues(rName), // configuration to update optional filelds
+				Config: CreateAccFirmwareGroupConfigWithOptionalValues(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciFirmwareGroupExists(resourceName, &firmware_group_updated),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),

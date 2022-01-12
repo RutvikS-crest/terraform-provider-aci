@@ -107,7 +107,6 @@ func CreateAccManagedNodeConnectivityGroupDSWithInvalidName(rName string) string
 	data "aci_managed_node_connectivity_group" "test" {
 	
 		name  = "${aci_managed_node_connectivity_group.test.name}_invalid"
-		name  = aci_managed_node_connectivity_group.test.name
 		depends_on = [ aci_managed_node_connectivity_group.test ]
 	}
 	`, rName)

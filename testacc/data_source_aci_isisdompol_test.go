@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/terraform-providers/terraform-provider-aci/aci"
 )
 
 func TestAccAciISISDomainPolicyDataSource_Basic(t *testing.T) {
@@ -14,142 +15,108 @@ func TestAccAciISISDomainPolicyDataSource_Basic(t *testing.T) {
 	dataSourceName := "data.aci_isis_domain_policy.test"
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(10)
-	rName := makeTestVariable(acctest.RandString(5))
-
-	resource.ParallelTest(t, resource.TestCase{
+	isisDomPol, err := aci.GetRemoteISISDomainPolicy(sharedAciClient(), "uni/fabric/isisDomP-default")
+	if err != nil {
+		t.Errorf("reading initial config of isisDomPol")
+	}
+	isisLvlComp, err := aci.GetRemoteISISLevel(sharedAciClient(), "uni/fabric/isisDomP-default/lvl-l1")
+	if err != nil {
+		t.Errorf("reading initial config of isisLvlComp")
+	}
+	fmt.Println(*isisLvlComp)
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		CheckDestroy:      testAccCheckAciISISDomainPolicyDestroy,
 		Steps: []resource.TestStep{
-
 			{
-				Config:      CreateISISDomainPolicyDSWithoutRequired(rName, "name"),
-				ExpectError: regexp.MustCompile(`Missing required argument`),
-			},
-			{
-				Config: CreateAccISISDomainPolicyConfigDataSource(rName),
+				Config: CreateAccISISDomainPolicyConfigDataSource(),
 				Check: resource.ComposeTestCheckFunc(
-
-					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "mtu", resourceName, "mtu"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "redistrib_metric", resourceName, "redistrib_metric"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "isis_level_type", resourceName, "isis_level_type"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "lsp_fast_flood", resourceName, "lsp_fast_flood"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "lsp_gen_init_intvl", resourceName, "lsp_gen_init_intvl"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "lsp_gen_max_intvl", resourceName, "lsp_gen_max_intvl"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "lsp_gen_sec_intvl", resourceName, "lsp_gen_sec_intvl"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "spf_comp_init_intvl", resourceName, "spf_comp_init_intvl"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "spf_comp_max_intvl", resourceName, "spf_comp_max_intvl"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "spf_comp_sec_intvl", resourceName, "spf_comp_sec_intvl"),
 				),
 			},
 			{
-				Config:      CreateAccISISDomainPolicyDataSourceUpdate(rName, randomParameter, randomValue),
+				Config:      CreateAccISISDomainPolicyDataSourceUpdate(randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
-
 			{
-				Config:      CreateAccISISDomainPolicyDSWithInvalidName(rName),
-				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
-			},
-			{
-				Config: CreateAccISISDomainPolicyDataSourceUpdatedResource(rName, "annotation", "orchestrator:terraform-testacc"),
+				Config: CreateAccISISDomainPolicyDataSourceUpdatedResource("annotation", "orchestrator:terraform-testacc"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 				),
+			},
+			{
+				Config: restoreISISDomainPolicyToInitConfig(isisDomPol, isisLvlComp),
 			},
 		},
 	})
 }
 
-func CreateAccISISDomainPolicyConfigDataSource(rName string) string {
+func CreateAccISISDomainPolicyConfigDataSource() string {
 	fmt.Println("=== STEP  testing isis_domain_policy Data Source with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_isis_domain_policy" "test" {
-	
-		name  = "%s"
 	}
 
 	data "aci_isis_domain_policy" "test" {
-	
-		name  = aci_isis_domain_policy.test.name
-		depends_on = [ aci_isis_domain_policy.test ]
 	}
-	`, rName)
+	`)
 	return resource
 }
 
-func CreateISISDomainPolicyDSWithoutRequired(rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing isis_domain_policy Data Source without ", attrName)
-	rBlock := `
-	
-	resource "aci_isis_domain_policy" "test" {
-	
-		name  = "%s"
-	}
-	`
-	switch attrName {
-	case "name":
-		rBlock += `
-	data "aci_isis_domain_policy" "test" {
-	
-	#	name  = aci_isis_domain_policy.test.name
-		depends_on = [ aci_isis_domain_policy.test ]
-	}
-		`
-	}
-	return fmt.Sprintf(rBlock, rName)
-}
-
-func CreateAccISISDomainPolicyDSWithInvalidName(rName string) string {
+func CreateAccISISDomainPolicyDSWithInvalidName() string {
 	fmt.Println("=== STEP  testing isis_domain_policy Data Source with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_isis_domain_policy" "test" {
-	
-		name  = "%s"
 	}
 
 	data "aci_isis_domain_policy" "test" {
-	
-		name  = "${aci_isis_domain_policy.test.name}_invalid"
-		name  = aci_isis_domain_policy.test.name
 		depends_on = [ aci_isis_domain_policy.test ]
 	}
-	`, rName)
+	`)
 	return resource
 }
 
-func CreateAccISISDomainPolicyDataSourceUpdate(rName, key, value string) string {
+func CreateAccISISDomainPolicyDataSourceUpdate(key, value string) string {
 	fmt.Println("=== STEP  testing isis_domain_policy Data Source with random attribute")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_isis_domain_policy" "test" {
-	
-		name  = "%s"
 	}
 
 	data "aci_isis_domain_policy" "test" {
-	
-		name  = aci_isis_domain_policy.test.name
 		%s = "%s"
 		depends_on = [ aci_isis_domain_policy.test ]
 	}
-	`, rName, key, value)
+	`, key, value)
 	return resource
 }
 
-func CreateAccISISDomainPolicyDataSourceUpdatedResource(rName, key, value string) string {
+func CreateAccISISDomainPolicyDataSourceUpdatedResource(key, value string) string {
 	fmt.Println("=== STEP  testing isis_domain_policy Data Source with updated resource")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_isis_domain_policy" "test" {
-	
-		name  = "%s"
 		%s = "%s"
 	}
 
 	data "aci_isis_domain_policy" "test" {
-	
-		name  = aci_isis_domain_policy.test.name
 		depends_on = [ aci_isis_domain_policy.test ]
 	}
-	`, rName, key, value)
+	`, key, value)
 	return resource
 }

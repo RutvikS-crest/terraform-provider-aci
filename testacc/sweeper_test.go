@@ -44,6 +44,11 @@ func init() {
 			Name: "aci_lacp_policy",
 			F:    aciLeafBreakoutPortGroupSweeper,
 		})
+	resource.AddTestSweepers("aci_radius_provider",
+		&resource.Sweeper{
+			Name: "aci_radius_provider",
+			F:    aciRadiusProviderSweeper,
+		})
 }
 
 func aciLeafBreakoutPortGroupSweeper(_ string) error {
@@ -51,6 +56,23 @@ func aciLeafBreakoutPortGroupSweeper(_ string) error {
 	aciClient := sharedAciClient()
 	cont, _ := aciClient.GetViaURL(fmt.Sprintf("/api/node/class/%s.json", className))
 	instances := models.LeafBreakoutPortGroupListFromContainer(cont)
+	for _, instance := range instances {
+		dn := instance.DistinguishedName
+		if strings.HasPrefix(GetMOName(dn), "acctest") {
+			err := aciClient.DeleteByDn(dn, className)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func aciRadiusProviderSweeper(_ string) error {
+	className := "aaaRadiusProvider"
+	aciClient := sharedAciClient()
+	cont, _ := aciClient.GetViaURL(fmt.Sprintf("/api/node/class/%s.json", className))
+	instances := models.RADIUSProviderListFromContainer(cont)
 	for _, instance := range instances {
 		dn := instance.DistinguishedName
 		if strings.HasPrefix(GetMOName(dn), "acctest") {

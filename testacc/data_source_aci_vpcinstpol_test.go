@@ -108,7 +108,6 @@ func CreateAccVPCDomainPolicyDSWithInvalidName(rName string) string {
 	data "aci_vpc_domain_policy" "test" {
 	
 		name  = "${aci_vpc_domain_policy.test.name}_invalid"
-		name  = aci_vpc_domain_policy.test.name
 		depends_on = [ aci_vpc_domain_policy.test ]
 	}
 	`, rName)

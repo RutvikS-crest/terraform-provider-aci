@@ -40,7 +40,6 @@ func TestAccAciRecurringWindow_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "scheduler_dn", fmt.Sprintf("uni/fabric/schedp-%s", trigSchedPName)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
-					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 					resource.TestCheckResourceAttr(resourceName, "concur_cap", "unlimited"),
 					resource.TestCheckResourceAttr(resourceName, "day", "every-day"),
@@ -59,7 +58,6 @@ func TestAccAciRecurringWindow_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "scheduler_dn", fmt.Sprintf("uni/fabric/schedp-%s", trigSchedPName)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
-					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_recurring_window"),
 					resource.TestCheckResourceAttr(resourceName, "concur_cap", "1"),
 
@@ -68,10 +66,10 @@ func TestAccAciRecurringWindow_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "minute", "1"),
 					resource.TestCheckResourceAttr(resourceName, "node_upg_interval", "1"),
 
-					resource.TestCheckResourceAttr(resourceName, "proc_break", ""),
+					resource.TestCheckResourceAttr(resourceName, "proc_break", "none"),
 					resource.TestCheckResourceAttr(resourceName, "proc_cap", "1"),
 
-					resource.TestCheckResourceAttr(resourceName, "time_cap", ""),
+					resource.TestCheckResourceAttr(resourceName, "time_cap", "00:00:00:00.020"),
 
 					testAccCheckAciRecurringWindowIdEqual(&recurring_window_default, &recurring_window_updated),
 				),
@@ -305,10 +303,6 @@ func TestAccAciRecurringWindow_Negative(t *testing.T) {
 				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
-				Config:      CreateAccRecurringWindowUpdatedAttr(trigSchedPName, rName, "description", acctest.RandString(129)),
-				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
-			},
-			{
 				Config:      CreateAccRecurringWindowUpdatedAttr(trigSchedPName, rName, "annotation", acctest.RandString(129)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
@@ -323,11 +317,11 @@ func TestAccAciRecurringWindow_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccRecurringWindowUpdatedAttr(trigSchedPName, rName, "concur_cap", "-1"),
-				ExpectError: regexp.MustCompile(`out of range`),
+				ExpectError: regexp.MustCompile(`unknown property`),
 			},
 			{
 				Config:      CreateAccRecurringWindowUpdatedAttr(trigSchedPName, rName, "concur_cap", "65536"),
-				ExpectError: regexp.MustCompile(`out of range`),
+				ExpectError: regexp.MustCompile(`unknown property`),
 			},
 
 			{
@@ -341,7 +335,7 @@ func TestAccAciRecurringWindow_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccRecurringWindowUpdatedAttr(trigSchedPName, rName, "hour", "-1"),
-				ExpectError: regexp.MustCompile(`out of range`),
+				ExpectError: regexp.MustCompile(`unknown property`),
 			},
 			{
 				Config:      CreateAccRecurringWindowUpdatedAttr(trigSchedPName, rName, "hour", "24"),
@@ -354,7 +348,7 @@ func TestAccAciRecurringWindow_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccRecurringWindowUpdatedAttr(trigSchedPName, rName, "minute", "-1"),
-				ExpectError: regexp.MustCompile(`out of range`),
+				ExpectError: regexp.MustCompile(`unknown property`),
 			},
 			{
 				Config:      CreateAccRecurringWindowUpdatedAttr(trigSchedPName, rName, "minute", "60"),
@@ -367,7 +361,7 @@ func TestAccAciRecurringWindow_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccRecurringWindowUpdatedAttr(trigSchedPName, rName, "node_upg_interval", "-1"),
-				ExpectError: regexp.MustCompile(`out of range`),
+				ExpectError: regexp.MustCompile(`unknown property`),
 			},
 			{
 				Config:      CreateAccRecurringWindowUpdatedAttr(trigSchedPName, rName, "node_upg_interval", "18001"),
@@ -385,11 +379,11 @@ func TestAccAciRecurringWindow_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccRecurringWindowUpdatedAttr(trigSchedPName, rName, "proc_cap", "-1"),
-				ExpectError: regexp.MustCompile(`out of range`),
+				ExpectError: regexp.MustCompile(`unknown property`),
 			},
 			{
 				Config:      CreateAccRecurringWindowUpdatedAttr(trigSchedPName, rName, "proc_cap", "65536"),
-				ExpectError: regexp.MustCompile(`out of range`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 
 			{
@@ -610,7 +604,6 @@ func CreateAccRecurringWindowConfigWithOptionalValues(trigSchedPName, rName stri
 	resource "aci_recurring_window" "test" {
 		scheduler_dn  = "${aci_trigger_scheduler.test.id}"
 		name  = "%s"
-		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_recurring_window"
 		concur_cap = "1"
@@ -618,9 +611,9 @@ func CreateAccRecurringWindowConfigWithOptionalValues(trigSchedPName, rName stri
 		hour = "1"
 		minute = "1"
 		node_upg_interval = "1"
-		proc_break = ""
+		proc_break = "none"
 		proc_cap = "1"
-		time_cap = ""
+		time_cap = "00:00:00:00.020"
 		
 	}
 	`, trigSchedPName, rName)
@@ -632,7 +625,6 @@ func CreateAccRecurringWindowRemovingRequiredField() string {
 	fmt.Println("=== STEP  Basic: testing recurring_window updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_recurring_window" "test" {
-		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_recurring_window"
 		concur_cap = "1"

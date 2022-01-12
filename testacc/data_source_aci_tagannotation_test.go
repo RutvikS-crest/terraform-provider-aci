@@ -16,24 +16,24 @@ func TestAccAciAnnotationDataSource_Basic(t *testing.T) {
 	randomValue := acctest.RandString(10)
 
 	key := makeTestVariable(acctest.RandString(5))
-	faultInstName := makeTestVariable(acctest.RandString(5))
+	fvTenantName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		CheckDestroy:      testAccCheckAciAnnotationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      CreateAnnotationDSWithoutRequired(faultInstName, key, "fault_inst_dn"),
+				Config:      CreateAnnotationDSWithoutRequired(fvTenantName, key, "parent_dn"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config:      CreateAnnotationDSWithoutRequired(faultInstName, key, "key"),
+				Config:      CreateAnnotationDSWithoutRequired(fvTenantName, key, "key"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccAnnotationConfigDataSource(faultInstName, key),
+				Config: CreateAccAnnotationConfigDataSource(fvTenantName, key),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair(dataSourceName, "fault_inst_dn", resourceName, "fault_inst_dn"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "parent_dn", resourceName, "parent_dn"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "key", resourceName, "key"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
@@ -42,17 +42,17 @@ func TestAccAciAnnotationDataSource_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config:      CreateAccAnnotationDataSourceUpdate(faultInstName, key, randomParameter, randomValue),
+				Config:      CreateAccAnnotationDataSourceUpdate(fvTenantName, key, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
 
 			{
-				Config:      CreateAccAnnotationDSWithInvalidParentDn(faultInstName, key),
+				Config:      CreateAccAnnotationDSWithInvalidParentDn(fvTenantName, key),
 				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
 			},
 
 			{
-				Config: CreateAccAnnotationDataSourceUpdatedResource(faultInstName, key, "annotation", "orchestrator:terraform-testacc"),
+				Config: CreateAccAnnotationDataSourceUpdatedResource(fvTenantName, key, "annotation", "orchestrator:terraform-testacc"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 				),
@@ -61,48 +61,50 @@ func TestAccAciAnnotationDataSource_Basic(t *testing.T) {
 	})
 }
 
-func CreateAccAnnotationConfigDataSource(faultInstName, key string) string {
+func CreateAccAnnotationConfigDataSource(fvTenantName, key string) string {
 	fmt.Println("=== STEP  testing annotation Data Source with required arguments only")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_fault_inst" "test" {
+	resource "aci_tenant" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_annotation" "test" {
-		fault_inst_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 		key  = "%s"
+		value = "val"
 	}
 
 	data "aci_annotation" "test" {
-		fault_inst_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 		key  = aci_annotation.test.key
 		depends_on = [ aci_annotation.test ]
 	}
-	`, faultInstName, key)
+	`, fvTenantName, key)
 	return resource
 }
 
-func CreateAnnotationDSWithoutRequired(faultInstName, key, attrName string) string {
+func CreateAnnotationDSWithoutRequired(fvTenantName, key, attrName string) string {
 	fmt.Println("=== STEP  Basic: testing annotation Data Source without ", attrName)
 	rBlock := `
 	
-	resource "aci_fault_inst" "test" {
+	resource "aci_tenant" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_annotation" "test" {
-		fault_inst_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 		key  = "%s"
+		value = "val"
 	}
 	`
 	switch attrName {
-	case "fault_inst_dn":
+	case "parent_dn":
 		rBlock += `
 	data "aci_annotation" "test" {
-	#	fault_inst_dn  = aci_fault_inst.test.id
+	#	parent_dn  = aci_tenant.test.id
 		key  = aci_annotation.test.key
 		depends_on = [ aci_annotation.test ]
 	}
@@ -110,82 +112,85 @@ func CreateAnnotationDSWithoutRequired(faultInstName, key, attrName string) stri
 	case "key":
 		rBlock += `
 	data "aci_annotation" "test" {
-		fault_inst_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 	#	key  = aci_annotation.test.key
 		depends_on = [ aci_annotation.test ]
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock, faultInstName, key)
+	return fmt.Sprintf(rBlock, fvTenantName, key)
 }
 
-func CreateAccAnnotationDSWithInvalidParentDn(faultInstName, key string) string {
+func CreateAccAnnotationDSWithInvalidParentDn(fvTenantName, key string) string {
 	fmt.Println("=== STEP  testing annotation Data Source with Invalid Parent Dn")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_fault_inst" "test" {
+	resource "aci_tenant" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_annotation" "test" {
-		fault_inst_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 		key  = "%s"
+		value = "val"
 	}
 
 	data "aci_annotation" "test" {
-		fault_inst_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 		key  = "${aci_annotation.test.key}_invalid"
 		depends_on = [ aci_annotation.test ]
 	}
-	`, faultInstName, key)
+	`, fvTenantName, key)
 	return resource
 }
 
-func CreateAccAnnotationDataSourceUpdate(faultInstName, key, attr, value string) string {
+func CreateAccAnnotationDataSourceUpdate(fvTenantName, key, attr, value string) string {
 	fmt.Println("=== STEP  testing annotation Data Source with random attribute")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_fault_inst" "test" {
+	resource "aci_tenant" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_annotation" "test" {
-		fault_inst_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 		key  = "%s"
+		value = "val"
 	}
 
 	data "aci_annotation" "test" {
-		fault_inst_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 		key  = aci_annotation.test.key
 		%s = "%s"
 		depends_on = [ aci_annotation.test ]
 	}
-	`, faultInstName, key, attr, value)
+	`, fvTenantName, key, attr, value)
 	return resource
 }
 
-func CreateAccAnnotationDataSourceUpdatedResource(faultInstName, key, attr, value string) string {
+func CreateAccAnnotationDataSourceUpdatedResource(fvTenantName, key, attr, value string) string {
 	fmt.Println("=== STEP  testing annotation Data Source with updated resource")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_fault_inst" "test" {
+	resource "aci_tenant" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_annotation" "test" {
-		fault_inst_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 		key  = "%s"
+		value = "val"
 		%s = "%s"
 	}
 
 	data "aci_annotation" "test" {
-		fault_inst_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 		key  = aci_annotation.test.key
 		depends_on = [ aci_annotation.test ]
 	}
-	`, faultInstName, key, attr, value)
+	`, fvTenantName, key, attr, value)
 	return resource
 }

@@ -18,6 +18,7 @@ func TestAccAciRemotePathofaFile_Basic(t *testing.T) {
 	resourceName := "aci_file_remote_path.test"
 	rName := makeTestVariable(acctest.RandString(5))
 	rNameUpdated := makeTestVariable(acctest.RandString(5))
+	host := "cisco.com"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -26,57 +27,49 @@ func TestAccAciRemotePathofaFile_Basic(t *testing.T) {
 		Steps: []resource.TestStep{
 
 			{
-				Config:      CreateRemotePathofaFileWithoutRequired(rName, "name"),
+				Config:      CreateRemotePathofaFileWithoutRequired(rName, host, "name"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccRemotePathofaFileConfig(rName),
+				Config:      CreateRemotePathofaFileWithoutRequired(rName, host, "host"),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+			{
+				Config: CreateAccRemotePathofaFileConfig(rName, host),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciRemotePathofaFileExists(resourceName, &file_remote_path_default),
 
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "host", host),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 					resource.TestCheckResourceAttr(resourceName, "auth_type", "usePassword"),
-					resource.TestCheckResourceAttr(resourceName, "host", ""),
-					resource.TestCheckResourceAttr(resourceName, "identity_private_key_contents", ""),
-					resource.TestCheckResourceAttr(resourceName, "identity_private_key_passphrase", ""),
-					resource.TestCheckResourceAttr(resourceName, "identity_public_key_contents", ""),
 					resource.TestCheckResourceAttr(resourceName, "protocol", "sftp"),
 					resource.TestCheckResourceAttr(resourceName, "remote_path", ""),
-					resource.TestCheckResourceAttr(resourceName, "remote_port", ""),
+					resource.TestCheckResourceAttr(resourceName, "remote_port", "0"),
 					resource.TestCheckResourceAttr(resourceName, "user_name", ""),
-					resource.TestCheckResourceAttr(resourceName, "user_passwd", ""),
+					resource.TestCheckResourceAttr(resourceName, "user_passwd", "cisco"),
 				),
 			},
 			{
-				Config: CreateAccRemotePathofaFileConfigWithOptionalValues(rName),
+				Config: CreateAccRemotePathofaFileConfigWithOptionalValues(rName, host),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciRemotePathofaFileExists(resourceName, &file_remote_path_updated),
 
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "host", host),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_file_remote_path"),
+					resource.TestCheckResourceAttr(resourceName, "auth_type", "usePassword"),
+					resource.TestCheckResourceAttr(resourceName, "protocol", "scp"),
 
-					resource.TestCheckResourceAttr(resourceName, "auth_type", "useSshKeyContents"),
+					resource.TestCheckResourceAttr(resourceName, "remote_path", "/example"),
 
-					resource.TestCheckResourceAttr(resourceName, "host", ""),
+					resource.TestCheckResourceAttr(resourceName, "user_name", "example"),
 
-					resource.TestCheckResourceAttr(resourceName, "identity_private_key_contents", ""),
-
-					resource.TestCheckResourceAttr(resourceName, "identity_private_key_passphrase", ""),
-
-					resource.TestCheckResourceAttr(resourceName, "identity_public_key_contents", ""),
-
-					resource.TestCheckResourceAttr(resourceName, "protocol", "ftp"),
-
-					resource.TestCheckResourceAttr(resourceName, "remote_path", ""),
-
-					resource.TestCheckResourceAttr(resourceName, "user_name", ""),
-
-					resource.TestCheckResourceAttr(resourceName, "user_passwd", ""),
+					resource.TestCheckResourceAttr(resourceName, "user_passwd", "example"),
 
 					testAccCheckAciRemotePathofaFileIdEqual(&file_remote_path_default, &file_remote_path_updated),
 				),
@@ -85,9 +78,12 @@ func TestAccAciRemotePathofaFile_Basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"user_passwd",
+				},
 			},
 			{
-				Config:      CreateAccRemotePathofaFileConfigUpdatedName(acctest.RandString(65)),
+				Config:      CreateAccRemotePathofaFileConfigUpdatedName(acctest.RandString(65), host),
 				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
 			},
 
@@ -97,7 +93,7 @@ func TestAccAciRemotePathofaFile_Basic(t *testing.T) {
 			},
 
 			{
-				Config: CreateAccRemotePathofaFileConfigWithRequiredParams(rNameUpdated),
+				Config: CreateAccRemotePathofaFileConfigWithRequiredParams(rNameUpdated, host),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciRemotePathofaFileExists(resourceName, &file_remote_path_updated),
 
@@ -111,6 +107,7 @@ func TestAccAciRemotePathofaFile_Basic(t *testing.T) {
 
 func TestAccAciRemotePathofaFile_Negative(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
+	host := "cisco.com"
 
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(5)
@@ -121,78 +118,48 @@ func TestAccAciRemotePathofaFile_Negative(t *testing.T) {
 		CheckDestroy:      testAccCheckAciRemotePathofaFileDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: CreateAccRemotePathofaFileConfig(rName),
+				Config: CreateAccRemotePathofaFileConfig(rName, host),
 			},
 
 			{
-				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, "description", acctest.RandString(129)),
+				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, host, "description", acctest.RandString(129)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
 			{
-				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, "annotation", acctest.RandString(129)),
+				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, host, "annotation", acctest.RandString(129)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
 			{
-				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, "name_alias", acctest.RandString(64)),
+				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, host, "name_alias", acctest.RandString(64)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
 
 			{
-				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, "auth_type", randomValue),
+				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, host, "auth_type", randomValue),
 				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
 			},
 
 			{
-				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, "host", randomValue),
+				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, host, "protocol", randomValue),
 				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
 			},
 
 			{
-				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, "identity_private_key_contents", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
+				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, host, "remote_path", randomValue),
+				ExpectError: regexp.MustCompile(`The first character of remote_path should be '/'`),
 			},
 
 			{
-				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, "identity_private_key_passphrase", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
-			},
-
-			{
-				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, "identity_public_key_contents", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
-			},
-
-			{
-				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, "protocol", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
-			},
-
-			{
-				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, "remote_path", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
-			},
-
-			{
-				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, "remote_port", randomValue),
+				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, host, "remote_port", randomValue),
 				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 
 			{
-				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, "user_name", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
-			},
-
-			{
-				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, "user_passwd", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
-			},
-
-			{
-				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, randomParameter, randomValue),
+				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, host, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
 			{
-				Config: CreateAccRemotePathofaFileConfig(rName),
+				Config: CreateAccRemotePathofaFileConfig(rName, host),
 			},
 		},
 	})
@@ -200,6 +167,7 @@ func TestAccAciRemotePathofaFile_Negative(t *testing.T) {
 
 func TestAccAciRemotePathofaFile_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
+	host := "cisco.com"
 
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -207,7 +175,7 @@ func TestAccAciRemotePathofaFile_MultipleCreateDelete(t *testing.T) {
 		CheckDestroy:      testAccCheckAciRemotePathofaFileDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: CreateAccRemotePathofaFileConfigMultiple(rName),
+				Config: CreateAccfileRemotePathConfigMultiple(rName, host),
 			},
 		},
 	})
@@ -276,7 +244,7 @@ func testAccCheckAciRemotePathofaFileIdNotEqual(m1, m2 *models.RemotePathofaFile
 	}
 }
 
-func CreateRemotePathofaFileWithoutRequired(rName, attrName string) string {
+func CreateRemotePathofaFileWithoutRequired(rName, host, attrName string) string {
 	fmt.Println("=== STEP  Basic: testing file_remote_path creation without ", attrName)
 	rBlock := `
 	
@@ -287,82 +255,98 @@ func CreateRemotePathofaFileWithoutRequired(rName, attrName string) string {
 	resource "aci_file_remote_path" "test" {
 	
 	#	name  = "%s"
+		host = "%s"
+	}
+		`
+	case "host":
+		rBlock += `
+	resource "aci_file_remote_path" "test" {
+		name  = "%s"
+	#	host = "%s"
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock, rName)
+	return fmt.Sprintf(rBlock, rName, host)
 }
 
-func CreateAccRemotePathofaFileConfigWithRequiredParams(rName string) string {
+func CreateAccRemotePathofaFileConfigWithRequiredParams(rName, host string) string {
 	fmt.Println("=== STEP  testing file_remote_path creation with updated naming arguments")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_file_remote_path" "test" {
 	
 		name  = "%s"
+		host = "%s"
+		user_passwd = "cisco"
 	}
-	`, rName)
+	`, rName, host)
 	return resource
 }
-func CreateAccRemotePathofaFileConfigUpdatedName(rName string) string {
-	fmt.Println("=== STEP  testing file_remote_path creation with invalid name = ", rName)
+
+func CreateAccRemotePathofaFileConfigUpdatedName(rName, host string) string {
+	fmt.Println("=== STEP  testing file_remote_path creation with invalid name = ", rName, host)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_file_remote_path" "test" {
 	
 		name  = "%s"
+		host = "%s"	
+		user_passwd = "cisco"
 	}
-	`, rName)
+	`, rName, host)
 	return resource
 }
 
-func CreateAccRemotePathofaFileConfig(rName string) string {
+func CreateAccRemotePathofaFileConfig(rName, host string) string {
 	fmt.Println("=== STEP  testing file_remote_path creation with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_file_remote_path" "test" {
 	
 		name  = "%s"
+		host = "%s"
+		user_passwd = "cisco"
 	}
-	`, rName)
+	`, rName, host)
 	return resource
 }
 
-func CreateAccRemotePathofaFileConfigMultiple(rName string) string {
+func CreateAccfileRemotePathConfigMultiple(rName, host string) string {
 	fmt.Println("=== STEP  testing multiple file_remote_path creation with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_file_remote_path" "test" {
 	
 		name  = "%s_${count.index}"
+		host = "%s"
+		user_passwd = "cisco"
 		count = 5
 	}
-	`, rName)
+	`, rName, host)
 	return resource
 }
 
-func CreateAccRemotePathofaFileConfigWithOptionalValues(rName string) string {
+func CreateAccRemotePathofaFileConfigWithOptionalValues(rName, host string) string {
 	fmt.Println("=== STEP  Basic: testing file_remote_path creation with optional parameters")
+
 	resource := fmt.Sprintf(`
-	
 	resource "aci_file_remote_path" "test" {
-	
 		name  = "%s"
+		host = "%s"
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_file_remote_path"
-		auth_type = "useSshKeyContents"
-		host = ""
-		identity_private_key_contents = ""
-		identity_private_key_passphrase = ""
-		identity_public_key_contents = ""
-		protocol = "ftp"
-		remote_path = ""
-		user_name = ""
-		user_passwd = ""
+		auth_type = "usePassword"
+		// identity_private_key_contents = ""
+		// identity_private_key_passphrase = ""
+		// identity_public_key_contents = ""
+		protocol = "scp"
+		remote_path = "/example"
+		user_name = "example"
+		user_passwd = "example"
 		
 	}
-	`, rName)
+	`, rName, host)
 
 	return resource
 }
@@ -374,15 +358,14 @@ func CreateAccRemotePathofaFileRemovingRequiredField() string {
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_file_remote_path"
-		auth_type = "useSshKeyContents"
-		host = ""
-		identity_private_key_contents = ""
-		identity_private_key_passphrase = ""
-		identity_public_key_contents = ""
-		protocol = "ftp"
-		remote_path = ""
-		user_name = ""
-		user_passwd = ""
+		auth_type = "usePassword"
+		// identity_private_key_contents = ""
+		// identity_private_key_passphrase = ""
+		// identity_public_key_contents = ""
+		protocol = "scp"
+		remote_path = "/example"
+		user_name = "example"
+		user_passwd = "example"
 		
 	}
 	`)
@@ -390,28 +373,46 @@ func CreateAccRemotePathofaFileRemovingRequiredField() string {
 	return resource
 }
 
-func CreateAccRemotePathofaFileUpdatedAttr(rName, attribute, value string) string {
+func CreateAccRemotePathofaFileUpdatedAttr(rName, host, attribute, value string) string {
 	fmt.Printf("=== STEP  testing file_remote_path attribute: %s = %s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_file_remote_path" "test" {
 	
 		name  = "%s"
+		host = "%s"
+		user_passwd = "cisco"
 		%s = "%s"
 	}
-	`, rName, attribute, value)
+	`, rName, host, attribute, value)
 	return resource
 }
 
-func CreateAccRemotePathofaFileUpdatedAttrList(rName, attribute, value string) string {
+func CreateAccRemotePathofaFileUpdatedPasswd(rName, host, attribute, value string) string {
 	fmt.Printf("=== STEP  testing file_remote_path attribute: %s = %s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_file_remote_path" "test" {
 	
 		name  = "%s"
+		host = "%s"
+		%s = "%s"
+	}
+	`, rName, host, attribute, value)
+	return resource
+}
+
+func CreateAccRemotePathofaFileUpdatedAttrList(rName, host, attribute, value string) string {
+	fmt.Printf("=== STEP  testing file_remote_path attribute: %s = %s \n", attribute, value)
+	resource := fmt.Sprintf(`
+	
+	resource "aci_file_remote_path" "test" {
+	
+		name  = "%s"
+		host = "%s"
+		user_passwd = "cisco"
 		%s = %s
 	}
-	`, rName, attribute, value)
+	`, rName, host, attribute, value)
 	return resource
 }

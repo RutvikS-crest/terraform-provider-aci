@@ -44,6 +44,7 @@ func TestAccAciRouteControlContext_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 					resource.TestCheckResourceAttr(resourceName, "action", "permit"),
+					// resource.TestCheckResourceAttr(resourceName, "set_rule", ""),
 					resource.TestCheckResourceAttr(resourceName, "order", "0"),
 				),
 			},
@@ -56,9 +57,9 @@ func TestAccAciRouteControlContext_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_route_control_context"),
-
 					resource.TestCheckResourceAttr(resourceName, "action", "deny"),
 					resource.TestCheckResourceAttr(resourceName, "order", "1"),
+					resource.TestCheckResourceAttr(resourceName, "set_rule", fmt.Sprintf("uni/tn-%s/attr-%s", fvTenantName, rtctrlProfileName)),
 
 					testAccCheckAciRouteControlContextIdEqual(&route_control_context_default, &route_control_context_updated),
 				),
@@ -163,7 +164,7 @@ func TestAccAciRouteControlContext_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccRouteControlContextWithInValidParentDn(rName),
-				ExpectError: regexp.MustCompile(`unknown property value`),
+				ExpectError: regexp.MustCompile(`Invalid request`),
 			},
 			{
 				Config:      CreateAccRouteControlContextUpdatedAttr(fvTenantName, rtctrlProfileName, rName, "description", acctest.RandString(129)),
@@ -189,7 +190,7 @@ func TestAccAciRouteControlContext_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccRouteControlContextUpdatedAttr(fvTenantName, rtctrlProfileName, rName, "order", "-1"),
-				ExpectError: regexp.MustCompile(`out of range`),
+				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
 				Config:      CreateAccRouteControlContextUpdatedAttr(fvTenantName, rtctrlProfileName, rName, "order", "10"),
@@ -429,12 +430,16 @@ func CreateAccRouteControlContextConfigWithOptionalValues(fvTenantName, rtctrlPr
 	
 	resource "aci_tenant" "test" {
 		name 		= "%s"
-	
 	}
 	
 	resource "aci_bgp_route_control_profile" "test" {
 		name 		= "%s"
 		parent_dn = aci_tenant.test.id
+	}
+
+	resource "aci_action_rule_profile" "test" {
+		tenant_dn  = aci_tenant.test.id
+		name  = "%s"
 	}
 	
 	resource "aci_route_control_context" "test" {
@@ -445,9 +450,9 @@ func CreateAccRouteControlContextConfigWithOptionalValues(fvTenantName, rtctrlPr
 		name_alias = "test_route_control_context"
 		action = "deny"
 		order = "1"
-		
+		set_rule = aci_action_rule_profile.test.id
 	}
-	`, fvTenantName, rtctrlProfileName, rName)
+	`, fvTenantName, rtctrlProfileName, rtctrlProfileName, rName)
 
 	return resource
 }

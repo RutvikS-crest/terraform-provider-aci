@@ -64,7 +64,7 @@ func CreateAccTACACSSourceConfigDataSource(rName string) string {
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tacacs_source" "test" {
-	
+		parent_dn   = "uni/fabric/moncommon"
 		name  = "%s"
 	}
 
@@ -111,7 +111,6 @@ func CreateAccTACACSSourceDSWithInvalidName(rName string) string {
 	data "aci_tacacs_source" "test" {
 	
 		name  = "${aci_tacacs_source.test.name}_invalid"
-		name  = aci_tacacs_source.test.name
 		depends_on = [ aci_tacacs_source.test ]
 	}
 	`, rName)

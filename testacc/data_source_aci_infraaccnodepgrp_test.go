@@ -107,7 +107,6 @@ func CreateAccAccessSwitchPolicyGroupDSWithInvalidName(rName string) string {
 	data "aci_access_switch_policy_group" "test" {
 	
 		name  = "${aci_access_switch_policy_group.test.name}_invalid"
-		name  = aci_access_switch_policy_group.test.name
 		depends_on = [ aci_access_switch_policy_group.test ]
 	}
 	`, rName)

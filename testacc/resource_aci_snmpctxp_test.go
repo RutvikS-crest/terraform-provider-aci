@@ -28,14 +28,15 @@ func TestAccAciVRFSnmpContext_Basic(t *testing.T) {
 			{
 				Config:      CreateVRFSnmpContextWithoutRequired(fvTenantName, fvCtxName, "vrf_dn"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
-			}, {
+			},
+			{
 				Config: CreateAccVRFSnmpContextConfig(fvTenantName, fvCtxName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciVRFSnmpContextExists(resourceName, &vrf_snmp_context_default),
 					resource.TestCheckResourceAttr(resourceName, "vrf_dn", fmt.Sprintf("uni/tn-%s/ctx-%s", fvTenantName, fvCtxName)),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
-					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
+					resource.TestCheckResourceAttr(resourceName, "name", ""),
 				),
 			},
 			{
@@ -44,8 +45,8 @@ func TestAccAciVRFSnmpContext_Basic(t *testing.T) {
 					testAccCheckAciVRFSnmpContextExists(resourceName, &vrf_snmp_context_updated),
 					resource.TestCheckResourceAttr(resourceName, "vrf_dn", fmt.Sprintf("uni/tn-%s/ctx-%s", fvTenantName, fvCtxName)),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
-					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_vrf_snmp_context"),
+					resource.TestCheckResourceAttr(resourceName, "name", "test_vrf_snmp_context"),
 
 					testAccCheckAciVRFSnmpContextIdEqual(&vrf_snmp_context_default, &vrf_snmp_context_updated),
 				),
@@ -92,10 +93,6 @@ func TestAccAciVRFSnmpContext_Negative(t *testing.T) {
 			{
 				Config:      CreateAccVRFSnmpContextWithInValidParentDn(rName),
 				ExpectError: regexp.MustCompile(`unknown property value`),
-			},
-			{
-				Config:      CreateAccVRFSnmpContextUpdatedAttr(fvTenantName, fvCtxName, "description", acctest.RandString(129)),
-				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
 			{
 				Config:      CreateAccVRFSnmpContextUpdatedAttr(fvTenantName, fvCtxName, "annotation", acctest.RandString(129)),
@@ -299,9 +296,9 @@ func CreateAccVRFSnmpContextConfigWithOptionalValues(fvTenantName, fvCtxName str
 	
 	resource "aci_vrf_snmp_context" "test" {
 		vrf_dn  = "${aci_vrf.test.id}"
-		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_vrf_snmp_context"
+		name = "test_vrf_snmp_context"
 		
 	}
 	`, fvTenantName, fvCtxName)
@@ -313,7 +310,6 @@ func CreateAccVRFSnmpContextRemovingRequiredField() string {
 	fmt.Println("=== STEP  Basic: testing vrf_snmp_context updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_vrf_snmp_context" "test" {
-		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_vrf_snmp_context"
 		

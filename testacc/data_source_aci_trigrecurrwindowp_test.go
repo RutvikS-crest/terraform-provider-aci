@@ -35,7 +35,6 @@ func TestAccAciRecurringWindowDataSource_Basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "scheduler_dn", resourceName, "scheduler_dn"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "concur_cap", resourceName, "concur_cap"),
@@ -72,18 +71,18 @@ func CreateAccRecurringWindowConfigDataSource(trigSchedPName, rName string) stri
 	fmt.Println("=== STEP  testing recurring_window Data Source with required arguments only")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_scheduler" "test" {
+	resource "aci_trigger_scheduler" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_recurring_window" "test" {
-		scheduler_dn  = aci_scheduler.test.id
+		scheduler_dn  = aci_trigger_scheduler.test.id
 		name  = "%s"
 	}
 
 	data "aci_recurring_window" "test" {
-		scheduler_dn  = aci_scheduler.test.id
+		scheduler_dn  = aci_trigger_scheduler.test.id
 		name  = aci_recurring_window.test.name
 		depends_on = [ aci_recurring_window.test ]
 	}
@@ -95,13 +94,13 @@ func CreateRecurringWindowDSWithoutRequired(trigSchedPName, rName, attrName stri
 	fmt.Println("=== STEP  Basic: testing recurring_window Data Source without ", attrName)
 	rBlock := `
 	
-	resource "aci_scheduler" "test" {
+	resource "aci_trigger_scheduler" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_recurring_window" "test" {
-		scheduler_dn  = aci_scheduler.test.id
+		scheduler_dn  = aci_trigger_scheduler.test.id
 		name  = "%s"
 	}
 	`
@@ -109,7 +108,7 @@ func CreateRecurringWindowDSWithoutRequired(trigSchedPName, rName, attrName stri
 	case "scheduler_dn":
 		rBlock += `
 	data "aci_recurring_window" "test" {
-	#	scheduler_dn  = aci_scheduler.test.id
+	#	scheduler_dn  = aci_trigger_scheduler.test.id
 		name  = aci_recurring_window.test.name
 		depends_on = [ aci_recurring_window.test ]
 	}
@@ -117,7 +116,7 @@ func CreateRecurringWindowDSWithoutRequired(trigSchedPName, rName, attrName stri
 	case "name":
 		rBlock += `
 	data "aci_recurring_window" "test" {
-		scheduler_dn  = aci_scheduler.test.id
+		scheduler_dn  = aci_trigger_scheduler.test.id
 	#	name  = aci_recurring_window.test.name
 		depends_on = [ aci_recurring_window.test ]
 	}
@@ -130,18 +129,18 @@ func CreateAccRecurringWindowDSWithInvalidParentDn(trigSchedPName, rName string)
 	fmt.Println("=== STEP  testing recurring_window Data Source with Invalid Parent Dn")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_scheduler" "test" {
+	resource "aci_trigger_scheduler" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_recurring_window" "test" {
-		scheduler_dn  = aci_scheduler.test.id
+		scheduler_dn  = aci_trigger_scheduler.test.id
 		name  = "%s"
 	}
 
 	data "aci_recurring_window" "test" {
-		scheduler_dn  = aci_scheduler.test.id
+		scheduler_dn  = aci_trigger_scheduler.test.id
 		name  = "${aci_recurring_window.test.name}_invalid"
 		depends_on = [ aci_recurring_window.test ]
 	}
@@ -153,18 +152,18 @@ func CreateAccRecurringWindowDataSourceUpdate(trigSchedPName, rName, key, value 
 	fmt.Println("=== STEP  testing recurring_window Data Source with random attribute")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_scheduler" "test" {
+	resource "aci_trigger_scheduler" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_recurring_window" "test" {
-		scheduler_dn  = aci_scheduler.test.id
+		scheduler_dn  = aci_trigger_scheduler.test.id
 		name  = "%s"
 	}
 
 	data "aci_recurring_window" "test" {
-		scheduler_dn  = aci_scheduler.test.id
+		scheduler_dn  = aci_trigger_scheduler.test.id
 		name  = aci_recurring_window.test.name
 		%s = "%s"
 		depends_on = [ aci_recurring_window.test ]
@@ -177,19 +176,19 @@ func CreateAccRecurringWindowDataSourceUpdatedResource(trigSchedPName, rName, ke
 	fmt.Println("=== STEP  testing recurring_window Data Source with updated resource")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_scheduler" "test" {
+	resource "aci_trigger_scheduler" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_recurring_window" "test" {
-		scheduler_dn  = aci_scheduler.test.id
+		scheduler_dn  = aci_trigger_scheduler.test.id
 		name  = "%s"
 		%s = "%s"
 	}
 
 	data "aci_recurring_window" "test" {
-		scheduler_dn  = aci_scheduler.test.id
+		scheduler_dn  = aci_trigger_scheduler.test.id
 		name  = aci_recurring_window.test.name
 		depends_on = [ aci_recurring_window.test ]
 	}

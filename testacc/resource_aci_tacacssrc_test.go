@@ -35,6 +35,7 @@ func TestAccAciTACACSSource_Basic(t *testing.T) {
 					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_default),
 
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "parent_dn", "uni/fabric/moncommon"),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
@@ -54,7 +55,7 @@ func TestAccAciTACACSSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_tacacs_source"),
 					resource.TestCheckResourceAttr(resourceName, "incl.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "all"),
+					resource.TestCheckResourceAttr(resourceName, "incl.0", "audit"),
 
 					resource.TestCheckResourceAttr(resourceName, "min_sev", "cleared"),
 
@@ -80,7 +81,6 @@ func TestAccAciTACACSSource_Basic(t *testing.T) {
 				Config: CreateAccTACACSSourceConfigWithRequiredParams(rNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdated),
 					testAccCheckAciTACACSSourceIdNotEqual(&tacacs_source_default, &tacacs_source_updated),
 				),
@@ -106,26 +106,6 @@ func TestAccAciTACACSSource_Update(t *testing.T) {
 					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_default),
 				),
 			},
-
-			{
-
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"all"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "all"),
-				),
-			},
-			{
-
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"all", "audit"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "all"),
-					resource.TestCheckResourceAttr(resourceName, "incl.1", "audit"),
-				),
-			},
 			{
 
 				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"audit"})),
@@ -133,27 +113,6 @@ func TestAccAciTACACSSource_Update(t *testing.T) {
 					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
 					resource.TestCheckResourceAttr(resourceName, "incl.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "incl.0", "audit"),
-				),
-			},
-			{
-
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"all", "audit", "events"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "all"),
-					resource.TestCheckResourceAttr(resourceName, "incl.1", "audit"),
-					resource.TestCheckResourceAttr(resourceName, "incl.2", "events"),
-				),
-			},
-			{
-
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"audit", "events"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "audit"),
-					resource.TestCheckResourceAttr(resourceName, "incl.1", "events"),
 				),
 			},
 			{
@@ -167,181 +126,26 @@ func TestAccAciTACACSSource_Update(t *testing.T) {
 			},
 			{
 
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"all", "audit", "events", "faults"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "4"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "all"),
-					resource.TestCheckResourceAttr(resourceName, "incl.1", "audit"),
-					resource.TestCheckResourceAttr(resourceName, "incl.2", "events"),
-					resource.TestCheckResourceAttr(resourceName, "incl.3", "faults"),
-				),
-			},
-			{
-
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"audit", "events", "faults"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "audit"),
-					resource.TestCheckResourceAttr(resourceName, "incl.1", "events"),
-					resource.TestCheckResourceAttr(resourceName, "incl.2", "faults"),
-				),
-			},
-			{
-
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"events", "faults"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "events"),
-					resource.TestCheckResourceAttr(resourceName, "incl.1", "faults"),
-				),
-			},
-			{
-
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"faults"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "faults"),
-				),
-			},
-			{
-
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"all", "audit", "events", "faults", "none"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "5"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "all"),
-					resource.TestCheckResourceAttr(resourceName, "incl.1", "audit"),
-					resource.TestCheckResourceAttr(resourceName, "incl.2", "events"),
-					resource.TestCheckResourceAttr(resourceName, "incl.3", "faults"),
-					resource.TestCheckResourceAttr(resourceName, "incl.4", "none"),
-				),
-			},
-			{
-
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"audit", "events", "faults", "none"})),
+				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"audit", "events", "faults", "session"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
 					resource.TestCheckResourceAttr(resourceName, "incl.#", "4"),
 					resource.TestCheckResourceAttr(resourceName, "incl.0", "audit"),
 					resource.TestCheckResourceAttr(resourceName, "incl.1", "events"),
 					resource.TestCheckResourceAttr(resourceName, "incl.2", "faults"),
-					resource.TestCheckResourceAttr(resourceName, "incl.3", "none"),
-				),
-			},
-			{
-
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"events", "faults", "none"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "events"),
-					resource.TestCheckResourceAttr(resourceName, "incl.1", "faults"),
-					resource.TestCheckResourceAttr(resourceName, "incl.2", "none"),
-				),
-			},
-			{
-
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"faults", "none"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "faults"),
-					resource.TestCheckResourceAttr(resourceName, "incl.1", "none"),
-				),
-			},
-			{
-
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"none"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "none"),
-				),
-			},
-			{
-
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"all", "audit", "events", "faults", "none", "session"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "6"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "all"),
-					resource.TestCheckResourceAttr(resourceName, "incl.1", "audit"),
-					resource.TestCheckResourceAttr(resourceName, "incl.2", "events"),
-					resource.TestCheckResourceAttr(resourceName, "incl.3", "faults"),
-					resource.TestCheckResourceAttr(resourceName, "incl.4", "none"),
-					resource.TestCheckResourceAttr(resourceName, "incl.5", "session"),
-				),
-			},
-			{
-
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"audit", "events", "faults", "none", "session"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "5"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "audit"),
-					resource.TestCheckResourceAttr(resourceName, "incl.1", "events"),
-					resource.TestCheckResourceAttr(resourceName, "incl.2", "faults"),
-					resource.TestCheckResourceAttr(resourceName, "incl.3", "none"),
-					resource.TestCheckResourceAttr(resourceName, "incl.4", "session"),
-				),
-			},
-			{
-
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"events", "faults", "none", "session"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "4"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "events"),
-					resource.TestCheckResourceAttr(resourceName, "incl.1", "faults"),
-					resource.TestCheckResourceAttr(resourceName, "incl.2", "none"),
 					resource.TestCheckResourceAttr(resourceName, "incl.3", "session"),
 				),
 			},
-			{
 
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"faults", "none", "session"})),
+			{
+				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"session", "faults", "events", "audit"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "3"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "faults"),
-					resource.TestCheckResourceAttr(resourceName, "incl.1", "none"),
-					resource.TestCheckResourceAttr(resourceName, "incl.2", "session"),
-				),
-			},
-			{
-
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"none", "session"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "none"),
-					resource.TestCheckResourceAttr(resourceName, "incl.1", "session"),
-				),
-			},
-			{
-
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"session"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "incl.#", "4"),
 					resource.TestCheckResourceAttr(resourceName, "incl.0", "session"),
-				),
-			},
-			{
-				Config: CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"session", "none", "faults", "events", "audit", "all"})),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-					resource.TestCheckResourceAttr(resourceName, "incl.#", "6"),
-					resource.TestCheckResourceAttr(resourceName, "incl.0", "session"),
-					resource.TestCheckResourceAttr(resourceName, "incl.1", "none"),
-					resource.TestCheckResourceAttr(resourceName, "incl.2", "faults"),
-					resource.TestCheckResourceAttr(resourceName, "incl.3", "events"),
-					resource.TestCheckResourceAttr(resourceName, "incl.4", "audit"),
-					resource.TestCheckResourceAttr(resourceName, "incl.5", "all"),
+					resource.TestCheckResourceAttr(resourceName, "incl.1", "faults"),
+					resource.TestCheckResourceAttr(resourceName, "incl.2", "events"),
+					resource.TestCheckResourceAttr(resourceName, "incl.3", "audit"),
 				),
 			},
 			{
@@ -397,7 +201,10 @@ func TestAccAciTACACSSource_Negative(t *testing.T) {
 			{
 				Config: CreateAccTACACSSourceConfig(rName),
 			},
-
+			{
+				Config:      CreateAccTACACSSourceWithInValidParentDn(rName),
+				ExpectError: regexp.MustCompile(`unknown property value`),
+			},
 			{
 				Config:      CreateAccTACACSSourceUpdatedAttr(rName, "description", acctest.RandString(129)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
@@ -415,10 +222,9 @@ func TestAccAciTACACSSource_Negative(t *testing.T) {
 				ExpectError: regexp.MustCompile(`expected (.)+ to be one of (.)+, got(.)+`),
 			},
 			{
-				Config:      CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"all", "all"})),
+				Config:      CreateAccTACACSSourceUpdatedAttrList(rName, "incl", StringListtoString([]string{"audit", "audit"})),
 				ExpectError: regexp.MustCompile(`duplication is not supported in list`),
 			},
-			// TODO: add unspecified case for "incl" if applicable
 
 			{
 				Config:      CreateAccTACACSSourceUpdatedAttr(rName, "min_sev", randomValue),
@@ -517,13 +323,12 @@ func testAccCheckAciTACACSSourceIdNotEqual(m1, m2 *models.TACACSSource) resource
 func CreateTACACSSourceWithoutRequired(rName, attrName string) string {
 	fmt.Println("=== STEP  Basic: testing tacacs_source creation without ", attrName)
 	rBlock := `
-	
 	`
 	switch attrName {
 	case "name":
 		rBlock += `
 	resource "aci_tacacs_source" "test" {
-	
+		
 	#	name  = "%s"
 	}
 		`
@@ -531,13 +336,23 @@ func CreateTACACSSourceWithoutRequired(rName, attrName string) string {
 	return fmt.Sprintf(rBlock, rName)
 }
 
+func CreateAccTACACSSourceWithInValidParentDn(rName string) string {
+	fmt.Println("=== STEP  Negative Case: testing tacacs_source creation with invalid parent Dn")
+	resource := fmt.Sprintf(`
+	resource "aci_tacacs_source" "test" {
+		parent_dn   = "uni/tn-common"
+  		name        = "%s"
+	}
+	`, rName)
+	return resource
+}
+
 func CreateAccTACACSSourceConfigWithRequiredParams(rName string) string {
 	fmt.Println("=== STEP  testing tacacs_source creation with updated naming arguments")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tacacs_source" "test" {
-	
-		name  = "%s"
+  		name        = "%s"
 	}
 	`, rName)
 	return resource
@@ -547,7 +362,7 @@ func CreateAccTACACSSourceConfigUpdatedName(rName string) string {
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tacacs_source" "test" {
-	
+		
 		name  = "%s"
 	}
 	`, rName)
@@ -559,7 +374,7 @@ func CreateAccTACACSSourceConfig(rName string) string {
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tacacs_source" "test" {
-	
+		
 		name  = "%s"
 	}
 	`, rName)
@@ -571,7 +386,7 @@ func CreateAccTACACSSourceConfigMultiple(rName string) string {
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tacacs_source" "test" {
-	
+		
 		name  = "%s_${count.index}"
 		count = 5
 	}
@@ -584,12 +399,13 @@ func CreateAccTACACSSourceConfigWithOptionalValues(rName string) string {
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tacacs_source" "test" {
-	
+		
 		name  = "%s"
+		parent_dn   = "uni/fabric/moncommon"
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_tacacs_source"
-		incl = ["all"]
+		incl = ["audit"]
 		min_sev = "cleared"
 		
 	}
@@ -600,8 +416,9 @@ func CreateAccTACACSSourceConfigWithOptionalValues(rName string) string {
 
 func CreateAccTACACSSourceRemovingRequiredField() string {
 	fmt.Println("=== STEP  Basic: testing tacacs_source updation without required parameters")
-	resource := fmt.Sprintf(`
+	resource := `
 	resource "aci_tacacs_source" "test" {
+		parent_dn   = "uni/fabric/moncommon"
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_tacacs_source"
@@ -609,7 +426,7 @@ func CreateAccTACACSSourceRemovingRequiredField() string {
 		min_sev = "cleared"
 		
 	}
-	`)
+	`
 
 	return resource
 }
@@ -619,7 +436,7 @@ func CreateAccTACACSSourceUpdatedAttr(rName, attribute, value string) string {
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tacacs_source" "test" {
-	
+		
 		name  = "%s"
 		%s = "%s"
 	}
@@ -632,7 +449,7 @@ func CreateAccTACACSSourceUpdatedAttrList(rName, attribute, value string) string
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tacacs_source" "test" {
-	
+		
 		name  = "%s"
 		%s = %s
 	}
