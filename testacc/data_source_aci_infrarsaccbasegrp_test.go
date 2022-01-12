@@ -82,7 +82,7 @@ func CreateAccAccessGroupConfigDataSource(infraAccPortPName, infraHPortSName str
 }
 
 func CreateAccessGroupDSWithoutRequired(infraAccPortPName, infraHPortSName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing access_group creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing access_group Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_leaf_interface_profile" "test" {
