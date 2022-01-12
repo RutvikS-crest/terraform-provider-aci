@@ -63,6 +63,11 @@ func TestAccAciFirmwareGroup_Basic(t *testing.T) {
 			},
 
 			{
+				Config:      CreateAccFirmwareGroupRemovingRequiredField(),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+
+			{
 				Config: CreateAccFirmwareGroupConfigWithRequiredParams(rNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciFirmwareGroupExists(resourceName, &firmware_group_updated),
@@ -154,6 +159,20 @@ func TestAccAciFirmwareGroup_Negative(t *testing.T) {
 			},
 			{
 				Config: CreateAccFirmwareGroupConfig(rName),
+			},
+		},
+	})
+}
+
+func TestAccAciFirmwareGroup_MultipleCreateDelete(t *testing.T) {
+	rName := makeTestVariable(acctest.RandString(5))
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciFirmwareGroupDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: CreateAccFirmwareGroupConfigMultiple(rName),
 			},
 		},
 	})
@@ -315,5 +334,24 @@ func CreateAccFirmwareGroupConfigUpdatedName(longerName string) string {
 	name  = "%s"
 	}
 	`, longerName)
+	return resource
+}
+
+func CreateAccFirmwareGroupConfigMultiple(rName string) string {
+	fmt.Println("=== STEP  testing multiple firmware_group creation with required arguments only")
+	resource := fmt.Sprintf(`
+	
+	resource "aci_firmware_group" "test1" {
+		name  = "%s"
+	}
+
+	resource "aci_firmware_group" "test2" {
+		name  = "%s"
+	}
+
+	resource "aci_firmware_group" "test3" {
+		name  = "%s"
+	}
+	`, rName+"1", rName+"2", rName+"3")
 	return resource
 }
