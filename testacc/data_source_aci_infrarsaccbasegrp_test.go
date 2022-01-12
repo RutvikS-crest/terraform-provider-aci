@@ -24,7 +24,7 @@ func TestAccAciAccessGroupDataSource_Basic(t *testing.T) {
 			{
 				Config:      CreateAccessGroupDSWithoutRequired(rName, rName, "access_port_selector_dn"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
-			}, 
+			},
 			{
 				Config: CreateAccAccessGroupConfigDataSource(rName, rName),
 				Check: resource.ComposeTestCheckFunc(

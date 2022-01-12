@@ -26,11 +26,7 @@ func TestAccAciMgmtconnectivitypreference_Basic(t *testing.T) {
 				Config: CreateAccMgmtconnectivitypreferenceConfig(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciMgmtconnectivitypreferenceExists(resourceName, &mgmt_preference_default),
-
-					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
-					resource.TestCheckResourceAttr(resourceName, "description", ""),
-					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
-					resource.TestCheckResourceAttr(resourceName, "interface_pref", "inband"),
+					// all default values varies based on server
 				),
 			},
 			{
@@ -51,10 +47,6 @@ func TestAccAciMgmtconnectivitypreference_Basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
-			},
-			{
-				Config:      CreateAccMgmtconnectivitypreferenceRemovingRequiredField(),
-				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 		},
 	})
@@ -138,7 +130,7 @@ func testAccCheckAciMgmtconnectivitypreferenceDestroy(s *terraform.State) error 
 		if rs.Type == "aci_mgmt_preference" {
 			cont, err := client.Get(rs.Primary.ID)
 			mgmt_preference := models.MgmtconnectivitypreferenceFromContainer(cont)
-			if err == nil {
+			if err != nil {
 				return fmt.Errorf("Mgmt Preference %s Still exists", mgmt_preference.DistinguishedName)
 			}
 		} else {
@@ -193,21 +185,6 @@ func CreateAccMgmtconnectivitypreferenceConfigWithOptionalValues() string {
 	
 	resource "aci_mgmt_preference" "test" {
 	
-		description = "created while acceptance testing"
-		annotation = "orchestrator:terraform_testacc"
-		name_alias = "test_mgmt_preference"
-		interface_pref = "ooband"
-		
-	}
-	`)
-
-	return resource
-}
-
-func CreateAccMgmtconnectivitypreferenceRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing mgmt_preference updation without required parameters")
-	resource := fmt.Sprintf(`
-	resource "aci_mgmt_preference" "test" {
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_mgmt_preference"

@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAccAciFexProfileDataSource_Basic(t *testing.T) {
+func TestAccAciFEXProfileDataSource_Basic(t *testing.T) {
 	resourceName := "aci_fex_profile.test"
 	dataSourceName := "data.aci_fex_profile.test"
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")
@@ -107,7 +107,6 @@ func CreateAccFexProfileDSWithInvalidName(rName string) string {
 	data "aci_fex_profile" "test" {
 	
 		name  = "${aci_fex_profile.test.name}_invalid"
-		name  = aci_fex_profile.test.name
 		depends_on = [ aci_fex_profile.test ]
 	}
 	`, rName)

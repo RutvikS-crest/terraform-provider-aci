@@ -36,8 +36,6 @@ func TestAccAciManagedNodeConnectivityGroup_Basic(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
-					resource.TestCheckResourceAttr(resourceName, "description", ""),
-					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 				),
 			},
 			{
@@ -47,9 +45,6 @@ func TestAccAciManagedNodeConnectivityGroup_Basic(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
-					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
-					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_managed_node_connectivity_group"),
-
 					testAccCheckAciManagedNodeConnectivityGroupIdEqual(&managed_node_connectivity_group_default, &managed_node_connectivity_group_updated),
 				),
 			},
@@ -95,20 +90,10 @@ func TestAccAciManagedNodeConnectivityGroup_Negative(t *testing.T) {
 			{
 				Config: CreateAccManagedNodeConnectivityGroupConfig(rName),
 			},
-
-			{
-				Config:      CreateAccManagedNodeConnectivityGroupUpdatedAttr(rName, "description", acctest.RandString(129)),
-				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
-			},
 			{
 				Config:      CreateAccManagedNodeConnectivityGroupUpdatedAttr(rName, "annotation", acctest.RandString(129)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
-			{
-				Config:      CreateAccManagedNodeConnectivityGroupUpdatedAttr(rName, "name_alias", acctest.RandString(64)),
-				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
-			},
-
 			{
 				Config:      CreateAccManagedNodeConnectivityGroupUpdatedAttr(rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
@@ -270,9 +255,7 @@ func CreateAccManagedNodeConnectivityGroupConfigWithOptionalValues(rName string)
 	resource "aci_managed_node_connectivity_group" "test" {
 	
 		name  = "%s"
-		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
-		name_alias = "test_managed_node_connectivity_group"
 		
 	}
 	`, rName)
@@ -284,9 +267,7 @@ func CreateAccManagedNodeConnectivityGroupRemovingRequiredField() string {
 	fmt.Println("=== STEP  Basic: testing managed_node_connectivity_group updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_managed_node_connectivity_group" "test" {
-		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
-		name_alias = "test_managed_node_connectivity_group"
 		
 	}
 	`)

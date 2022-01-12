@@ -21,6 +21,8 @@ func TestAccAciTag_Basic(t *testing.T) {
 
 	key := makeTestVariable(acctest.RandString(5))
 	keyUpdated := makeTestVariable(acctest.RandString(5))
+	value := makeTestVariable(acctest.RandString(5))
+	valueUpdated := makeTestVariable(acctest.RandString(5))
 	fvTenantName := makeTestVariable(acctest.RandString(5))
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -29,38 +31,24 @@ func TestAccAciTag_Basic(t *testing.T) {
 		CheckDestroy:      testAccCheckAciTagDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      CreateTagWithoutRequired(fvTenantName, key, "parent_dn"),
+				Config:      CreateTagWithoutRequired(fvTenantName, key, value, "parent_dn"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config:      CreateTagWithoutRequired(fvTenantName, key, "key"),
+				Config:      CreateTagWithoutRequired(fvTenantName, key, value, "key"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccTagConfig(fvTenantName, key),
+				Config:      CreateTagWithoutRequired(fvTenantName, key, value, "value"),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+			{
+				Config: CreateAccTagConfig(fvTenantName, key, value),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciTagExists(resourceName, &tag_default),
-					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s", key)),
+					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s", fvTenantName)),
 					resource.TestCheckResourceAttr(resourceName, "key", key),
-					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
-					resource.TestCheckResourceAttr(resourceName, "description", ""),
-					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
-					resource.TestCheckResourceAttr(resourceName, "value", ""),
-				),
-			},
-			{
-				Config: CreateAccTagConfigWithOptionalValues(fvTenantName, key),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTagExists(resourceName, &tag_updated),
-					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s", key)),
-					resource.TestCheckResourceAttr(resourceName, "key", key),
-					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
-					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
-					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_tag"),
-
-					resource.TestCheckResourceAttr(resourceName, "value", ""),
-
-					testAccCheckAciTagIdEqual(&tag_default, &tag_updated),
+					resource.TestCheckResourceAttr(resourceName, "value", value),
 				),
 			},
 			{
@@ -74,75 +62,37 @@ func TestAccAciTag_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccTagConfigWithRequiredParams(rNameUpdated, key),
+				Config: CreateAccTagConfigWithRequiredParams(rNameUpdated, key, value),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciTagExists(resourceName, &tag_updated),
 					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s", rNameUpdated)),
 					resource.TestCheckResourceAttr(resourceName, "key", key),
+					resource.TestCheckResourceAttr(resourceName, "value", value),
 					testAccCheckAciTagIdNotEqual(&tag_default, &tag_updated),
 				),
 			},
 			{
-				Config: CreateAccTagConfig(fvTenantName, key),
+				Config: CreateAccTagConfig(fvTenantName, key, value),
 			},
 			{
-				Config: CreateAccTagConfigWithRequiredParams(rName, keyUpdated),
+				Config: CreateAccTagConfigWithRequiredParams(rName, keyUpdated, value),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciTagExists(resourceName, &tag_updated),
 					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s", rName)),
 					resource.TestCheckResourceAttr(resourceName, "key", keyUpdated),
+					resource.TestCheckResourceAttr(resourceName, "value", value),
 					testAccCheckAciTagIdNotEqual(&tag_default, &tag_updated),
 				),
 			},
-		},
-	})
-}
-
-func TestAccAciTag_Negative(t *testing.T) {
-	rName := makeTestVariable(acctest.RandString(5))
-
-	key := makeTestVariable(acctest.RandString(5))
-
-	fvTenantName := makeTestVariable(acctest.RandString(5))
-	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
-	randomValue := acctest.RandString(5)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
-		CheckDestroy:      testAccCheckAciTagDestroy,
-		Steps: []resource.TestStep{
 			{
-				Config: CreateAccTagConfig(fvTenantName, key),
-			},
-			{
-				Config:      CreateAccTagWithInValidParentDn(rName, key),
-				ExpectError: regexp.MustCompile(`unknown property value`),
-			},
-			{
-				Config:      CreateAccTagUpdatedAttr(fvTenantName, key, "description", acctest.RandString(129)),
-				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
-			},
-			{
-				Config:      CreateAccTagUpdatedAttr(fvTenantName, key, "annotation", acctest.RandString(129)),
-				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
-			},
-			{
-				Config:      CreateAccTagUpdatedAttr(fvTenantName, key, "name_alias", acctest.RandString(64)),
-				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
-			},
-
-			{
-				Config:      CreateAccTagUpdatedAttr(fvTenantName, key, "value", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
-			},
-
-			{
-				Config:      CreateAccTagUpdatedAttr(fvTenantName, key, randomParameter, randomValue),
-				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
-			},
-			{
-				Config: CreateAccTagConfig(fvTenantName, key),
+				Config: CreateAccTagConfigWithRequiredParams(rName, key, valueUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciTagExists(resourceName, &tag_updated),
+					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s", rName)),
+					resource.TestCheckResourceAttr(resourceName, "key", key),
+					resource.TestCheckResourceAttr(resourceName, "value", valueUpdated),
+					testAccCheckAciTagIdNotEqual(&tag_default, &tag_updated),
+				),
 			},
 		},
 	})
@@ -151,6 +101,7 @@ func TestAccAciTag_Negative(t *testing.T) {
 func TestAccAciTag_MultipleCreateDelete(t *testing.T) {
 
 	key := makeTestVariable(acctest.RandString(5))
+	value := makeTestVariable(acctest.RandString(5))
 	fvTenantName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -158,7 +109,7 @@ func TestAccAciTag_MultipleCreateDelete(t *testing.T) {
 		CheckDestroy:      testAccCheckAciTagDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: CreateAccTagConfigMultiple(fvTenantName, key),
+				Config: CreateAccTagConfigMultiple(fvTenantName, key, value),
 			},
 		},
 	})
@@ -227,11 +178,11 @@ func testAccCheckAciTagIdNotEqual(m1, m2 *models.Tag) resource.TestCheckFunc {
 	}
 }
 
-func CreateTagWithoutRequired(fvTenantName, key, attrName string) string {
+func CreateTagWithoutRequired(fvTenantName, key, value, attrName string) string {
 	fmt.Println("=== STEP  Basic: testing tag creation without ", attrName)
 	rBlock := `
 	
-	resource "aci_fault_inst" "test" {
+	resource "aci_tenant" "test" {
 		name 		= "%s"
 		
 	}
@@ -241,74 +192,87 @@ func CreateTagWithoutRequired(fvTenantName, key, attrName string) string {
 	case "parent_dn":
 		rBlock += `
 	resource "aci_tag" "test" {
-	#	parent_dn  = aci_fault_inst.test.id
+	#	parent_dn  = aci_tenant.test.id
 		key  = "%s"
+		value = "%s"
 	}
 		`
 	case "key":
 		rBlock += `
 	resource "aci_tag" "test" {
-		parent_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 	#	key  = "%s"
+		value = "%s"	
+	}
+		`
+	case "value":
+		rBlock += `
+	resource "aci_tag" "test" {
+		parent_dn  = aci_tenant.test.id
+		key  = "%s"
+	#	value = "%s"	
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock, fvTenantName, key)
+	return fmt.Sprintf(rBlock, fvTenantName, key, value)
 }
 
-func CreateAccTagConfigWithRequiredParams(fvTenantName, key string) string {
+func CreateAccTagConfigWithRequiredParams(fvTenantName, key, value string) string {
 	fmt.Println("=== STEP  testing tag creation with updated naming arguments")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_fault_inst" "test" {
+	resource "aci_tenant" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_tag" "test" {
-		parent_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 		key  = "%s"
+		value = "%s"
 	}
-	`, fvTenantName, key)
+	`, fvTenantName, key, value)
 	return resource
 }
 
-func CreateAccTagConfig(fvTenantName, key string) string {
+func CreateAccTagConfig(fvTenantName, key, value string) string {
 	fmt.Println("=== STEP  testing tag creation with required arguments only")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_fault_inst" "test" {
+	resource "aci_tenant" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_tag" "test" {
-		parent_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 		key  = "%s"
+		value = "%s"
 	}
-	`, fvTenantName, key)
+	`, fvTenantName, key, value)
 	return resource
 }
 
-func CreateAccTagConfigMultiple(fvTenantName, key string) string {
+func CreateAccTagConfigMultiple(fvTenantName, key, value string) string {
 	fmt.Println("=== STEP  testing multiple tag creation with required arguments only")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_fault_inst" "test" {
+	resource "aci_tenant" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_tag" "test" {
-		parent_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 		key  = "%s_${count.index}"
+		value = "%s"
 		count = 5
 	}
-	`, fvTenantName, key)
+	`, fvTenantName, key, value)
 	return resource
 }
 
-func CreateAccTagWithInValidParentDn(rName, key string) string {
+func CreateAccTagWithInValidParentDn(rName, key, value string) string {
 	fmt.Println("=== STEP  Negative Case: testing tag creation with invalid parent Dn")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test"{
@@ -317,30 +281,31 @@ func CreateAccTagWithInValidParentDn(rName, key string) string {
 	resource "aci_tag" "test" {
 		parent_dn  = aci_tenant.test.id
 		key  = "%s"	
+		value = "%s"
 	}
-	`, rName, key)
+	`, rName, key, value)
 	return resource
 }
 
-func CreateAccTagConfigWithOptionalValues(fvTenantName, key string) string {
+func CreateAccTagConfigWithOptionalValues(fvTenantName, key, value string) string {
 	fmt.Println("=== STEP  Basic: testing tag creation with optional parameters")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_fault_inst" "test" {
+	resource "aci_tenant" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_tag" "test" {
-		parent_dn  = "${aci_fault_inst.test.id}"
+		parent_dn  = "${aci_tenant.test.id}"
 		key  = "%s"
+		value = "%s"
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_tag"
-		value = ""
 		
 	}
-	`, fvTenantName, key)
+	`, fvTenantName, key, value)
 
 	return resource
 }
@@ -352,7 +317,6 @@ func CreateAccTagRemovingRequiredField() string {
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_tag"
-		value = ""
 		
 	}
 	`)
@@ -360,20 +324,22 @@ func CreateAccTagRemovingRequiredField() string {
 	return resource
 }
 
-func CreateAccTagUpdatedAttr(fvTenantName, key, attribute, value string) string {
+func CreateAccTagUpdatedAttr(fvTenantName, key, value, attribute, val string) string {
 	fmt.Printf("=== STEP  testing tag attribute: %s = %s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	
-	resource "aci_fault_inst" "test" {
+	resource "aci_tenant" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_tag" "test" {
-		parent_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 		key  = "%s"
+		value = "%s"
 		%s = "%s"
 	}
-	`, fvTenantName, key, attribute, value)
+	`, fvTenantName, key, value, attribute, val)
 	return resource
 }
+

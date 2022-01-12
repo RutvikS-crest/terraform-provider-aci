@@ -57,6 +57,9 @@ func TestAccAciAccessSwitchPolicyGroup_Basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"relation_infra_rs_netflow_node_pol",
+				},
 			},
 			{
 				Config:      CreateAccAccessSwitchPolicyGroupConfigUpdatedName(acctest.RandString(65)),

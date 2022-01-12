@@ -18,42 +18,49 @@ func TestAccAciRadiusProvider_Basic(t *testing.T) {
 	resourceName := "aci_radius_provider.test"
 	rName := makeTestVariable(acctest.RandString(5))
 	rNameUpdated := makeTestVariable(acctest.RandString(5))
+	providerType := "radius"
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		CheckDestroy:      testAccCheckAciRadiusProviderDestroy,
 		Steps: []resource.TestStep{
 
 			{
-				Config:      CreateRadiusProviderWithoutRequired(rName, "name"),
+				Config:      CreateRadiusProviderWithoutRequired(rName, providerType, "name"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccRadiusProviderConfig(rName),
+				Config:      CreateRadiusProviderWithoutRequired(rName, providerType, "type"),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+			{
+				Config: CreateAccRadiusProviderConfig(rName, providerType),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciRadiusProviderExists(resourceName, &radius_provider_default),
 
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "type", providerType),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 					resource.TestCheckResourceAttr(resourceName, "auth_port", "1812"),
 					resource.TestCheckResourceAttr(resourceName, "auth_protocol", "pap"),
-					resource.TestCheckResourceAttr(resourceName, "key", ""),
+					// resource.TestCheckResourceAttr(resourceName, "key", ""),
 					resource.TestCheckResourceAttr(resourceName, "monitor_server", "disabled"),
-					resource.TestCheckResourceAttr(resourceName, "monitoring_password", ""),
+					// resource.TestCheckResourceAttr(resourceName, "monitoring_password", ""),
 					resource.TestCheckResourceAttr(resourceName, "monitoring_user", "default"),
 					resource.TestCheckResourceAttr(resourceName, "retries", "1"),
 					resource.TestCheckResourceAttr(resourceName, "timeout", "5"),
 				),
 			},
 			{
-				Config: CreateAccRadiusProviderConfigWithOptionalValues(rName),
+				Config: CreateAccRadiusProviderConfigWithOptionalValues(rName, providerType),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciRadiusProviderExists(resourceName, &radius_provider_updated),
 
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "type", providerType),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_radius_provider"),
@@ -61,15 +68,15 @@ func TestAccAciRadiusProvider_Basic(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "auth_protocol", "chap"),
 
-					resource.TestCheckResourceAttr(resourceName, "key", ""),
+					resource.TestCheckResourceAttr(resourceName, "key", "cisco"),
 
 					resource.TestCheckResourceAttr(resourceName, "monitor_server", "enabled"),
 
-					resource.TestCheckResourceAttr(resourceName, "monitoring_password", ""),
+					resource.TestCheckResourceAttr(resourceName, "monitoring_password", "cisco"),
 
-					resource.TestCheckResourceAttr(resourceName, "monitoring_user", ""),
-					resource.TestCheckResourceAttr(resourceName, "retries", "1"),
-					resource.TestCheckResourceAttr(resourceName, "timeout", "1"),
+					resource.TestCheckResourceAttr(resourceName, "monitoring_user", "cisco"),
+					resource.TestCheckResourceAttr(resourceName, "retries", "3"),
+					resource.TestCheckResourceAttr(resourceName, "timeout", "60"),
 
 					testAccCheckAciRadiusProviderIdEqual(&radius_provider_default, &radius_provider_updated),
 				),
@@ -78,23 +85,41 @@ func TestAccAciRadiusProvider_Basic(t *testing.T) {
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"monitoring_password",
+					"key",
+				},
 			},
 			{
-				Config:      CreateAccRadiusProviderConfigUpdatedName(acctest.RandString(65)),
+				Config:      CreateAccRadiusProviderConfigUpdatedName(acctest.RandString(65), providerType),
 				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
 			},
-
+			{
+				Config:      CreateAccRadiusProviderConfigUpdatedName(rName, acctest.RandString(5)),
+				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
+			},
 			{
 				Config:      CreateAccRadiusProviderRemovingRequiredField(),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 
 			{
-				Config: CreateAccRadiusProviderConfigWithRequiredParams(rNameUpdated),
+				Config: CreateAccRadiusProviderConfigWithRequiredParams(rName, "duo"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciRadiusProviderExists(resourceName, &radius_provider_updated),
+
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "type", "duo"),
+					testAccCheckAciRadiusProviderIdNotEqual(&radius_provider_default, &radius_provider_updated),
+				),
+			},
+			{
+				Config: CreateAccRadiusProviderConfigWithRequiredParams(rNameUpdated, providerType),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciRadiusProviderExists(resourceName, &radius_provider_updated),
 
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdated),
+					resource.TestCheckResourceAttr(resourceName, "type", providerType),
 					testAccCheckAciRadiusProviderIdNotEqual(&radius_provider_default, &radius_provider_updated),
 				),
 			},
@@ -106,21 +131,22 @@ func TestAccAciRadiusProvider_Update(t *testing.T) {
 	var radius_provider_default models.RADIUSProvider
 	var radius_provider_updated models.RADIUSProvider
 	resourceName := "aci_radius_provider.test"
+	providerType := "radius"
 	rName := makeTestVariable(acctest.RandString(5))
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		CheckDestroy:      testAccCheckAciRadiusProviderDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: CreateAccRadiusProviderConfig(rName),
+				Config: CreateAccRadiusProviderConfig(rName, providerType),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciRadiusProviderExists(resourceName, &radius_provider_default),
 				),
 			},
 			{
-				Config: CreateAccRadiusProviderUpdatedAttr(rName, "auth_port", "65535"),
+				Config: CreateAccRadiusProviderUpdatedAttr(rName, providerType, "auth_port", "65535"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciRadiusProviderExists(resourceName, &radius_provider_updated),
 					resource.TestCheckResourceAttr(resourceName, "auth_port", "65535"),
@@ -128,7 +154,7 @@ func TestAccAciRadiusProvider_Update(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccRadiusProviderUpdatedAttr(rName, "auth_port", "32767"),
+				Config: CreateAccRadiusProviderUpdatedAttr(rName, providerType, "auth_port", "32767"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciRadiusProviderExists(resourceName, &radius_provider_updated),
 					resource.TestCheckResourceAttr(resourceName, "auth_port", "32767"),
@@ -136,7 +162,7 @@ func TestAccAciRadiusProvider_Update(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccRadiusProviderUpdatedAttr(rName, "retries", "5"),
+				Config: CreateAccRadiusProviderUpdatedAttr(rName, providerType, "retries", "5"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciRadiusProviderExists(resourceName, &radius_provider_updated),
 					resource.TestCheckResourceAttr(resourceName, "retries", "5"),
@@ -144,7 +170,7 @@ func TestAccAciRadiusProvider_Update(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccRadiusProviderUpdatedAttr(rName, "retries", "2"),
+				Config: CreateAccRadiusProviderUpdatedAttr(rName, providerType, "retries", "2"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciRadiusProviderExists(resourceName, &radius_provider_updated),
 					resource.TestCheckResourceAttr(resourceName, "retries", "2"),
@@ -152,7 +178,7 @@ func TestAccAciRadiusProvider_Update(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccRadiusProviderUpdatedAttr(rName, "timeout", "60"),
+				Config: CreateAccRadiusProviderUpdatedAttr(rName, providerType, "timeout", "60"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciRadiusProviderExists(resourceName, &radius_provider_updated),
 					resource.TestCheckResourceAttr(resourceName, "timeout", "60"),
@@ -160,7 +186,7 @@ func TestAccAciRadiusProvider_Update(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccRadiusProviderUpdatedAttr(rName, "timeout", "30"),
+				Config: CreateAccRadiusProviderUpdatedAttr(rName, providerType, "timeout", "30"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciRadiusProviderExists(resourceName, &radius_provider_updated),
 					resource.TestCheckResourceAttr(resourceName, "timeout", "30"),
@@ -169,125 +195,109 @@ func TestAccAciRadiusProvider_Update(t *testing.T) {
 			},
 
 			{
-				Config: CreateAccRadiusProviderConfig(rName),
+				Config: CreateAccRadiusProviderConfig(rName, providerType),
 			},
 		},
 	})
 }
 
 func TestAccAciRadiusProvider_Negative(t *testing.T) {
+	providerType := "radius"
 	rName := makeTestVariable(acctest.RandString(5))
 
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(5)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		CheckDestroy:      testAccCheckAciRadiusProviderDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: CreateAccRadiusProviderConfig(rName),
+				Config: CreateAccRadiusProviderConfig(rName, providerType),
 			},
 
 			{
-				Config:      CreateAccRadiusProviderUpdatedAttr(rName, "description", acctest.RandString(129)),
+				Config:      CreateAccRadiusProviderUpdatedAttr(rName, providerType, "description", acctest.RandString(129)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
 			{
-				Config:      CreateAccRadiusProviderUpdatedAttr(rName, "annotation", acctest.RandString(129)),
+				Config:      CreateAccRadiusProviderUpdatedAttr(rName, providerType, "annotation", acctest.RandString(129)),
+				ExpectError: regexp.MustCompile(`failed validation for value`),
+			},
+			{
+				Config:      CreateAccRadiusProviderUpdatedAttr(rName, providerType, "name_alias", acctest.RandString(64)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
 			{
-				Config:      CreateAccRadiusProviderUpdatedAttr(rName, "name_alias", acctest.RandString(64)),
-				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
+				Config: CreateAccRadiusProviderConfig(rName+"2", providerType),
 			},
-
 			{
-				Config:      CreateAccRadiusProviderUpdatedAttr(rName, "auth_port", randomValue),
+				Config:      CreateAccRadiusProviderUpdatedAttr(rName, providerType, "auth_port", randomValue),
 				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
-				Config:      CreateAccRadiusProviderUpdatedAttr(rName, "auth_port", "0"),
+				Config:      CreateAccRadiusProviderUpdatedAttr(rName, providerType, "auth_port", "0"),
 				ExpectError: regexp.MustCompile(`out of range`),
 			},
 			{
-				Config:      CreateAccRadiusProviderUpdatedAttr(rName, "auth_port", "65536"),
+				Config:      CreateAccRadiusProviderUpdatedAttr(rName, providerType, "auth_port", "65536"),
 				ExpectError: regexp.MustCompile(`out of range`),
 			},
 
 			{
-				Config:      CreateAccRadiusProviderUpdatedAttr(rName, "auth_protocol", randomValue),
+				Config:      CreateAccRadiusProviderUpdatedAttr(rName, providerType, "auth_protocol", randomValue),
 				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
 			},
 
 			{
-				Config:      CreateAccRadiusProviderUpdatedAttr(rName, "key", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
-			},
-
-			{
-				Config:      CreateAccRadiusProviderUpdatedAttr(rName, "monitor_server", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
-			},
-
-			{
-				Config:      CreateAccRadiusProviderUpdatedAttr(rName, "monitoring_password", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
-			},
-
-			{
-				Config:      CreateAccRadiusProviderUpdatedAttr(rName, "monitoring_user", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
-			},
-
-			{
-				Config:      CreateAccRadiusProviderUpdatedAttr(rName, "retries", randomValue),
+				Config:      CreateAccRadiusProviderUpdatedAttr(rName, providerType, "retries", randomValue),
 				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
-				Config:      CreateAccRadiusProviderUpdatedAttr(rName, "retries", "-1"),
+				Config:      CreateAccRadiusProviderUpdatedAttr(rName, providerType, "retries", "-1"),
 				ExpectError: regexp.MustCompile(`out of range`),
 			},
 			{
-				Config:      CreateAccRadiusProviderUpdatedAttr(rName, "retries", "6"),
+				Config:      CreateAccRadiusProviderUpdatedAttr(rName, providerType, "retries", "6"),
 				ExpectError: regexp.MustCompile(`out of range`),
 			},
 
 			{
-				Config:      CreateAccRadiusProviderUpdatedAttr(rName, "timeout", randomValue),
+				Config:      CreateAccRadiusProviderUpdatedAttr(rName, providerType, "timeout", randomValue),
 				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
-				Config:      CreateAccRadiusProviderUpdatedAttr(rName, "timeout", "-1"),
+				Config:      CreateAccRadiusProviderUpdatedAttr(rName, providerType, "timeout", "-1"),
 				ExpectError: regexp.MustCompile(`out of range`),
 			},
 			{
-				Config:      CreateAccRadiusProviderUpdatedAttr(rName, "timeout", "61"),
+				Config:      CreateAccRadiusProviderUpdatedAttr(rName, providerType, "timeout", "61"),
 				ExpectError: regexp.MustCompile(`out of range`),
 			},
 
 			{
-				Config:      CreateAccRadiusProviderUpdatedAttr(rName, randomParameter, randomValue),
+				Config:      CreateAccRadiusProviderUpdatedAttr(rName, providerType, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
 			{
-				Config: CreateAccRadiusProviderConfig(rName),
+				Config: CreateAccRadiusProviderConfig(rName, providerType),
 			},
 		},
 	})
 }
 
 func TestAccAciRadiusProvider_MultipleCreateDelete(t *testing.T) {
+	providerType := "radius"
 	rName := makeTestVariable(acctest.RandString(5))
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		CheckDestroy:      testAccCheckAciRadiusProviderDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: CreateAccRadiusProviderConfigMultiple(rName),
+				Config: CreateAccRadiusProviderConfigMultiple(rName, providerType),
 			},
 		},
 	})
@@ -356,7 +366,7 @@ func testAccCheckAciRadiusProviderIdNotEqual(m1, m2 *models.RADIUSProvider) reso
 	}
 }
 
-func CreateRadiusProviderWithoutRequired(rName, attrName string) string {
+func CreateRadiusProviderWithoutRequired(rName, providerType, attrName string) string {
 	fmt.Println("=== STEP  Basic: testing radius_provider creation without ", attrName)
 	rBlock := `
 	
@@ -367,81 +377,92 @@ func CreateRadiusProviderWithoutRequired(rName, attrName string) string {
 	resource "aci_radius_provider" "test" {
 	
 	#	name  = "%s"
+		type  = "%s"
+	}
+		`
+	case "type":
+		rBlock += `
+	resource "aci_radius_provider" "test" {
+	
+		name  = "%s"
+	#	type  = "%s"
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock, rName)
+	return fmt.Sprintf(rBlock, rName, providerType)
 }
 
-func CreateAccRadiusProviderConfigWithRequiredParams(rName string) string {
+func CreateAccRadiusProviderConfigWithRequiredParams(rName, providerType string) string {
 	fmt.Println("=== STEP  testing radius_provider creation with updated naming arguments")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_radius_provider" "test" {
-	
 		name  = "%s"
+		type  = "%s"
+		timeout = "60"
 	}
-	`, rName)
+	`, rName, providerType)
 	return resource
 }
-func CreateAccRadiusProviderConfigUpdatedName(rName string) string {
-	fmt.Println("=== STEP  testing radius_provider creation with invalid name = ", rName)
+func CreateAccRadiusProviderConfigUpdatedName(rName, providerType string) string {
+	fmt.Println("=== STEP  testing radius_provider creation with invalid name = ", rName, providerType)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_radius_provider" "test" {
-	
 		name  = "%s"
+		type  = "%s"
 	}
-	`, rName)
+	`, rName, providerType)
 	return resource
 }
 
-func CreateAccRadiusProviderConfig(rName string) string {
+func CreateAccRadiusProviderConfig(rName, providerType string) string {
 	fmt.Println("=== STEP  testing radius_provider creation with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_radius_provider" "test" {
-	
 		name  = "%s"
+		type  = "%s"
 	}
-	`, rName)
+	`, rName, providerType)
 	return resource
 }
 
-func CreateAccRadiusProviderConfigMultiple(rName string) string {
+func CreateAccRadiusProviderConfigMultiple(rName, providerType string) string {
 	fmt.Println("=== STEP  testing multiple radius_provider creation with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_radius_provider" "test" {
-	
 		name  = "%s_${count.index}"
+		type = "%s"
 		count = 5
 	}
-	`, rName)
+	`, rName, providerType)
 	return resource
 }
 
-func CreateAccRadiusProviderConfigWithOptionalValues(rName string) string {
+func CreateAccRadiusProviderConfigWithOptionalValues(rName, providerType string) string {
 	fmt.Println("=== STEP  Basic: testing radius_provider creation with optional parameters")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_radius_provider" "test" {
 	
 		name  = "%s"
+		type  = "%s"
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_radius_provider"
 		auth_port = "2"
 		auth_protocol = "chap"
-		key = ""
+		key = "cisco"
 		monitor_server = "enabled"
-		monitoring_password = ""
-		monitoring_user = ""
-		retries = "1"
-		timeout = "1"
+		monitoring_password = "cisco"
+		monitoring_user = "cisco"
+		retries = "3"
+		timeout = "60"
 		
 	}
-	`, rName)
+	`, rName, providerType)
 
 	return resource
 }
@@ -455,12 +476,12 @@ func CreateAccRadiusProviderRemovingRequiredField() string {
 		name_alias = "test_radius_provider"
 		auth_port = "2"
 		auth_protocol = "chap"
-		key = ""
+		key = "cisco"
 		monitor_server = "enabled"
-		monitoring_password = ""
-		monitoring_user = ""
-		retries = "1"
-		timeout = "1"
+		monitoring_password = "cisco"
+		monitoring_user = "cisco"
+		retries = "3"
+		timeout = "60"
 		
 	}
 	`)
@@ -468,15 +489,16 @@ func CreateAccRadiusProviderRemovingRequiredField() string {
 	return resource
 }
 
-func CreateAccRadiusProviderUpdatedAttr(rName, attribute, value string) string {
+func CreateAccRadiusProviderUpdatedAttr(rName, providerType, attribute, value string) string {
 	fmt.Printf("=== STEP  testing radius_provider attribute: %s = %s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_radius_provider" "test" {
 	
 		name  = "%s"
+		type  = "%s"
 		%s = "%s"
 	}
-	`, rName, attribute, value)
+	`, rName, providerType, attribute, value)
 	return resource
 }

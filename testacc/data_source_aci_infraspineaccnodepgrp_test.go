@@ -15,7 +15,6 @@ func TestAccAciSpineSwitchPolicyGroupDataSource_Basic(t *testing.T) {
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(10)
 	rName := makeTestVariable(acctest.RandString(5))
-
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
@@ -107,7 +106,6 @@ func CreateAccSpineSwitchPolicyGroupDSWithInvalidName(rName string) string {
 	data "aci_spine_switch_policy_group" "test" {
 	
 		name  = "${aci_spine_switch_policy_group.test.name}_invalid"
-		name  = aci_spine_switch_policy_group.test.name
 		depends_on = [ aci_spine_switch_policy_group.test ]
 	}
 	`, rName)

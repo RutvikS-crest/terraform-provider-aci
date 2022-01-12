@@ -108,7 +108,6 @@ func CreateAccL3InterfacePolicyDSWithInvalidName(rName string) string {
 	data "aci_l3_interface_policy" "test" {
 	
 		name  = "${aci_l3_interface_policy.test.name}_invalid"
-		name  = aci_l3_interface_policy.test.name
 		depends_on = [ aci_l3_interface_policy.test ]
 	}
 	`, rName)

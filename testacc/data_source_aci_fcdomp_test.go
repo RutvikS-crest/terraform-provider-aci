@@ -31,7 +31,6 @@ func TestAccAciFCDomainDataSource_Basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 
 					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
 				),
@@ -107,7 +106,6 @@ func CreateAccFCDomainDSWithInvalidName(rName string) string {
 	data "aci_fc_domain" "test" {
 	
 		name  = "${aci_fc_domain.test.name}_invalid"
-		name  = aci_fc_domain.test.name
 		depends_on = [ aci_fc_domain.test ]
 	}
 	`, rName)

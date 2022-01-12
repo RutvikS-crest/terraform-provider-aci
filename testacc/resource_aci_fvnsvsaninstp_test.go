@@ -18,8 +18,7 @@ func TestAccAciVSANPool_Basic(t *testing.T) {
 	resourceName := "aci_vsan_pool.test"
 	rName := makeTestVariable(acctest.RandString(5))
 	rNameUpdated := makeTestVariable(acctest.RandString(5))
-	allocMode := "dynamic"
-	allocModeUpdated := "static"
+	allocMode := "static"
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
@@ -67,7 +66,7 @@ func TestAccAciVSANPool_Basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config:      CreateAccVSANPoolConfigUpdatedName(acctest.RandString(65), "dynamic"),
+				Config:      CreateAccVSANPoolConfigUpdatedName(acctest.RandString(65), allocMode),
 				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
 			},
 
@@ -77,19 +76,11 @@ func TestAccAciVSANPool_Basic(t *testing.T) {
 			},
 
 			{
-				Config: CreateAccVSANPoolConfigWithRequiredParams(rNameUpdated, rName),
+				Config: CreateAccVSANPoolConfigWithRequiredParams(rNameUpdated, allocMode),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciVSANPoolExists(resourceName, &vsan_pool_updated),
 
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdated),
-					testAccCheckAciVSANPoolIdNotEqual(&vsan_pool_default, &vsan_pool_updated),
-				),
-			},
-			{
-				Config: CreateAccVSANPoolConfigWithRequiredParams(allocMode, allocModeUpdated),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciVSANPoolExists(resourceName, &vsan_pool_updated),
-					resource.TestCheckResourceAttr(resourceName, "alloc_mode", allocModeUpdated),
 					testAccCheckAciVSANPoolIdNotEqual(&vsan_pool_default, &vsan_pool_updated),
 				),
 			},
@@ -100,7 +91,7 @@ func TestAccAciVSANPool_Basic(t *testing.T) {
 func TestAccAciVSANPool_Negative(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 
-	allocMode := makeTestVariable(acctest.RandString(5))
+	allocMode := "static"
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(5)
 
@@ -139,7 +130,7 @@ func TestAccAciVSANPool_Negative(t *testing.T) {
 
 func TestAccAciVSANPool_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
-	allocMode := "dynamic"
+	allocMode := "static"
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
@@ -246,13 +237,13 @@ func CreateAccVSANPoolConfigWithRequiredParams(rName, allocMode string) string {
 	resource := fmt.Sprintf(`
 	
 	resource "aci_vsan_pool" "test" {
-	
 		name  = "%s"
 		alloc_mode  = "%s"
 	}
 	`, rName, allocMode)
 	return resource
 }
+
 func CreateAccVSANPoolConfigUpdatedName(rName, allocMode string) string {
 	fmt.Println("=== STEP  testing vsan_pool creation with invalid name = ", rName)
 	resource := fmt.Sprintf(`
@@ -286,7 +277,7 @@ func CreateAccVSANPoolConfigMultiple(rName, allocMode string) string {
 	resource "aci_vsan_pool" "test" {
 	
 		name  = "%s_${count.index}"
-		alloc_mode  = "%s_${count.index}"
+		alloc_mode  = "%s"
 		count = 5
 	}
 	`, rName, allocMode)

@@ -24,7 +24,7 @@ func TestAccAciVRFSnmpContextCommunityDataSource_Basic(t *testing.T) {
 		CheckDestroy:      testAccCheckAciVRFSnmpContextCommunityDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      CreateVRFSnmpContextCommunityDSWithoutRequired(fvTenantName, fvCtxName, rName, "vrf_dn"),
+				Config:      CreateVRFSnmpContextCommunityDSWithoutRequired(fvTenantName, fvCtxName, rName, "vrf_snmp_context_dn"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
@@ -34,7 +34,7 @@ func TestAccAciVRFSnmpContextCommunityDataSource_Basic(t *testing.T) {
 			{
 				Config: CreateAccVRFSnmpContextCommunityConfigDataSource(fvTenantName, fvCtxName, rName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair(dataSourceName, "vrf_dn", resourceName, "vrf_dn"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "vrf_snmp_context_dn", resourceName, "vrf_snmp_context_dn"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
@@ -74,18 +74,21 @@ func CreateAccVRFSnmpContextCommunityConfigDataSource(fvTenantName, fvCtxName, r
 		name 		= "%s"
 		tenant_dn = aci_tenant.test.id
 	}
-	
-	resource "aci_vrf_snmp_context_community" "test" {
+	resource "aci_vrf_snmp_context" "test" {
 		vrf_dn  = aci_vrf.test.id
+		name  = "%s"
+	}
+	resource "aci_vrf_snmp_context_community" "test" {
+		vrf_snmp_context_dn   = aci_vrf_snmp_context.test.id
 		name  = "%s"
 	}
 
 	data "aci_vrf_snmp_context_community" "test" {
-		vrf_dn  = aci_vrf.test.id
+		vrf_snmp_context_dn   = aci_vrf_snmp_context.test.id
 		name  = aci_vrf_snmp_context_community.test.name
 		depends_on = [ aci_vrf_snmp_context_community.test ]
 	}
-	`, fvTenantName, fvCtxName, rName)
+	`, fvTenantName, fvCtxName, fvCtxName, rName)
 	return resource
 }
 
@@ -103,16 +106,21 @@ func CreateVRFSnmpContextCommunityDSWithoutRequired(fvTenantName, fvCtxName, rNa
 		tenant_dn = aci_tenant.test.id
 	}
 	
-	resource "aci_vrf_snmp_context_community" "test" {
+	resource "aci_vrf_snmp_context" "test" {
 		vrf_dn  = aci_vrf.test.id
+		name  = "%s"
+	}
+	resource "aci_vrf_snmp_context_community" "test" {
+		vrf_snmp_context_dn   = aci_vrf_snmp_context.test.id
 		name  = "%s"
 	}
 	`
 	switch attrName {
-	case "vrf_dn":
+	case "vrf_snmp_context_dn":
 		rBlock += `
+
 	data "aci_vrf_snmp_context_community" "test" {
-	#	vrf_dn  = aci_vrf.test.id
+	#	vrf_snmp_context_dn   = aci_vrf_snmp_context.test.id
 		name  = aci_vrf_snmp_context_community.test.name
 		depends_on = [ aci_vrf_snmp_context_community.test ]
 	}
@@ -120,13 +128,13 @@ func CreateVRFSnmpContextCommunityDSWithoutRequired(fvTenantName, fvCtxName, rNa
 	case "name":
 		rBlock += `
 	data "aci_vrf_snmp_context_community" "test" {
-		vrf_dn  = aci_vrf.test.id
+		vrf_snmp_context_dn  = aci_vrf_snmp_context.test.id
 	#	name  = aci_vrf_snmp_context_community.test.name
 		depends_on = [ aci_vrf_snmp_context_community.test ]
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock, fvTenantName, fvCtxName, rName)
+	return fmt.Sprintf(rBlock, fvTenantName, fvCtxName, fvCtxName, rName)
 }
 
 func CreateAccVRFSnmpContextCommunityDSWithInvalidParentDn(fvTenantName, fvCtxName, rName string) string {
@@ -142,18 +150,22 @@ func CreateAccVRFSnmpContextCommunityDSWithInvalidParentDn(fvTenantName, fvCtxNa
 		name 		= "%s"
 		tenant_dn = aci_tenant.test.id
 	}
-	
-	resource "aci_vrf_snmp_context_community" "test" {
+
+	resource "aci_vrf_snmp_context" "test" {
 		vrf_dn  = aci_vrf.test.id
+		name  = "%s"
+	}
+	resource "aci_vrf_snmp_context_community" "test" {
+		vrf_snmp_context_dn   = aci_vrf_snmp_context.test.id
 		name  = "%s"
 	}
 
 	data "aci_vrf_snmp_context_community" "test" {
-		vrf_dn  = aci_vrf.test.id
+		vrf_snmp_context_dn  = aci_vrf_snmp_context.test.id
 		name  = "${aci_vrf_snmp_context_community.test.name}_invalid"
 		depends_on = [ aci_vrf_snmp_context_community.test ]
 	}
-	`, fvTenantName, fvCtxName, rName)
+	`, fvTenantName, fvCtxName, fvCtxName, rName)
 	return resource
 }
 
@@ -171,18 +183,22 @@ func CreateAccVRFSnmpContextCommunityDataSourceUpdate(fvTenantName, fvCtxName, r
 		tenant_dn = aci_tenant.test.id
 	}
 	
-	resource "aci_vrf_snmp_context_community" "test" {
+	resource "aci_vrf_snmp_context" "test" {
 		vrf_dn  = aci_vrf.test.id
+		name  = "%s"
+	}
+	resource "aci_vrf_snmp_context_community" "test" {
+		vrf_snmp_context_dn   = aci_vrf_snmp_context.test.id
 		name  = "%s"
 	}
 
 	data "aci_vrf_snmp_context_community" "test" {
-		vrf_dn  = aci_vrf.test.id
+		vrf_snmp_context_dn  = aci_vrf_snmp_context.test.id
 		name  = aci_vrf_snmp_context_community.test.name
 		%s = "%s"
 		depends_on = [ aci_vrf_snmp_context_community.test ]
 	}
-	`, fvTenantName, fvCtxName, rName, key, value)
+	`, fvTenantName, fvCtxName, fvCtxName, rName, key, value)
 	return resource
 }
 
@@ -200,17 +216,22 @@ func CreateAccVRFSnmpContextCommunityDataSourceUpdatedResource(fvTenantName, fvC
 		tenant_dn = aci_tenant.test.id
 	}
 	
-	resource "aci_vrf_snmp_context_community" "test" {
+	resource "aci_vrf_snmp_context" "test" {
 		vrf_dn  = aci_vrf.test.id
+		name  = "%s"
+	}
+	
+	resource "aci_vrf_snmp_context_community" "test" {
+		vrf_snmp_context_dn   = aci_vrf_snmp_context.test.id
 		name  = "%s"
 		%s = "%s"
 	}
 
 	data "aci_vrf_snmp_context_community" "test" {
-		vrf_dn  = aci_vrf.test.id
+		vrf_snmp_context_dn  = aci_vrf_snmp_context.test.id
 		name  = aci_vrf_snmp_context_community.test.name
 		depends_on = [ aci_vrf_snmp_context_community.test ]
 	}
-	`, fvTenantName, fvCtxName, rName, key, value)
+	`, fvTenantName, fvCtxName, fvCtxName, rName, key, value)
 	return resource
 }

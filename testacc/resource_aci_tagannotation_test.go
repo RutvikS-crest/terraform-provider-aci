@@ -21,45 +21,34 @@ func TestAccAciAnnotation_Basic(t *testing.T) {
 
 	key := makeTestVariable(acctest.RandString(5))
 	keyUpdated := makeTestVariable(acctest.RandString(5))
-	faultInstName := makeTestVariable(acctest.RandString(5))
+	value := makeTestVariable(acctest.RandString(5))
+	valueUpdated := makeTestVariable(acctest.RandString(5))
+	fvTenantName := makeTestVariable(acctest.RandString(5))
+
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		CheckDestroy:      testAccCheckAciAnnotationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      CreateAnnotationWithoutRequired(faultInstName, key, "fault_inst_dn"),
+				Config:      CreateAnnotationWithoutRequired(fvTenantName, key, value, "parent_dn"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config:      CreateAnnotationWithoutRequired(faultInstName, key, "key"),
+				Config:      CreateAnnotationWithoutRequired(fvTenantName, key, value, "key"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccAnnotationConfig(faultInstName, key),
+				Config:      CreateAnnotationWithoutRequired(fvTenantName, key, value, "value"),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+			{
+				Config: CreateAccAnnotationConfig(fvTenantName, key, value),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciAnnotationExists(resourceName, &annotation_default),
-					resource.TestCheckResourceAttr(resourceName, "fault_inst_dn", GetParentDn(annotation_default.DistinguishedName, fmt.Sprintf("/annotationKey-[%s]", key))),
+					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s", fvTenantName)),
 					resource.TestCheckResourceAttr(resourceName, "key", key),
-					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
-					resource.TestCheckResourceAttr(resourceName, "description", ""),
-					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
-					resource.TestCheckResourceAttr(resourceName, "value", ""),
-				),
-			},
-			{
-				Config: CreateAccAnnotationConfigWithOptionalValues(faultInstName, key),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciAnnotationExists(resourceName, &annotation_updated),
-					resource.TestCheckResourceAttr(resourceName, "fault_inst_dn", GetParentDn(annotation_updated.DistinguishedName, fmt.Sprintf("/annotationKey-[%s]", key))),
-					resource.TestCheckResourceAttr(resourceName, "key", key),
-					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
-					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
-					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_annotation"),
-
-					resource.TestCheckResourceAttr(resourceName, "value", ""),
-
-					testAccCheckAciAnnotationIdEqual(&annotation_default, &annotation_updated),
+					resource.TestCheckResourceAttr(resourceName, "value", value),
 				),
 			},
 			{
@@ -73,91 +62,54 @@ func TestAccAciAnnotation_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccAnnotationConfigWithRequiredParams(rNameUpdated, key),
+				Config: CreateAccAnnotationConfigWithRequiredParams(rNameUpdated, key, value),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciAnnotationExists(resourceName, &annotation_updated),
-					resource.TestCheckResourceAttr(resourceName, "fault_inst_dn", GetParentDn(annotation_updated.DistinguishedName, fmt.Sprintf("/annotationKey-[%s]", key))),
+					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s", rNameUpdated)),
 					resource.TestCheckResourceAttr(resourceName, "key", key),
+					resource.TestCheckResourceAttr(resourceName, "value", value),
 					testAccCheckAciAnnotationIdNotEqual(&annotation_default, &annotation_updated),
 				),
 			},
 			{
-				Config: CreateAccAnnotationConfig(faultInstName, key),
+				Config: CreateAccAnnotationConfig(fvTenantName, key, value),
 			},
 			{
-				Config: CreateAccAnnotationConfigWithRequiredParams(rName, keyUpdated),
+				Config: CreateAccAnnotationConfigWithRequiredParams(rName, keyUpdated, value),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciAnnotationExists(resourceName, &annotation_updated),
-					resource.TestCheckResourceAttr(resourceName, "fault_inst_dn", GetParentDn(annotation_updated.DistinguishedName, fmt.Sprintf("/annotationKey-[%s]", key))),
+					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s", rName)),
 					resource.TestCheckResourceAttr(resourceName, "key", keyUpdated),
+					resource.TestCheckResourceAttr(resourceName, "value", value),
 					testAccCheckAciAnnotationIdNotEqual(&annotation_default, &annotation_updated),
 				),
 			},
-		},
-	})
-}
-
-func TestAccAciAnnotation_Negative(t *testing.T) {
-	rName := makeTestVariable(acctest.RandString(5))
-
-	key := makeTestVariable(acctest.RandString(5))
-
-	faultInstName := makeTestVariable(acctest.RandString(5))
-	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
-	randomValue := acctest.RandString(5)
-
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
-		CheckDestroy:      testAccCheckAciAnnotationDestroy,
-		Steps: []resource.TestStep{
 			{
-				Config: CreateAccAnnotationConfig(faultInstName, key),
-			},
-			{
-				Config:      CreateAccAnnotationWithInValidParentDn(rName, key),
-				ExpectError: regexp.MustCompile(`unknown property value`),
-			},
-			{
-				Config:      CreateAccAnnotationUpdatedAttr(faultInstName, key, "description", acctest.RandString(129)),
-				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
-			},
-			{
-				Config:      CreateAccAnnotationUpdatedAttr(faultInstName, key, "annotation", acctest.RandString(129)),
-				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
-			},
-			{
-				Config:      CreateAccAnnotationUpdatedAttr(faultInstName, key, "name_alias", acctest.RandString(64)),
-				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
-			},
-
-			{
-				Config:      CreateAccAnnotationUpdatedAttr(faultInstName, key, "value", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
-			},
-
-			{
-				Config:      CreateAccAnnotationUpdatedAttr(faultInstName, key, randomParameter, randomValue),
-				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
-			},
-			{
-				Config: CreateAccAnnotationConfig(faultInstName, key),
+				Config: CreateAccAnnotationConfigWithRequiredParams(rName, key, valueUpdated),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciAnnotationExists(resourceName, &annotation_updated),
+					resource.TestCheckResourceAttr(resourceName, "parent_dn", fmt.Sprintf("uni/tn-%s", rName)),
+					resource.TestCheckResourceAttr(resourceName, "key", key),
+					resource.TestCheckResourceAttr(resourceName, "value", valueUpdated),
+					testAccCheckAciAnnotationIdNotEqual(&annotation_default, &annotation_updated),
+				),
 			},
 		},
 	})
 }
 
 func TestAccAciAnnotation_MultipleCreateDelete(t *testing.T) {
-	key := makeTestVariable(acctest.RandString(5))
 
-	faultInstName := makeTestVariable(acctest.RandString(5))
+	key := makeTestVariable(acctest.RandString(5))
+	value := makeTestVariable(acctest.RandString(5))
+	fvTenantName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		CheckDestroy:      testAccCheckAciAnnotationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: CreateAccAnnotationConfigMultiple(faultInstName, key),
+				Config: CreateAccAnnotationConfigMultiple(fvTenantName, key, value),
 			},
 		},
 	})
@@ -226,120 +178,134 @@ func testAccCheckAciAnnotationIdNotEqual(m1, m2 *models.Annotation) resource.Tes
 	}
 }
 
-func CreateAnnotationWithoutRequired(faultInstName, key, attrName string) string {
+func CreateAnnotationWithoutRequired(fvTenantName, key, value, attrName string) string {
 	fmt.Println("=== STEP  Basic: testing annotation creation without ", attrName)
 	rBlock := `
 	
-	resource "aci_fault_inst" "test" {
+	resource "aci_tenant" "test" {
 		name 		= "%s"
 		
 	}
 	
 	`
 	switch attrName {
-	case "fault_inst_dn":
+	case "parent_dn":
 		rBlock += `
 	resource "aci_annotation" "test" {
-	#	fault_inst_dn  = aci_fault_inst.test.id
+	#	parent_dn  = aci_tenant.test.id
 		key  = "%s"
+		value = "%s"
 	}
 		`
 	case "key":
 		rBlock += `
 	resource "aci_annotation" "test" {
-		fault_inst_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 	#	key  = "%s"
+		value = "%s"	
+	}
+		`
+	case "value":
+		rBlock += `
+	resource "aci_annotation" "test" {
+		parent_dn  = aci_tenant.test.id
+		key  = "%s"
+	#	value = "%s"	
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock, faultInstName, key)
+	return fmt.Sprintf(rBlock, fvTenantName, key, value)
 }
 
-func CreateAccAnnotationConfigWithRequiredParams(faultInstName, key string) string {
+func CreateAccAnnotationConfigWithRequiredParams(fvTenantName, key, value string) string {
 	fmt.Println("=== STEP  testing annotation creation with updated naming arguments")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_fault_inst" "test" {
+	resource "aci_tenant" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_annotation" "test" {
-		fault_inst_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 		key  = "%s"
+		value = "%s"
 	}
-	`, faultInstName, key)
+	`, fvTenantName, key, value)
 	return resource
 }
 
-func CreateAccAnnotationConfig(faultInstName, key string) string {
+func CreateAccAnnotationConfig(fvTenantName, key, value string) string {
 	fmt.Println("=== STEP  testing annotation creation with required arguments only")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_fault_inst" "test" {
+	resource "aci_tenant" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_annotation" "test" {
-		fault_inst_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 		key  = "%s"
+		value = "%s"
 	}
-	`, faultInstName, key)
+	`, fvTenantName, key, value)
 	return resource
 }
 
-func CreateAccAnnotationConfigMultiple(faultInstName, key string) string {
+func CreateAccAnnotationConfigMultiple(fvTenantName, key, value string) string {
 	fmt.Println("=== STEP  testing multiple annotation creation with required arguments only")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_fault_inst" "test" {
+	resource "aci_tenant" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_annotation" "test" {
-		fault_inst_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 		key  = "%s_${count.index}"
+		value = "%s"
 		count = 5
 	}
-	`, faultInstName, key)
+	`, fvTenantName, key, value)
 	return resource
 }
 
-func CreateAccAnnotationWithInValidParentDn(rName, key string) string {
+func CreateAccAnnotationWithInValidParentDn(rName, key, value string) string {
 	fmt.Println("=== STEP  Negative Case: testing annotation creation with invalid parent Dn")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test"{
 		name = "%s"
 	}
 	resource "aci_annotation" "test" {
-		fault_inst_dn  = aci_tenant.test.id
+		parent_dn  = aci_tenant.test.id
 		key  = "%s"	
+		value = "%s"
 	}
-	`, rName, key)
+	`, rName, key, value)
 	return resource
 }
 
-func CreateAccAnnotationConfigWithOptionalValues(faultInstName, key string) string {
+func CreateAccAnnotationConfigWithOptionalValues(fvTenantName, key, value string) string {
 	fmt.Println("=== STEP  Basic: testing annotation creation with optional parameters")
 	resource := fmt.Sprintf(`
 	
-	resource "aci_fault_inst" "test" {
+	resource "aci_tenant" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_annotation" "test" {
-		fault_inst_dn  = "${aci_fault_inst.test.id}"
+		parent_dn  = "${aci_tenant.test.id}"
 		key  = "%s"
+		value = "%s"
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_annotation"
-		value = ""
 		
 	}
-	`, faultInstName, key)
+	`, fvTenantName, key, value)
 
 	return resource
 }
@@ -351,7 +317,6 @@ func CreateAccAnnotationRemovingRequiredField() string {
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_annotation"
-		value = ""
 		
 	}
 	`)
@@ -359,20 +324,22 @@ func CreateAccAnnotationRemovingRequiredField() string {
 	return resource
 }
 
-func CreateAccAnnotationUpdatedAttr(faultInstName, key, attribute, value string) string {
+func CreateAccAnnotationUpdatedAttr(fvTenantName, key, value, attribute, val string) string {
 	fmt.Printf("=== STEP  testing annotation attribute: %s = %s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	
-	resource "aci_fault_inst" "test" {
+	resource "aci_tenant" "test" {
 		name 		= "%s"
 	
 	}
 	
 	resource "aci_annotation" "test" {
-		fault_inst_dn  = aci_fault_inst.test.id
+		parent_dn  = aci_tenant.test.id
 		key  = "%s"
+		value = "%s"
 		%s = "%s"
 	}
-	`, faultInstName, key, attribute, value)
+	`, fvTenantName, key, value, attribute, val)
 	return resource
 }
+

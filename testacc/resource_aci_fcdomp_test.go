@@ -36,7 +36,6 @@ func TestAccAciFCDomain_Basic(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
-					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 				),
 			},
@@ -47,7 +46,6 @@ func TestAccAciFCDomain_Basic(t *testing.T) {
 
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
-					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_fc_domain"),
 
 					testAccCheckAciFCDomainIdEqual(&fc_domain_default, &fc_domain_updated),
@@ -94,11 +92,6 @@ func TestAccAciFCDomain_Negative(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccFCDomainConfig(rName),
-			},
-
-			{
-				Config:      CreateAccFCDomainUpdatedAttr(rName, "description", acctest.RandString(129)),
-				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
 			{
 				Config:      CreateAccFCDomainUpdatedAttr(rName, "annotation", acctest.RandString(129)),
@@ -270,7 +263,6 @@ func CreateAccFCDomainConfigWithOptionalValues(rName string) string {
 	resource "aci_fc_domain" "test" {
 	
 		name  = "%s"
-		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_fc_domain"
 		
@@ -284,10 +276,8 @@ func CreateAccFCDomainRemovingRequiredField() string {
 	fmt.Println("=== STEP  Basic: testing fc_domain updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_fc_domain" "test" {
-		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_fc_domain"
-		
 	}
 	`)
 
@@ -299,7 +289,6 @@ func CreateAccFCDomainUpdatedAttr(rName, attribute, value string) string {
 	resource := fmt.Sprintf(`
 	
 	resource "aci_fc_domain" "test" {
-	
 		name  = "%s"
 		%s = "%s"
 	}

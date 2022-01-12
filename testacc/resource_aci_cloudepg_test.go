@@ -109,9 +109,9 @@ func TestAccAciCloudEPg_Update(t *testing.T) {
 	resourceName := "aci_cloud_epg.test"
 	rName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciCloudEPgDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciCloudEPgDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccCloudEPgConfig(rName, rName, rName),
@@ -204,9 +204,9 @@ func TestAccAciCloudEPg_Negative(t *testing.T) {
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(5)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciCloudEPgDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciCloudEPgDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccCloudEPgConfig(rName, rName, rName),
@@ -259,9 +259,9 @@ func TestAccAciCloudEPg_Negative(t *testing.T) {
 func TestAccAciCloudEPg_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciCloudEPgDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciCloudEPgDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccCloudEPgConfigMultiple(rName, rName, rName),
@@ -465,7 +465,7 @@ func CreateAccCloudEPgWithInValidParentDn(rName string) string {
 		cloud_applicationcontainer_dn  = aci_tenant.test.id
 		name  = "%s"
 	}
-	`, rName ,rName)
+	`, rName, rName)
 	return resource
 }
 
@@ -518,7 +518,7 @@ func CreateAccCloudEPgRemovingRequiredField() string {
 	return resource
 }
 
-func CreateAccCloudEPgUpdatedAttr(fvTenantName, cloudAppName, rName,attribute,value string) string {
+func CreateAccCloudEPgUpdatedAttr(fvTenantName, cloudAppName, rName, attribute, value string) string {
 	fmt.Printf("=== STEP  testing cloud_epg attribute: %s = %s \n", attribute, value)
 	resource := fmt.Sprintf(`
 
@@ -537,6 +537,6 @@ func CreateAccCloudEPgUpdatedAttr(fvTenantName, cloudAppName, rName,attribute,va
 		name  = "%s"
 		%s = "%s"
 	}
-	`, fvTenantName, cloudAppName, rName,attribute,value)
+	`, fvTenantName, cloudAppName, rName, attribute, value)
 	return resource
 }

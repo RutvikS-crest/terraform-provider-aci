@@ -24,7 +24,8 @@ func TestAccAciVRFSnmpContextDataSource_Basic(t *testing.T) {
 			{
 				Config:      CreateVRFSnmpContextDSWithoutRequired(fvTenantName, fvCtxName, "vrf_dn"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
-			}, {
+			},
+			{
 				Config: CreateAccVRFSnmpContextConfigDataSource(fvTenantName, fvCtxName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "vrf_dn", resourceName, "vrf_dn"),
@@ -130,7 +131,7 @@ func CreateAccVRFSnmpContextDSWithInvalidParentDn(fvTenantName, fvCtxName string
 	}
 
 	data "aci_vrf_snmp_context" "test" {
-		vrf_dn  = aci_vrf.test.id
+		vrf_dn  = "${aci_vrf.test.id}invalid"
 		depends_on = [ aci_vrf_snmp_context.test ]
 	}
 	`, fvTenantName, fvCtxName)

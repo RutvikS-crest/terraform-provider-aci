@@ -12,45 +12,55 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
+// depends on fabricPathEp
 func TestAccAciOutofServiceFabricPath_Basic(t *testing.T) {
 	var interface_blacklist_default models.OutofServiceFabricPath
 	var interface_blacklist_updated models.OutofServiceFabricPath
 	resourceName := "aci_interface_blacklist.test"
-	tDn := makeTestVariable(acctest.RandString(5))
-	tDnUpdated := makeTestVariable(acctest.RandString(5))
-	resource.ParallelTest(t, resource.TestCase{
+	podId := "1"
+	NodeId := "201"
+	Interface := "eth1/1"
+	InterfaceUpdated := "eth1/2"
+	randomValue := acctest.RandString(5)
+
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		CheckDestroy:      testAccCheckAciOutofServiceFabricPathDestroy,
 		Steps: []resource.TestStep{
 
 			{
-				Config:      CreateOutofServiceFabricPathWithoutRequired(tDn, "t_dn"),
+				Config:      CreateOutofServiceFabricPathWithoutRequired(podId, NodeId, Interface, "pod_id"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccOutofServiceFabricPathConfig(tDn),
+				Config:      CreateOutofServiceFabricPathWithoutRequired(podId, NodeId, Interface, "node_id"),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+			{
+				Config:      CreateOutofServiceFabricPathWithoutRequired(podId, NodeId, Interface, "interface"),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+			{
+				Config: CreateAccOutofServiceFabricPathConfig(podId, NodeId, Interface),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciOutofServiceFabricPathExists(resourceName, &interface_blacklist_default),
 
-					resource.TestCheckResourceAttr(resourceName, "t_dn", tDn),
+					resource.TestCheckResourceAttr(resourceName, "pod_id", podId),
+					resource.TestCheckResourceAttr(resourceName, "node_id", NodeId),
+					resource.TestCheckResourceAttr(resourceName, "interface", Interface),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
-					resource.TestCheckResourceAttr(resourceName, "description", ""),
-					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
-					resource.TestCheckResourceAttr(resourceName, "lc", "in-service"),
 				),
 			},
 			{
-				Config: CreateAccOutofServiceFabricPathConfigWithOptionalValues(tDn),
+				Config: CreateAccOutofServiceFabricPathConfigWithOptionalValues(podId, NodeId, Interface),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciOutofServiceFabricPathExists(resourceName, &interface_blacklist_updated),
 
-					resource.TestCheckResourceAttr(resourceName, "t_dn", tDn),
+					resource.TestCheckResourceAttr(resourceName, "pod_id", podId),
+					resource.TestCheckResourceAttr(resourceName, "node_id", NodeId),
+					resource.TestCheckResourceAttr(resourceName, "interface", Interface),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
-					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
-					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_interface_blacklist"),
-
-					resource.TestCheckResourceAttr(resourceName, "lc", "blacklist"),
 
 					testAccCheckAciOutofServiceFabricPathIdEqual(&interface_blacklist_default, &interface_blacklist_updated),
 				),
@@ -62,16 +72,20 @@ func TestAccAciOutofServiceFabricPath_Basic(t *testing.T) {
 			},
 
 			{
-				Config:      CreateAccOutofServiceFabricPathRemovingRequiredField(),
-				ExpectError: regexp.MustCompile(`Missing required argument`),
+				Config:      CreateAccOutofServiceFabricPathConfig(randomValue, NodeId, Interface),
+				ExpectError: regexp.MustCompile(`Invalid reference`),
 			},
-
 			{
-				Config: CreateAccOutofServiceFabricPathConfigWithRequiredParams(tDnUpdated),
+				Config:      CreateAccOutofServiceFabricPathConfig(podId, randomValue, Interface),
+				ExpectError: regexp.MustCompile(`Invalid reference`),
+			},
+			{
+				Config: CreateAccOutofServiceFabricPathConfigWithRequiredParams(podId, NodeId, InterfaceUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciOutofServiceFabricPathExists(resourceName, &interface_blacklist_updated),
-
-					resource.TestCheckResourceAttr(resourceName, "t_dn", tDnUpdated),
+					resource.TestCheckResourceAttr(resourceName, "pod_id", podId),
+					resource.TestCheckResourceAttr(resourceName, "node_id", NodeId),
+					resource.TestCheckResourceAttr(resourceName, "interface", InterfaceUpdated),
 					testAccCheckAciOutofServiceFabricPathIdNotEqual(&interface_blacklist_default, &interface_blacklist_updated),
 				),
 			},
@@ -81,43 +95,31 @@ func TestAccAciOutofServiceFabricPath_Basic(t *testing.T) {
 
 func TestAccAciOutofServiceFabricPath_Negative(t *testing.T) {
 
-	tDn := makeTestVariable(acctest.RandString(5))
+	podId := "1"
+	NodeId := "201"
+	Interface := "eth1/1"
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(5)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		CheckDestroy:      testAccCheckAciOutofServiceFabricPathDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: CreateAccOutofServiceFabricPathConfig(tDn),
-			},
-
-			{
-				Config:      CreateAccOutofServiceFabricPathUpdatedAttr(tDn, "description", acctest.RandString(129)),
-				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
+				Config: CreateAccOutofServiceFabricPathConfig(podId, NodeId, Interface),
 			},
 			{
-				Config:      CreateAccOutofServiceFabricPathUpdatedAttr(tDn, "annotation", acctest.RandString(129)),
-				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
-			},
-			{
-				Config:      CreateAccOutofServiceFabricPathUpdatedAttr(tDn, "name_alias", acctest.RandString(64)),
+				Config:      CreateAccOutofServiceFabricPathUpdatedAttr(podId, NodeId, Interface, "annotation", acctest.RandString(129)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
 
 			{
-				Config:      CreateAccOutofServiceFabricPathUpdatedAttr(tDn, "lc", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
-			},
-
-			{
-				Config:      CreateAccOutofServiceFabricPathUpdatedAttr(tDn, randomParameter, randomValue),
+				Config:      CreateAccOutofServiceFabricPathUpdatedAttr(podId, NodeId, Interface, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
 			{
-				Config: CreateAccOutofServiceFabricPathConfig(tDn),
+				Config: CreateAccOutofServiceFabricPathConfig(podId, NodeId, Interface),
 			},
 		},
 	})
@@ -125,15 +127,17 @@ func TestAccAciOutofServiceFabricPath_Negative(t *testing.T) {
 
 func TestAccAciOutofServiceFabricPath_MultipleCreateDelete(t *testing.T) {
 
-	tDn := makeTestVariable(acctest.RandString(5))
+	podId := "1"
+	NodeId := "201"
+	Interface := "eth1/1"
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		CheckDestroy:      testAccCheckAciOutofServiceFabricPathDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: CreateAccOutofServiceFabricPathConfigMultiple(tDn),
+				Config: CreateAccOutofServiceFabricPathConfigMultiple(podId, NodeId, Interface),
 			},
 		},
 	})
@@ -202,74 +206,96 @@ func testAccCheckAciOutofServiceFabricPathIdNotEqual(m1, m2 *models.OutofService
 	}
 }
 
-func CreateOutofServiceFabricPathWithoutRequired(tDn, attrName string) string {
+func CreateOutofServiceFabricPathWithoutRequired(podId, NodeId, Interface, attrName string) string {
 	fmt.Println("=== STEP  Basic: testing interface_blacklist creation without ", attrName)
-	rBlock := `
-	
-	`
+	rBlock := ``
 	switch attrName {
-	case "t_dn":
+	case "pod_id":
 		rBlock += `
 	resource "aci_interface_blacklist" "test" {
 	
-	#	t_dn  = "%s"
+	#	pod_id  = %s
+  		node_id = %s
+ 		interface = "%s"
+	}
+		`
+	case "node_id":
+		rBlock += `
+	resource "aci_interface_blacklist" "test" {
+	
+		pod_id  = %s
+  	#	node_id = %s
+ 		interface = "%s"
+	}
+		`
+	case "interface":
+		rBlock += `
+	resource "aci_interface_blacklist" "test" {
+	
+		pod_id  = %s
+  		node_id = %s
+ 	#	interface = "%s"
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock, tDn)
+	return fmt.Sprintf(rBlock, podId, NodeId, Interface)
 }
 
-func CreateAccOutofServiceFabricPathConfigWithRequiredParams(tDn string) string {
+func CreateAccOutofServiceFabricPathConfigWithRequiredParams(podId, NodeId, Interface string) string {
 	fmt.Println("=== STEP  testing interface_blacklist creation with updated naming arguments")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_interface_blacklist" "test" {
 	
-		t_dn  = "%s"
+		pod_id  = %s
+  		node_id = %s
+ 		interface = "%s"
 	}
-	`, tDn)
+	`, podId, NodeId, Interface)
 	return resource
 }
 
-func CreateAccOutofServiceFabricPathConfig(tDn string) string {
+func CreateAccOutofServiceFabricPathConfig(podId, NodeId, Interface string) string {
 	fmt.Println("=== STEP  testing interface_blacklist creation with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_interface_blacklist" "test" {
 	
-		t_dn  = "%s"
+		pod_id  = %s
+  		node_id = %s
+ 		interface = "%s"
 	}
-	`, tDn)
+	`, podId, NodeId, Interface)
 	return resource
 }
 
-func CreateAccOutofServiceFabricPathConfigMultiple(tDn string) string {
+func CreateAccOutofServiceFabricPathConfigMultiple(podId, NodeId, Interface string) string {
 	fmt.Println("=== STEP  testing multiple interface_blacklist creation with required arguments only")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_interface_blacklist" "test" {
 	
-		t_dn  = "%s_${count.index}"
+		pod_id  = %s
+  		node_id = %s
+ 		interface = "%s${count.index+1}"
 		count = 5
 	}
-	`, tDn)
+	`, podId, NodeId, Interface[:len(Interface)-1])
 	return resource
 }
 
-func CreateAccOutofServiceFabricPathConfigWithOptionalValues(tDn string) string {
+func CreateAccOutofServiceFabricPathConfigWithOptionalValues(podId, NodeId, Interface string) string {
 	fmt.Println("=== STEP  Basic: testing interface_blacklist creation with optional parameters")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_interface_blacklist" "test" {
-	
-		t_dn  = "%s"
-		description = "created while acceptance testing"
+		pod_id  = %s
+  		node_id = %s
+ 		interface = "%s"
 		annotation = "orchestrator:terraform_testacc"
-		name_alias = "test_interface_blacklist"
-		lc = "blacklist"
 		
 	}
-	`, tDn)
+	`, podId, NodeId, Interface)
 
 	return resource
 }
@@ -278,10 +304,7 @@ func CreateAccOutofServiceFabricPathRemovingRequiredField() string {
 	fmt.Println("=== STEP  Basic: testing interface_blacklist updation without required parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_interface_blacklist" "test" {
-		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
-		name_alias = "test_interface_blacklist"
-		lc = "blacklist"
 		
 	}
 	`)
@@ -289,15 +312,17 @@ func CreateAccOutofServiceFabricPathRemovingRequiredField() string {
 	return resource
 }
 
-func CreateAccOutofServiceFabricPathUpdatedAttr(tDn, attribute, value string) string {
+func CreateAccOutofServiceFabricPathUpdatedAttr(podId, NodeId, Interface, attribute, value string) string {
 	fmt.Printf("=== STEP  testing interface_blacklist attribute: %s = %s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_interface_blacklist" "test" {
 	
-		t_dn  = "%s"
+		pod_id  = %s
+  		node_id = %s
+ 		interface = "%s"
 		%s = "%s"
 	}
-	`, tDn, attribute, value)
+	`, podId, NodeId, Interface, attribute, value)
 	return resource
 }

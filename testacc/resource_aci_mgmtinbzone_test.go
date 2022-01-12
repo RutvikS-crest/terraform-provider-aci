@@ -15,6 +15,7 @@ import (
 func TestAccAciMgmtZone_Basic(t *testing.T) {
 	var mgmt_zone_default models.InBManagedNodesZone
 	var mgmt_zone_updated models.InBManagedNodesZone
+	var mgmt_zone_oob_updated models.OOBManagedNodesZone
 	resourceName := "aci_mgmt_zone.test"
 	zoneType := "in_band"
 	rName := makeTestVariable(acctest.RandString(5))
@@ -85,11 +86,11 @@ func TestAccAciMgmtZone_Basic(t *testing.T) {
 			{
 				Config: CreateAccMgmtZoneConfigWithRequiredParams(rName, "out_of_band", rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciMgmtZoneExists(resourceName, &mgmt_zone_updated),
+					testAccCheckAciMgmtOoBZoneExists(resourceName, &mgmt_zone_oob_updated),
 					resource.TestCheckResourceAttr(resourceName, "managed_node_connectivity_group_dn", fmt.Sprintf("uni/infra/funcprof/grp-%s", rName)),
 					resource.TestCheckResourceAttr(resourceName, "type", "out_of_band"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
-					testAccCheckAciMgmtZoneIdNotEqual(&mgmt_zone_default, &mgmt_zone_updated),
+					testAccCheckAciMgmtOoBZoneIdNotEqual(&mgmt_zone_default, &mgmt_zone_oob_updated),
 				),
 			},
 			{
@@ -152,22 +153,6 @@ func TestAccAciMgmtZone_Negative(t *testing.T) {
 	})
 }
 
-func TestAccAciMgmtZone_MultipleCreateDelete(t *testing.T) {
-	zoneType := "in_band"
-	rName := makeTestVariable(acctest.RandString(5))
-	mgmtGrpName := makeTestVariable(acctest.RandString(5))
-	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { testAccPreCheck(t) },
-		ProviderFactories: testAccProviders,
-		CheckDestroy:      testAccCheckAciMgmtZoneDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: CreateAccMgmtZoneConfigMultiple(mgmtGrpName, zoneType, rName),
-			},
-		},
-	})
-}
-
 func testAccCheckAciMgmtZoneExists(name string, mgmt_zone *models.InBManagedNodesZone) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
@@ -188,6 +173,34 @@ func testAccCheckAciMgmtZoneExists(name string, mgmt_zone *models.InBManagedNode
 		}
 
 		mgmt_zoneFound := models.InBManagedNodesZoneFromContainer(cont)
+		if mgmt_zoneFound.DistinguishedName != rs.Primary.ID {
+			return fmt.Errorf("Mgmt Zone %s not found", rs.Primary.ID)
+		}
+		*mgmt_zone = *mgmt_zoneFound
+		return nil
+	}
+}
+
+func testAccCheckAciMgmtOoBZoneExists(name string, mgmt_zone *models.OOBManagedNodesZone) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[name]
+
+		if !ok {
+			return fmt.Errorf("Mgmt Zone %s not found", name)
+		}
+
+		if rs.Primary.ID == "" {
+			return fmt.Errorf("No Mgmt Zone dn was set")
+		}
+
+		client := testAccProvider.Meta().(*client.Client)
+
+		cont, err := client.Get(rs.Primary.ID)
+		if err != nil {
+			return err
+		}
+
+		mgmt_zoneFound := models.OOBManagedNodesZoneFromContainer(cont)
 		if mgmt_zoneFound.DistinguishedName != rs.Primary.ID {
 			return fmt.Errorf("Mgmt Zone %s not found", rs.Primary.ID)
 		}
@@ -223,6 +236,15 @@ func testAccCheckAciMgmtZoneIdEqual(m1, m2 *models.InBManagedNodesZone) resource
 }
 
 func testAccCheckAciMgmtZoneIdNotEqual(m1, m2 *models.InBManagedNodesZone) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		if m1.DistinguishedName == m2.DistinguishedName {
+			return fmt.Errorf("mgmt_zone DNs are equal")
+		}
+		return nil
+	}
+}
+
+func testAccCheckAciMgmtOoBZoneIdNotEqual(m1 *models.InBManagedNodesZone, m2 *models.OOBManagedNodesZone) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if m1.DistinguishedName == m2.DistinguishedName {
 			return fmt.Errorf("mgmt_zone DNs are equal")
@@ -308,26 +330,7 @@ func CreateAccMgmtZoneConfig(mgmtGrpName, zoneType, rName string) string {
 	return resource
 }
 
-func CreateAccMgmtZoneConfigMultiple(mgmtGrpName, zoneType, rName string) string {
-	fmt.Println("=== STEP  testing multiple mgmt_zone creation with required arguments only")
-	resource := fmt.Sprintf(`
-	
-	resource "aci_managed_node_connectivity_group" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_mgmt_zone" "test" {
-		managed_node_connectivity_group_dn  = aci_managed_node_connectivity_group.test.id
-		type = "%s"
-		name = "%s_${count.index}"
-		count = 5
-	}
-	`, mgmtGrpName, zoneType, rName)
-	return resource
-}
-
-func CreateAccMgmtZoneWithInValidParentDn(zoneType, rName string) string {
+func CreateAccMgmtZoneWithInValidParentDn(rName, zoneType string) string {
 	fmt.Println("=== STEP  Negative Case: testing mgmt_zone creation with invalid parent Dn")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test"{
@@ -353,26 +356,28 @@ func CreateAccMgmtZoneConfigWithOptionalValues(mgmtGrpName, zoneType, rName stri
 	
 	resource "aci_mgmt_zone" "test" {
 		managed_node_connectivity_group_dn  = "${aci_managed_node_connectivity_group.test.id}"
+		type = "%s"
+		name = "%s"
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_mgmt_zone"
 		
 	}
-	`, mgmtGrpName)
+	`, mgmtGrpName, zoneType, rName)
 
 	return resource
 }
 
 func CreateAccMgmtZoneRemovingRequiredField() string {
 	fmt.Println("=== STEP  Basic: testing mgmt_zone updation without required parameters")
-	resource := fmt.Sprintf(`
+	resource := `
 	resource "aci_mgmt_zone" "test" {
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_mgmt_zone"
 		
 	}
-	`)
+	`
 
 	return resource
 }
