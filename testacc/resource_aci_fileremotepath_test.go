@@ -158,6 +158,16 @@ func TestAccAciRemotePathofaFile_Negative(t *testing.T) {
 			},
 
 			{
+				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, host, "remote_port", "-1"),
+				ExpectError: regexp.MustCompile(`unknown property value`),
+			},
+
+			{
+				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, host, "remote_port", "65536"),
+				ExpectError: regexp.MustCompile(`unknown property value`),
+			},
+
+			{
 				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, host, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
