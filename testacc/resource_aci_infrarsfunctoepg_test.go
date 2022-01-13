@@ -658,10 +658,9 @@ func CreateAccEPGsUsingFunctionRemovingRequiredField() string {
 		description = "created while acceptance testing"
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_epgs_using_function"
-		encap = ""
 		instr_imedcy = "immediate"
 		mode = "native"
-		primary_encap = ""
+		primary_encap = "unknown"
 	}
 	`)
 	return resource
