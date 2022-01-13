@@ -80,11 +80,11 @@ func CreateAccLoopBackInterfaceProfileDSConfigUpdatedResource(rName, tdn, parent
 		resource "aci_l3out_loopback_interface_profile" "test" {
 			fabric_node_dn = aci_logical_node_to_fabric_node.test.id
 			addr           = "%s"
+			%s             = "%s"
 		}
 		data "aci_l3out_loopback_interface_profile" "test" {
 			fabric_node_dn = aci_l3out_loopback_interface_profile.test.fabric_node_dn
 			addr           = aci_l3out_loopback_interface_profile.test.addr
-			%s             = "%s"
 		}
 	`, rName, rName, rName, tdn, addr, addr, key, value)
 	return resource

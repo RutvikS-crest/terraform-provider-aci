@@ -55,7 +55,7 @@ func TestAccAciL3outBfdInterfaceProfileDataSource_Basic(t *testing.T) {
 }
 
 func CreateL3outBfdInterfaceProfileDataSourceWithoutRequired(rName string) string {
-	fmt.Println("=== STEP  Basic: Testing l3out_bfd_interface_profile data soruce creation without required attribute")
+	fmt.Println("=== STEP  Basic: Testing l3out_bfd_interface_profile data source creation without required attribute")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name 		= "%s"

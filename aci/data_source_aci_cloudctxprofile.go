@@ -33,6 +33,18 @@ func dataSourceAciCloudContextProfile() *schema.Resource {
 				Computed: true,
 			},
 
+			"primary_cidr": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"region": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
 			"type": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
