@@ -29,7 +29,7 @@ func TestAccAciTACACSSourceDataSource_Basic(t *testing.T) {
 			{
 				Config: CreateAccTACACSSourceConfigDataSource(rName),
 				Check: resource.ComposeTestCheckFunc(
-
+					resource.TestCheckResourceAttrPair(dataSourceName, "parent_dn", resourceName, "parent_dn"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),

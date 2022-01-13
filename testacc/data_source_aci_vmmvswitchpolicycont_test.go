@@ -57,7 +57,7 @@ func CreateAccVSwitchPolicyConfigDataSource(vmmProvPName, vmmDomPName string) st
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}
 	
 	resource "aci_vswitch_policy" "test" {
@@ -68,7 +68,7 @@ func CreateAccVSwitchPolicyConfigDataSource(vmmProvPName, vmmDomPName string) st
 		vmm_domain_dn  = aci_vmm_domain.test.id
 		depends_on = [ aci_vswitch_policy.test ]
 	}
-	`, vmmDomPName)
+	`, vmmDomPName, providerProfileDn)
 	return resource
 }
 
@@ -77,7 +77,7 @@ func CreateVSwitchPolicyDSWithoutRequired(vmmProvPName, vmmDomPName, attrName st
 	rBlock := `
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%s"
 	}
 	
 	resource "aci_vswitch_policy" "test" {
@@ -93,7 +93,7 @@ func CreateVSwitchPolicyDSWithoutRequired(vmmProvPName, vmmDomPName, attrName st
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock, vmmDomPName)
+	return fmt.Sprintf(rBlock, vmmDomPName, providerProfileDn)
 }
 
 func CreateAccVSwitchPolicyDSWithInvalidParentDn(vmmProvPName, vmmDomPName string) string {
@@ -102,7 +102,7 @@ func CreateAccVSwitchPolicyDSWithInvalidParentDn(vmmProvPName, vmmDomPName strin
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}
 	resource "aci_vswitch_policy" "test" {
 		vmm_domain_dn  = aci_vmm_domain.test.id
@@ -112,7 +112,7 @@ func CreateAccVSwitchPolicyDSWithInvalidParentDn(vmmProvPName, vmmDomPName strin
 		vmm_domain_dn  = "${aci_vmm_domain.test.id}_invalid"
 		depends_on = [ aci_vswitch_policy.test ]
 	}
-	`, vmmDomPName)
+	`, vmmDomPName, providerProfileDn)
 	return resource
 }
 
@@ -122,7 +122,7 @@ func CreateAccVSwitchPolicyDataSourceUpdate(vmmProvPName, vmmDomPName, key, valu
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}
 	resource "aci_vswitch_policy" "test" {
 		vmm_domain_dn  = aci_vmm_domain.test.id
@@ -133,7 +133,7 @@ func CreateAccVSwitchPolicyDataSourceUpdate(vmmProvPName, vmmDomPName, key, valu
 		%s = "%s"
 		depends_on = [ aci_vswitch_policy.test ]
 	}
-	`, vmmDomPName, key, value)
+	`, vmmDomPName, providerProfileDn, key, value)
 	return resource
 }
 
@@ -143,7 +143,7 @@ func CreateAccVSwitchPolicyDataSourceUpdatedResource(vmmProvPName, vmmDomPName, 
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}
 
 	resource "aci_vswitch_policy" "test" {
@@ -155,6 +155,6 @@ func CreateAccVSwitchPolicyDataSourceUpdatedResource(vmmProvPName, vmmDomPName, 
 		vmm_domain_dn  = aci_vmm_domain.test.id
 		depends_on = [ aci_vswitch_policy.test ]
 	}
-	`, vmmDomPName, key, value)
+	`, vmmDomPName, providerProfileDn, key, value)
 	return resource
 }
