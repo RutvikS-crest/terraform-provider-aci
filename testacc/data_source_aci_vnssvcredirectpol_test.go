@@ -45,7 +45,6 @@ func TestAccAciServiceRedirectPolicyDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "min_threshold_percent", resourceName, "min_threshold_percent"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "program_local_pod_only", resourceName, "program_local_pod_only"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "resilient_hash_enabled", resourceName, "resilient_hash_enabled"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "src_mac_rewrite_enabled", resourceName, "src_mac_rewrite_enabled"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "threshold_down_action", resourceName, "threshold_down_action"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "threshold_enable", resourceName, "threshold_enable"),
 				),

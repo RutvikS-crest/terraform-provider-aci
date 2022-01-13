@@ -38,8 +38,6 @@ func TestAccAciL4L7ServiceGraphTemplateDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "filter_between_nodes", resourceName, "filter_between_nodes"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "svc_rule_type", resourceName, "svc_rule_type"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "l4-l7_service_graph_template_type", resourceName, "l4-l7_service_graph_template_type"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "ui_template_type", resourceName, "ui_template_type"),
 				),
