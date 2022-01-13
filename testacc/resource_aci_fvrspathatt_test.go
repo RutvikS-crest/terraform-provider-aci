@@ -48,7 +48,7 @@ func TestAccAciStaticPath_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
 					resource.TestCheckResourceAttr(resourceName, "application_epg_dn", fmt.Sprintf("uni/tn-%s/ap-%s/epg-%s", rName, rName, rName)),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
-					resource.TestCheckResourceAttr(resourceName, "encap", "vlan-1"),
+					resource.TestCheckResourceAttr(resourceName, "encap", "vlan-10"),
 					resource.TestCheckResourceAttr(resourceName, "instr_imedcy", "lazy"),
 					resource.TestCheckResourceAttr(resourceName, "mode", "regular"),
 					resource.TestCheckResourceAttr(resourceName, "primary_encap", "unknown"),
@@ -62,7 +62,7 @@ func TestAccAciStaticPath_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "annotation", "annotation"),
 					resource.TestCheckResourceAttr(resourceName, "application_epg_dn", fmt.Sprintf("uni/tn-%s/ap-%s/epg-%s", rName, rName, rName)),
 					resource.TestCheckResourceAttr(resourceName, "description", "description"),
-					resource.TestCheckResourceAttr(resourceName, "encap", "vlan-1"),
+					resource.TestCheckResourceAttr(resourceName, "encap", "vlan-20"),
 					resource.TestCheckResourceAttr(resourceName, "instr_imedcy", "immediate"),
 					resource.TestCheckResourceAttr(resourceName, "mode", "native"),
 					resource.TestCheckResourceAttr(resourceName, "primary_encap", "vlan-5"),
@@ -85,7 +85,7 @@ func TestAccAciStaticPath_Basic(t *testing.T) {
 					testAccCheckAciStaticPathExists(resourceName, &static_path_updated),
 					resource.TestCheckResourceAttr(resourceName, "application_epg_dn", fmt.Sprintf("uni/tn-%s/ap-%s/epg-%s", rOtherName, rOtherName, rOtherName)),
 					resource.TestCheckResourceAttr(resourceName, "tdn", tdn1),
-					resource.TestCheckResourceAttr(resourceName, "encap", "vlan-1"),
+					resource.TestCheckResourceAttr(resourceName, "encap", "vlan-20"),
 					testAccCheckAciStaticPathIdNotEqual(&static_path_default, &static_path_updated),
 				),
 			},
@@ -98,7 +98,7 @@ func TestAccAciStaticPath_Basic(t *testing.T) {
 					testAccCheckAciStaticPathExists(resourceName, &static_path_updated),
 					resource.TestCheckResourceAttr(resourceName, "application_epg_dn", fmt.Sprintf("uni/tn-%s/ap-%s/epg-%s", rName, rName, rName)),
 					resource.TestCheckResourceAttr(resourceName, "tdn", tdn2),
-					resource.TestCheckResourceAttr(resourceName, "encap", "vlan-1"),
+					resource.TestCheckResourceAttr(resourceName, "encap", "vlan-20"),
 					testAccCheckAciStaticPathIdNotEqual(&static_path_default, &static_path_updated),
 				),
 			},
@@ -262,7 +262,7 @@ func CreateAccStaticPathConfigWithEpgAndTdn(rName, tdn string) string {
 	resource "aci_epg_to_static_path" "test" {
 		application_epg_dn  = aci_application_epg.test.id
 		tdn  = "%s"
-		encap = "vlan-1"
+		encap = "vlan-20"
 	}
 	`, rName, rName, rName, tdn)
 	return resource
@@ -303,7 +303,7 @@ func CreateAccStaticPathConfigWithOptionalParameters(rName string) string {
 	resource "aci_epg_to_static_path" "test" {
 		application_epg_dn  = aci_application_epg.test.id
 		tdn  = "%s"
-		encap = "vlan-1"
+		encap = "vlan-20"
 		annotation = "annotation"
 		description = "description"
 		instr_imedcy = "immediate"
@@ -508,7 +508,7 @@ func CreateAccStaticPathConfig(rName string) string {
 	resource "aci_epg_to_static_path" "test" {
 		application_epg_dn = aci_application_epg.test.id
 		tdn = "%s"
-		encap = "vlan-1"
+		encap = "vlan-10"
 	}
 	`, rName, rName, rName, tdn1)
 	return resource
