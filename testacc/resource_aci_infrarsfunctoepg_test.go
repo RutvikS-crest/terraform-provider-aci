@@ -171,7 +171,7 @@ func TestAccAciEPGsUsingFunction_Negative(t *testing.T) {
 				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
-				Config:      CreateAccEPGsUsingFunctionUpdatedAttr(infraAttEntityPName, tDn, "name_alias", acctest.RandString(64)),
+				Config:      CreateAccEPGsUsingFunctionUpdatedAttr(infraAttEntityPName, tDn, "annotation", acctest.RandString(129)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
 			{

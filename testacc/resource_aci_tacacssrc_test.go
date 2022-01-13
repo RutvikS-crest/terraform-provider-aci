@@ -33,7 +33,6 @@ func TestAccAciTACACSSource_Basic(t *testing.T) {
 				Config: CreateAccTACACSSourceConfig(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_default),
-
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "parent_dn", "uni/fabric/moncommon"),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
@@ -49,16 +48,14 @@ func TestAccAciTACACSSource_Basic(t *testing.T) {
 				Config: CreateAccTACACSSourceConfigWithOptionalValues(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciTACACSSourceExists(resourceName, &tacacs_source_updated),
-
+					resource.TestCheckResourceAttr(resourceName, "parent_dn", "uni/fabric/moncommon"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_tacacs_source"),
 					resource.TestCheckResourceAttr(resourceName, "incl.#", "1"),
 					resource.TestCheckResourceAttr(resourceName, "incl.0", "audit"),
-
 					resource.TestCheckResourceAttr(resourceName, "min_sev", "cleared"),
-
 					testAccCheckAciTACACSSourceIdEqual(&tacacs_source_default, &tacacs_source_updated),
 				),
 			},

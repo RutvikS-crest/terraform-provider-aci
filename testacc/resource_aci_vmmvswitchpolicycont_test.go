@@ -12,6 +12,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
+var providerProfileDn string = "uni/vmmp-VMware"
+
 func TestAccAciVSwitchPolicy_Basic(t *testing.T) {
 	var vswitch_policy_default models.VSwitchPolicyGroup
 	var vswitch_policy_updated models.VSwitchPolicyGroup
@@ -31,7 +33,7 @@ func TestAccAciVSwitchPolicy_Basic(t *testing.T) {
 				Config: CreateAccVSwitchPolicyConfig(vmmDomPName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciVSwitchPolicyExists(resourceName, &vswitch_policy_default),
-					resource.TestCheckResourceAttr(resourceName, "vmm_domain_dn", fmt.Sprintf("uni/vmmp-VMware/dom-%s", vmmDomPName)),
+					resource.TestCheckResourceAttr(resourceName, "vmm_domain_dn", fmt.Sprintf("%v/dom-%s", providerProfileDn, vmmDomPName)),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
@@ -41,7 +43,7 @@ func TestAccAciVSwitchPolicy_Basic(t *testing.T) {
 				Config: CreateAccVSwitchPolicyConfigWithOptionalValues(vmmDomPName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciVSwitchPolicyExists(resourceName, &vswitch_policy_updated),
-					resource.TestCheckResourceAttr(resourceName, "vmm_domain_dn", fmt.Sprintf("uni/vmmp-VMware/dom-%s", vmmDomPName)), resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
+					resource.TestCheckResourceAttr(resourceName, "vmm_domain_dn", fmt.Sprintf("%v/dom-%s", providerProfileDn, vmmDomPName)), resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_vswitch_policy"),
@@ -61,7 +63,7 @@ func TestAccAciVSwitchPolicy_Basic(t *testing.T) {
 				Config: CreateAccVSwitchPolicyConfigWithRequiredParams(rNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciVSwitchPolicyExists(resourceName, &vswitch_policy_updated),
-					resource.TestCheckResourceAttr(resourceName, "vmm_domain_dn", fmt.Sprintf("uni/vmmp-VMware/dom-%s", rNameUpdated)),
+					resource.TestCheckResourceAttr(resourceName, "vmm_domain_dn", fmt.Sprintf("%v/dom-%s", providerProfileDn, rNameUpdated)),
 					testAccCheckAciVSwitchPolicyIdNotEqual(&vswitch_policy_default, &vswitch_policy_updated),
 				),
 			},
@@ -182,7 +184,7 @@ func CreateVSwitchPolicyWithoutRequired(vmmDomPName, attrName string) string {
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}
 	
 	`
@@ -195,7 +197,7 @@ func CreateVSwitchPolicyWithoutRequired(vmmDomPName, attrName string) string {
 		`
 
 	}
-	return fmt.Sprintf(rBlock, vmmDomPName)
+	return fmt.Sprintf(rBlock, vmmDomPName, providerProfileDn)
 }
 
 func CreateAccVSwitchPolicyConfigWithRequiredParams(vmmDomPName string) string {
@@ -204,13 +206,13 @@ func CreateAccVSwitchPolicyConfigWithRequiredParams(vmmDomPName string) string {
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}
 	
 	resource "aci_vswitch_policy" "test" {
 		vmm_domain_dn  = aci_vmm_domain.test.id
 	}
-	`, vmmDomPName)
+	`, vmmDomPName, providerProfileDn)
 	return resource
 }
 
@@ -220,12 +222,12 @@ func CreateAccVSwitchPolicyConfig(vmmDomPName string) string {
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}
 	resource "aci_vswitch_policy" "test" {
 		vmm_domain_dn  = aci_vmm_domain.test.id
 	}
-	`, vmmDomPName)
+	`, vmmDomPName, providerProfileDn)
 	return resource
 }
 
@@ -247,7 +249,7 @@ func CreateAccVSwitchPolicyConfigWithOptionalValues(vmmDomPName string) string {
 	resource := fmt.Sprintf(`
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}
 	
 	resource "aci_vswitch_policy" "test" {
@@ -257,7 +259,7 @@ func CreateAccVSwitchPolicyConfigWithOptionalValues(vmmDomPName string) string {
 		name_alias = "test_vswitch_policy"
 		
 	}
-	`, vmmDomPName)
+	`, vmmDomPName, providerProfileDn)
 
 	return resource
 }
@@ -281,13 +283,13 @@ func CreateAccVSwitchPolicyUpdatedAttr(vmmDomPName, attribute, value string) str
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}
 	
 	resource "aci_vswitch_policy" "test" {
 		vmm_domain_dn  = aci_vmm_domain.test.id
 		%s = "%s"
 	}
-	`, vmmDomPName, attribute, value)
+	`, vmmDomPName, providerProfileDn, attribute, value)
 	return resource
 }
