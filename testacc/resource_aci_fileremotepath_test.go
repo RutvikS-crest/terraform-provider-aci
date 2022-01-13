@@ -64,6 +64,7 @@ func TestAccAciRemotePathofaFile_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_file_remote_path"),
 					resource.TestCheckResourceAttr(resourceName, "auth_type", "usePassword"),
 					resource.TestCheckResourceAttr(resourceName, "protocol", "scp"),
+					resource.TestCheckResourceAttr(resourceName, "remote_port", "18"),
 
 					resource.TestCheckResourceAttr(resourceName, "remote_path", "/example"),
 
@@ -357,7 +358,7 @@ func CreateAccRemotePathofaFileConfigWithOptionalValues(rName, host string) stri
 		remote_path = "/example"
 		user_name = "example"
 		user_passwd = "example"
-		
+		remote_port = "18"
 	}
 	`, rName, host)
 
