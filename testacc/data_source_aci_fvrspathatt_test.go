@@ -79,7 +79,7 @@ func CreateAccStaticPathDataSourceUpdateRandomAttr(rName, attribute, value strin
 	resource "aci_epg_to_static_path" "test" {
 		application_epg_dn = aci_application_epg.test.id
 		tdn = "%s"
-		encap = "vlan-201"
+		encap = "vlan-301"
 	}
 
 	data "aci_epg_to_static_path" "test" {
@@ -111,7 +111,7 @@ func CreateAccStaticPathDataSourceUpdate(rName, attribute, value string) string 
 	resource "aci_epg_to_static_path" "test" {
 		application_epg_dn = aci_application_epg.test.id
 		tdn = "%s"
-		encap = "vlan-201"
+		encap = "vlan-301"
 		%s = "%s"
 	}
 
@@ -143,7 +143,7 @@ func CreateAccStaticPathConfigDataSource(rName string) string {
 	resource "aci_epg_to_static_path" "test" {
 		application_epg_dn = aci_application_epg.test.id
 		tdn = "%s"
-		encap = "vlan-201"
+		encap = "vlan-301"
 	}
 
 	data "aci_epg_to_static_path" "test" {
@@ -174,7 +174,7 @@ func CreateAccStaticPathDSWithInvalidEpg(rName string) string {
 	resource "aci_epg_to_static_path" "test" {
 		application_epg_dn = aci_application_epg.test.id
 		tdn = "%s"
-		encap = "vlan-201"
+		encap = "vlan-301"
 	}
 
 	data "aci_epg_to_static_path" "test" {
