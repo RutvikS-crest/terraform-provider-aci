@@ -48,7 +48,7 @@ func TestAccAciTabooContractDataSource_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
 			},
 			{
-				Config: CreateAccTabooContractDataSourceUpdate(rName, rName, "annotation", "orchestrator:terraform-testacc"),
+				Config: CreateAccTabooContractDataSourceUpdatedResource(rName, rName, "annotation", "orchestrator:terraform-testacc"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 				),
@@ -109,8 +109,35 @@ func CreateAccTabooContractDSWithInvalidParentDn(fvTenantName, rName string) str
 	return resource
 }
 
+func CreateAccTabooContractDataSourceUpdatedResource(fvTenantName, rName, key, value string) string {
+	fmt.Println("=== STEP  testing taboo_contract Updation with updated resource")
+	resource := fmt.Sprintf(`
+	
+	resource "aci_tenant" "test" {
+		name 		= "%s"
+		description = "tenant created while acceptance testing"
+	
+	}
+	
+	resource "aci_taboo_contract" "test" {
+		tenant_dn  = aci_tenant.test.id
+		name  = "%s"
+		%s = "%s"
+	}
+
+	data "aci_taboo_contract" "test" {
+		tenant_dn  = aci_tenant.test.id
+		name  = aci_taboo_contract.test.name
+		depends_on = [
+			aci_taboo_contract.test
+		]
+	}
+	`, fvTenantName, rName, key, value)
+	return resource
+}
+
 func CreateAccTabooContractDataSourceUpdate(fvTenantName, rName, key, value string) string {
-	fmt.Println("=== STEP  testing taboo_contract Updation with required arguments only")
+	fmt.Println("=== STEP  testing taboo_contract Updation with random attributes")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {

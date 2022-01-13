@@ -108,7 +108,7 @@ func resourceAciL3Outside() *schema.Resource {
 				},
 			},
 			"relation_l3ext_rs_ectx": &schema.Schema{
-				Type:     schema.TypeString,
+				Type: schema.TypeString,
 
 				Optional: true,
 			},

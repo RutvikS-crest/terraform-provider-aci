@@ -13,8 +13,6 @@ import (
 	"github.com/terraform-providers/terraform-provider-aci/aci"
 )
 
-//TODO: check password is not showing in state file
-
 var testAccProviders map[string]func() (*schema.Provider, error)
 var testAccProvider *schema.Provider
 var systemInfo *models.System
@@ -54,7 +52,7 @@ func fetchSysInfo() *models.System {
 	aciClient := sharedAciClient()
 	topSystemCont, err := aciClient.GetViaURL("/api/node/class/topSystem.json")
 	if err != nil {
-		log.Panic("System info not found:", err)
+		log.Panic("System info not found: ", err)
 	}
 
 	return models.SystemListFromContainer(topSystemCont)[0]

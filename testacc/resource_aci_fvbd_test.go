@@ -43,7 +43,7 @@ func TestAccAciBridgeDomain_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
 					resource.TestCheckResourceAttr(resourceName, "arp_flood", "no"),
 					resource.TestCheckResourceAttr(resourceName, "ep_clear", "no"),
-					resource.TestCheckResourceAttr(resourceName, "ep_move_detect_mode", "disable"), 
+					resource.TestCheckResourceAttr(resourceName, "ep_move_detect_mode", "disable"),
 					resource.TestCheckResourceAttr(resourceName, "host_based_routing", "no"),
 					resource.TestCheckResourceAttr(resourceName, "intersite_bum_traffic_allow", "no"),
 					resource.TestCheckResourceAttr(resourceName, "intersite_l2_stretch", "no"),
