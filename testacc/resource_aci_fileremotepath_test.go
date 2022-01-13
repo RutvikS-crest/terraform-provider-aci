@@ -118,9 +118,12 @@ func TestAccAciRemotePathofaFile_Negative(t *testing.T) {
 		CheckDestroy:      testAccCheckAciRemotePathofaFileDestroy,
 		Steps: []resource.TestStep{
 			{
+				Config:      CreateAccRemotePathofaFileWhenUserPasswordIsnotGiven(rName, host),
+				ExpectError: regexp.MustCompile(`user_passwd must be set when auth_type is usePassword`),
+			},
+			{
 				Config: CreateAccRemotePathofaFileConfig(rName, host),
 			},
-
 			{
 				Config:      CreateAccRemotePathofaFileUpdatedAttr(rName, host, "description", acctest.RandString(129)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
@@ -373,6 +376,18 @@ func CreateAccRemotePathofaFileRemovingRequiredField() string {
 	return resource
 }
 
+func CreateAccRemotePathofaFileWhenUserPasswordIsnotGiven(rName, host string) string {
+	fmt.Println("=== STEP  testing file_remote_path when auth_type is usePassword and user_passwd is not given")
+	resource := fmt.Sprintf(`
+	
+	resource "aci_file_remote_path" "test" {
+		name  = "%s"
+		host = "%s"
+	}
+	`, rName, host)
+	return resource
+}
+
 func CreateAccRemotePathofaFileUpdatedAttr(rName, host, attribute, value string) string {
 	fmt.Printf("=== STEP  testing file_remote_path attribute: %s = %s \n", attribute, value)
 	resource := fmt.Sprintf(`
@@ -401,4 +416,3 @@ func CreateAccRemotePathofaFileUpdatedPasswd(rName, host, attribute, value strin
 	`, rName, host, attribute, value)
 	return resource
 }
-

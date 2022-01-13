@@ -90,7 +90,7 @@ func CreateAccEndPointRetentionPolicyConfigDataSource(fvTenantName, rName string
 }
 
 func CreateEndPointRetentionPolicyDSWithoutRequired(fvTenantName, rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing end_point_retention_policy creation without ", attrName)
+	fmt.Println("=== STEP  Basic: testing end_point_retention_policy Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_tenant" "test" {

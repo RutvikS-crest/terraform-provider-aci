@@ -78,7 +78,7 @@ func TestAccAciMgmtZone_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
 			},
 			{
-				Config:      CreateAccMgmtZoneConfigWithRequiredParams(rNameUpdated, acctest.RandString(5), acctest.RandString(65)),
+				Config:      CreateAccMgmtZoneConfigWithRequiredParams(rNameUpdated, acctest.RandString(5), rName),
 				ExpectError: regexp.MustCompile(`expected(.)*to be one of(.)*, got(.)*`),
 			},
 			{
