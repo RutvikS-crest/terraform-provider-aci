@@ -361,29 +361,6 @@ func CreateAccDestinationOfRedirectedTrafficConfigWithRequiredParams(fvTenantNam
 	`, fvTenantName, vnsSvcRedirectPolName, ip)
 	return resource
 }
-func CreateAccDestinationOfRedirectedTrafficConfigUpdatedName(fvTenantName, vnsSvcRedirectPolName, ip string) string {
-	fmt.Println("=== STEP  testing destination_of_redirected_traffic creation with invalid ip")
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_service_redirect_policy" "test" {
-		name 		= "%s"
-		tenant_dn = aci_tenant.test.id
-	}
-	
-	resource "aci_destination_of_redirected_traffic" "test" {
-		service_redirect_policy_dn  = aci_service_redirect_policy.test.id
-		ip  = "%s000"
-		mac = "12:25:56:98:45:74"
-		
-	}
-	`, fvTenantName, vnsSvcRedirectPolName, ip)
-	return resource
-}
 
 func CreateAccDestinationOfRedirectedTrafficConfig(fvTenantName, vnsSvcRedirectPolName, ip string) string {
 	fmt.Println("=== STEP  testing destination_of_redirected_traffic creation with required arguments only")

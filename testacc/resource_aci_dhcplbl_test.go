@@ -44,7 +44,6 @@ func TestAccAciBDDHCPLabel_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 					resource.TestCheckResourceAttr(resourceName, "owner", "infra"),
-					// resource.TestCheckResourceAttr(resourceName, "tag", ""),
 				),
 			},
 			{
@@ -56,11 +55,8 @@ func TestAccAciBDDHCPLabel_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_bd_dhcp_label"),
-
 					resource.TestCheckResourceAttr(resourceName, "owner", "tenant"),
-
 					resource.TestCheckResourceAttr(resourceName, "tag", "alice-blue"),
-
 					testAccCheckAciBDDHCPLabelIdEqual(&bd_dhcp_label_default, &bd_dhcp_label_updated),
 				),
 			},
