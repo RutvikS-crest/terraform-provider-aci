@@ -40,6 +40,8 @@ func TestAccAciMatchRule_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", fvTenantName)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 				),
 			},
 			{
@@ -49,7 +51,8 @@ func TestAccAciMatchRule_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "tenant_dn", fmt.Sprintf("uni/tn-%s", fvTenantName)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
-
+					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
+					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_match_rule"),
 					testAccCheckAciMatchRuleIdEqual(&match_rule_default, &match_rule_updated),
 				),
 			},
@@ -116,7 +119,14 @@ func TestAccAciMatchRule_Negative(t *testing.T) {
 				Config:      CreateAccMatchRuleUpdatedAttr(fvTenantName, rName, "annotation", acctest.RandString(129)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
-
+			{
+				Config:      CreateAccMatchRuleUpdatedAttr(fvTenantName, rName, "description", acctest.RandString(129)),
+				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
+			},
+			{
+				Config:      CreateAccMatchRuleUpdatedAttr(fvTenantName, rName, "name_alias", acctest.RandString(64)),
+				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
+			},
 			{
 				Config:      CreateAccMatchRuleUpdatedAttr(fvTenantName, rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
@@ -335,7 +345,8 @@ func CreateAccMatchRuleConfigWithOptionalValues(fvTenantName, rName string) stri
 		tenant_dn  = "${aci_tenant.test.id}"
 		name  = "%s"
 		annotation = "orchestrator:terraform_testacc"
-		
+		description = "created while acceptance testing"
+		name_alias = "test_match_rule"
 	}
 	`, fvTenantName, rName)
 

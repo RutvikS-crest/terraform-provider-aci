@@ -287,29 +287,6 @@ func CreateAccTagWithInValidParentDn(rName, key, value string) string {
 	return resource
 }
 
-func CreateAccTagConfigWithOptionalValues(fvTenantName, key, value string) string {
-	fmt.Println("=== STEP  Basic: testing tag creation with optional parameters")
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_tag" "test" {
-		parent_dn  = "${aci_tenant.test.id}"
-		key  = "%s"
-		value = "%s"
-		description = "created while acceptance testing"
-		annotation = "orchestrator:terraform_testacc"
-		name_alias = "test_tag"
-		
-	}
-	`, fvTenantName, key, value)
-
-	return resource
-}
-
 func CreateAccTagRemovingRequiredField() string {
 	fmt.Println("=== STEP  Basic: testing tag updation without required parameters")
 	resource := fmt.Sprintf(`
@@ -323,23 +300,3 @@ func CreateAccTagRemovingRequiredField() string {
 
 	return resource
 }
-
-func CreateAccTagUpdatedAttr(fvTenantName, key, value, attribute, val string) string {
-	fmt.Printf("=== STEP  testing tag attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_tag" "test" {
-		parent_dn  = aci_tenant.test.id
-		key  = "%s"
-		value = "%s"
-		%s = "%s"
-	}
-	`, fvTenantName, key, value, attribute, val)
-	return resource
-}
-

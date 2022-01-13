@@ -287,29 +287,6 @@ func CreateAccAnnotationWithInValidParentDn(rName, key, value string) string {
 	return resource
 }
 
-func CreateAccAnnotationConfigWithOptionalValues(fvTenantName, key, value string) string {
-	fmt.Println("=== STEP  Basic: testing annotation creation with optional parameters")
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_annotation" "test" {
-		parent_dn  = "${aci_tenant.test.id}"
-		key  = "%s"
-		value = "%s"
-		description = "created while acceptance testing"
-		annotation = "orchestrator:terraform_testacc"
-		name_alias = "test_annotation"
-		
-	}
-	`, fvTenantName, key, value)
-
-	return resource
-}
-
 func CreateAccAnnotationRemovingRequiredField() string {
 	fmt.Println("=== STEP  Basic: testing annotation updation without required parameters")
 	resource := fmt.Sprintf(`
@@ -321,25 +298,6 @@ func CreateAccAnnotationRemovingRequiredField() string {
 	}
 	`)
 
-	return resource
-}
-
-func CreateAccAnnotationUpdatedAttr(fvTenantName, key, value, attribute, val string) string {
-	fmt.Printf("=== STEP  testing annotation attribute: %s = %s \n", attribute, value)
-	resource := fmt.Sprintf(`
-	
-	resource "aci_tenant" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_annotation" "test" {
-		parent_dn  = aci_tenant.test.id
-		key  = "%s"
-		value = "%s"
-		%s = "%s"
-	}
-	`, fvTenantName, key, value, attribute, val)
 	return resource
 }
 

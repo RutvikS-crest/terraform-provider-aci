@@ -35,9 +35,6 @@ func TestAccAciTagDataSource_Basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "parent_dn", resourceName, "parent_dn"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "key", resourceName, "key"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "value", resourceName, "value"),
 				),
 			},
@@ -52,9 +49,9 @@ func TestAccAciTagDataSource_Basic(t *testing.T) {
 			},
 
 			{
-				Config: CreateAccTagDataSourceUpdatedResource(fvTenantName, key, "annotation", "orchestrator:terraform-testacc"),
+				Config: CreateAccTagDataSourceUpdatedResource(fvTenantName, key, "test_value"),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "value", resourceName, "value"),
 				),
 			},
 		},
@@ -170,7 +167,7 @@ func CreateAccTagDataSourceUpdate(fvTenantName, key, attr, value string) string 
 	return resource
 }
 
-func CreateAccTagDataSourceUpdatedResource(fvTenantName, key, attr, value string) string {
+func CreateAccTagDataSourceUpdatedResource(fvTenantName, key, value string) string {
 	fmt.Println("=== STEP  testing tag Data Source with updated resource")
 	resource := fmt.Sprintf(`
 	
@@ -182,8 +179,7 @@ func CreateAccTagDataSourceUpdatedResource(fvTenantName, key, attr, value string
 	resource "aci_tag" "test" {
 		parent_dn  = aci_tenant.test.id
 		key  = "%s"
-		value = "val"
-		%s = "%s"
+		value = "%s"
 	}
 
 	data "aci_tag" "test" {
@@ -191,6 +187,6 @@ func CreateAccTagDataSourceUpdatedResource(fvTenantName, key, attr, value string
 		key  = aci_tag.test.key
 		depends_on = [ aci_tag.test ]
 	}
-	`, fvTenantName, key, attr, value)
+	`, fvTenantName, key, value)
 	return resource
 }

@@ -72,18 +72,18 @@ func CreateAccRouteControlContextConfigDataSource(fvTenantName, rtctrlProfileNam
 	
 	}
 	
-	resource "aci_route_control_profile" "test" {
+	resource "aci_bgp_route_control_profile" "test" {
 		name 		= "%s"
-		tenant_dn = aci_tenant.test.id
+		parent_dn = aci_tenant.test.id
 	}
 	
 	resource "aci_route_control_context" "test" {
-		route_control_profile_dn  = aci_route_control_profile.test.id
+		route_control_profile_dn  = aci_bgp_route_control_profile.test.id
 		name  = "%s"
 	}
 
 	data "aci_route_control_context" "test" {
-		route_control_profile_dn  = aci_route_control_profile.test.id
+		route_control_profile_dn  = aci_bgp_route_control_profile.test.id
 		name  = aci_route_control_context.test.name
 		depends_on = [ aci_route_control_context.test ]
 	}
@@ -100,13 +100,13 @@ func CreateRouteControlContextDSWithoutRequired(fvTenantName, rtctrlProfileName,
 	
 	}
 	
-	resource "aci_route_control_profile" "test" {
+	resource "aci_bgp_route_control_profile" "test" {
 		name 		= "%s"
-		tenant_dn = aci_tenant.test.id
+		parent_dn = aci_tenant.test.id
 	}
 	
 	resource "aci_route_control_context" "test" {
-		route_control_profile_dn  = aci_route_control_profile.test.id
+		route_control_profile_dn  = aci_bgp_route_control_profile.test.id
 		name  = "%s"
 	}
 	`
@@ -114,7 +114,7 @@ func CreateRouteControlContextDSWithoutRequired(fvTenantName, rtctrlProfileName,
 	case "route_control_profile_dn":
 		rBlock += `
 	data "aci_route_control_context" "test" {
-	#	route_control_profile_dn  = aci_route_control_profile.test.id
+	#	route_control_profile_dn  = aci_bgp_route_control_profile.test.id
 		name  = aci_route_control_context.test.name
 		depends_on = [ aci_route_control_context.test ]
 	}
@@ -122,7 +122,7 @@ func CreateRouteControlContextDSWithoutRequired(fvTenantName, rtctrlProfileName,
 	case "name":
 		rBlock += `
 	data "aci_route_control_context" "test" {
-		route_control_profile_dn  = aci_route_control_profile.test.id
+		route_control_profile_dn  = aci_bgp_route_control_profile.test.id
 	#	name  = aci_route_control_context.test.name
 		depends_on = [ aci_route_control_context.test ]
 	}
@@ -140,18 +140,18 @@ func CreateAccRouteControlContextDSWithInvalidParentDn(fvTenantName, rtctrlProfi
 	
 	}
 	
-	resource "aci_route_control_profile" "test" {
+	resource "aci_bgp_route_control_profile" "test" {
 		name 		= "%s"
-		tenant_dn = aci_tenant.test.id
+		parent_dn = aci_tenant.test.id
 	}
 	
 	resource "aci_route_control_context" "test" {
-		route_control_profile_dn  = aci_route_control_profile.test.id
+		route_control_profile_dn  = aci_bgp_route_control_profile.test.id
 		name  = "%s"
 	}
 
 	data "aci_route_control_context" "test" {
-		route_control_profile_dn  = aci_route_control_profile.test.id
+		route_control_profile_dn  = aci_bgp_route_control_profile.test.id
 		name  = "${aci_route_control_context.test.name}_invalid"
 		depends_on = [ aci_route_control_context.test ]
 	}
@@ -168,18 +168,18 @@ func CreateAccRouteControlContextDataSourceUpdate(fvTenantName, rtctrlProfileNam
 	
 	}
 	
-	resource "aci_route_control_profile" "test" {
+	resource "aci_bgp_route_control_profile" "test" {
 		name 		= "%s"
-		tenant_dn = aci_tenant.test.id
+		parent_dn = aci_tenant.test.id
 	}
 	
 	resource "aci_route_control_context" "test" {
-		route_control_profile_dn  = aci_route_control_profile.test.id
+		route_control_profile_dn  = aci_bgp_route_control_profile.test.id
 		name  = "%s"
 	}
 
 	data "aci_route_control_context" "test" {
-		route_control_profile_dn  = aci_route_control_profile.test.id
+		route_control_profile_dn  = aci_bgp_route_control_profile.test.id
 		name  = aci_route_control_context.test.name
 		%s = "%s"
 		depends_on = [ aci_route_control_context.test ]
@@ -197,19 +197,19 @@ func CreateAccRouteControlContextDataSourceUpdatedResource(fvTenantName, rtctrlP
 	
 	}
 	
-	resource "aci_route_control_profile" "test" {
+	resource "aci_bgp_route_control_profile" "test" {
 		name 		= "%s"
-		tenant_dn = aci_tenant.test.id
+		parent_dn = aci_tenant.test.id
 	}
 	
 	resource "aci_route_control_context" "test" {
-		route_control_profile_dn  = aci_route_control_profile.test.id
+		route_control_profile_dn  = aci_bgp_route_control_profile.test.id
 		name  = "%s"
 		%s = "%s"
 	}
 
 	data "aci_route_control_context" "test" {
-		route_control_profile_dn  = aci_route_control_profile.test.id
+		route_control_profile_dn  = aci_bgp_route_control_profile.test.id
 		name  = aci_route_control_context.test.name
 		depends_on = [ aci_route_control_context.test ]
 	}

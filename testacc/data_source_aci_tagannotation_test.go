@@ -35,9 +35,6 @@ func TestAccAciAnnotationDataSource_Basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "parent_dn", resourceName, "parent_dn"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "key", resourceName, "key"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "value", resourceName, "value"),
 				),
 			},
@@ -52,9 +49,9 @@ func TestAccAciAnnotationDataSource_Basic(t *testing.T) {
 			},
 
 			{
-				Config: CreateAccAnnotationDataSourceUpdatedResource(fvTenantName, key, "annotation", "orchestrator:terraform-testacc"),
+				Config: CreateAccAnnotationDataSourceUpdatedResource(fvTenantName, key, "test_value"),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "value", resourceName, "value"),
 				),
 			},
 		},
@@ -170,7 +167,7 @@ func CreateAccAnnotationDataSourceUpdate(fvTenantName, key, attr, value string) 
 	return resource
 }
 
-func CreateAccAnnotationDataSourceUpdatedResource(fvTenantName, key, attr, value string) string {
+func CreateAccAnnotationDataSourceUpdatedResource(fvTenantName, key, value string) string {
 	fmt.Println("=== STEP  testing annotation Data Source with updated resource")
 	resource := fmt.Sprintf(`
 	
@@ -182,8 +179,7 @@ func CreateAccAnnotationDataSourceUpdatedResource(fvTenantName, key, attr, value
 	resource "aci_annotation" "test" {
 		parent_dn  = aci_tenant.test.id
 		key  = "%s"
-		value = "val"
-		%s = "%s"
+		value = "%s"
 	}
 
 	data "aci_annotation" "test" {
@@ -191,6 +187,6 @@ func CreateAccAnnotationDataSourceUpdatedResource(fvTenantName, key, attr, value
 		key  = aci_annotation.test.key
 		depends_on = [ aci_annotation.test ]
 	}
-	`, fvTenantName, key, attr, value)
+	`, fvTenantName, key, value)
 	return resource
 }
