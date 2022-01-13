@@ -104,7 +104,7 @@ func CreateRsaProviderDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccRsaProviderDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing rsa_provider Data Source with required arguments only")
+	fmt.Println("=== STEP  testing rsa_provider Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_rsa_provider" "test" {
@@ -115,7 +115,6 @@ func CreateAccRsaProviderDSWithInvalidName(rName string) string {
 	data "aci_rsa_provider" "test" {
 	
 		name  = "${aci_rsa_provider.test.name}_invalid"
-		name  = aci_rsa_provider.test.name
 		depends_on = [ aci_rsa_provider.test ]
 	}
 	`, rName)

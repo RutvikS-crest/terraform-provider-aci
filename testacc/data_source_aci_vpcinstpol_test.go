@@ -97,7 +97,7 @@ func CreateVPCDomainPolicyDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccVPCDomainPolicyDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing vpc_domain_policy Data Source with required arguments only")
+	fmt.Println("=== STEP  testing vpc_domain_policy Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_vpc_domain_policy" "test" {

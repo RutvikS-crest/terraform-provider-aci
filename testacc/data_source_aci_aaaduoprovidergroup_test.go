@@ -101,7 +101,7 @@ func CreateDuoProviderGroupDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccDuoProviderGroupDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing duo_provider_group Data Source with required arguments only")
+	fmt.Println("=== STEP  testing duo_provider_group Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_duo_provider_group" "test" {
@@ -112,7 +112,6 @@ func CreateAccDuoProviderGroupDSWithInvalidName(rName string) string {
 	data "aci_duo_provider_group" "test" {
 	
 		name  = "${aci_duo_provider_group.test.name}_invalid"
-		name  = aci_duo_provider_group.test.name
 		depends_on = [ aci_duo_provider_group.test ]
 	}
 	`, rName)

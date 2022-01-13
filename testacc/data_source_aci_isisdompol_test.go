@@ -35,6 +35,7 @@ func TestAccAciISISDomainPolicyDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "isis_level_name", resourceName, "isis_level_name"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "mtu", resourceName, "mtu"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "redistrib_metric", resourceName, "redistrib_metric"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "isis_level_type", resourceName, "isis_level_type"),
@@ -72,20 +73,6 @@ func CreateAccISISDomainPolicyConfigDataSource() string {
 	}
 
 	data "aci_isis_domain_policy" "test" {
-	}
-	`)
-	return resource
-}
-
-func CreateAccISISDomainPolicyDSWithInvalidName() string {
-	fmt.Println("=== STEP  testing isis_domain_policy Data Source with required arguments only")
-	resource := fmt.Sprintf(`
-	
-	resource "aci_isis_domain_policy" "test" {
-	}
-
-	data "aci_isis_domain_policy" "test" {
-		depends_on = [ aci_isis_domain_policy.test ]
 	}
 	`)
 	return resource

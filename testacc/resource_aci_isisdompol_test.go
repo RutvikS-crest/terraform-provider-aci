@@ -98,6 +98,14 @@ func TestAccAciISISDomainPolicy_Update(t *testing.T) {
 				),
 			},
 			{
+				Config: CreateAccISISDomainPolicyUpdatedAttr("lsp_fast_flood", "enabled"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciISISDomainPolicyExists(resourceName, &isis_domain_policy_updated),
+					resource.TestCheckResourceAttr(resourceName, "lsp_fast_flood", "enabled"),
+					testAccCheckAciISISDomainPolicyIdEqual(&isis_domain_policy_default, &isis_domain_policy_updated),
+				),
+			},
+			{
 				Config: CreateAccISISDomainPolicyUpdatedAttr("mtu", "4352"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciISISDomainPolicyExists(resourceName, &isis_domain_policy_updated),
@@ -507,28 +515,6 @@ func CreateAccISISDomainPolicyConfigWithOptionalValues() string {
 	}
 	`
 
-	return resource
-}
-
-func CreateAccISISDomainPolicyRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing isis_domain_policy updation without required parameters")
-	resource := `
-	resource "aci_isis_domain_policy" "test" {
-		description = "created while acceptance testing"
-		annotation = "orchestrator:terraform_testacc"
-		name_alias = "test_isis_domain_policy"
-		mtu = "257"
-		redistrib_metric = "2"
-		lsp_fast_flood = "disabled"
-		lsp_gen_init_intvl = "60"
-		lsp_gen_max_intvl = "60"
-		lsp_gen_sec_intvl = "60"
-		spf_comp_init_intvl = "60"
-		spf_comp_max_intvl = "60"
-		spf_comp_sec_intvl = "60"
-		isis_level_type = "l2"
-	}
-	`
 	return resource
 }
 

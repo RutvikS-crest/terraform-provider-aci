@@ -74,6 +74,14 @@ func TestAccAciMgmtZone_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
+				Config:      CreateAccMgmtZoneConfigWithRequiredParams(rNameUpdated, zoneType, acctest.RandString(65)),
+				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
+			},
+			{
+				Config:      CreateAccMgmtZoneConfigWithRequiredParams(rNameUpdated, acctest.RandString(5), acctest.RandString(65)),
+				ExpectError: regexp.MustCompile(`expected(.)*to be one of(.)*, got(.)*`),
+			},
+			{
 				Config: CreateAccMgmtZoneConfigWithRequiredParams(rNameUpdated, zoneType, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciMgmtZoneExists(resourceName, &mgmt_zone_updated),
@@ -296,7 +304,7 @@ func CreateMgmtZoneWithoutRequired(mgmtGrpName, zoneType, rName, attrName string
 }
 
 func CreateAccMgmtZoneConfigWithRequiredParams(mgmtGrpName, zoneType, rName string) string {
-	fmt.Println("=== STEP  testing mgmt_zone creation with updated naming arguments")
+	fmt.Printf("=== STEP  testing mgmt_zone creation with parent resource name %s, zone type %s and resource name %s\n", mgmtGrpName, zoneType, rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_managed_node_connectivity_group" "test" {

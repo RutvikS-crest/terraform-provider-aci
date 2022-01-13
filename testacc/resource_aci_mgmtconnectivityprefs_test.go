@@ -17,7 +17,7 @@ func TestAccAciMgmtconnectivitypreference_Basic(t *testing.T) {
 	var mgmt_preference_updated models.Mgmtconnectivitypreference
 	resourceName := "aci_mgmt_preference.test"
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		CheckDestroy:      testAccCheckAciMgmtconnectivitypreferenceDestroy,
@@ -48,6 +48,14 @@ func TestAccAciMgmtconnectivitypreference_Basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
+			{
+				Config: CreateAccMgmtconnectivitypreferenceUpdatedAttr("interface_pref", "inband"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciMgmtconnectivitypreferenceExists(resourceName, &mgmt_preference_updated),
+					resource.TestCheckResourceAttr(resourceName, "interface_pref", "inband"),
+					testAccCheckAciMgmtconnectivitypreferenceIdEqual(&mgmt_preference_default, &mgmt_preference_updated),
+				),
+			},
 		},
 	})
 }
@@ -57,7 +65,7 @@ func TestAccAciMgmtconnectivitypreference_Negative(t *testing.T) {
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(5)
 
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 		CheckDestroy:      testAccCheckAciMgmtconnectivitypreferenceDestroy,
@@ -158,16 +166,6 @@ func testAccCheckAciMgmtconnectivitypreferenceIdNotEqual(m1, m2 *models.Mgmtconn
 	}
 }
 
-func CreateAccMgmtconnectivitypreferenceConfigWithRequiredParams() string {
-	fmt.Println("=== STEP  testing mgmt_preference creation with updated naming arguments")
-	resource := fmt.Sprintf(`
-	
-	resource "aci_mgmt_preference" "test" {
-	
-	}
-	`)
-	return resource
-}
 func CreateAccMgmtconnectivitypreferenceConfig() string {
 	fmt.Println("=== STEP  testing mgmt_preference creation with required arguments only")
 	resource := fmt.Sprintf(`

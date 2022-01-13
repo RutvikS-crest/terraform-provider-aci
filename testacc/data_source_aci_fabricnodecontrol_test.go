@@ -99,7 +99,7 @@ func CreateFabricNodeControlDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccFabricNodeControlDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing fabric_node_control Data Source with required arguments only")
+	fmt.Println("=== STEP  testing fabric_node_control Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_fabric_node_control" "test" {
@@ -110,7 +110,6 @@ func CreateAccFabricNodeControlDSWithInvalidName(rName string) string {
 	data "aci_fabric_node_control" "test" {
 	
 		name  = "${aci_fabric_node_control.test.name}_invalid"
-		name  = aci_fabric_node_control.test.name
 		depends_on = [ aci_fabric_node_control.test ]
 	}
 	`, rName)

@@ -49,7 +49,6 @@ func TestAccAciOutofServiceFabricPath_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "pod_id", podId),
 					resource.TestCheckResourceAttr(resourceName, "node_id", NodeId),
 					resource.TestCheckResourceAttr(resourceName, "interface", Interface),
-					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
 				),
 			},
 			{
@@ -72,12 +71,12 @@ func TestAccAciOutofServiceFabricPath_Basic(t *testing.T) {
 			},
 
 			{
-				Config:      CreateAccOutofServiceFabricPathConfig(randomValue, NodeId, Interface),
-				ExpectError: regexp.MustCompile(`Invalid reference`),
+				Config:      CreateAccOutofServiceFabricPathConfigWithRequiredParams(randomValue, NodeId, Interface),
+				ExpectError: regexp.MustCompile(`Incorrect attribute value type`),
 			},
 			{
-				Config:      CreateAccOutofServiceFabricPathConfig(podId, randomValue, Interface),
-				ExpectError: regexp.MustCompile(`Invalid reference`),
+				Config:      CreateAccOutofServiceFabricPathConfigWithRequiredParams(podId, randomValue, Interface),
+				ExpectError: regexp.MustCompile(`Incorrect attribute value type`),
 			},
 			{
 				Config: CreateAccOutofServiceFabricPathConfigWithRequiredParams(podId, NodeId, InterfaceUpdated),
@@ -242,13 +241,13 @@ func CreateOutofServiceFabricPathWithoutRequired(podId, NodeId, Interface, attrN
 }
 
 func CreateAccOutofServiceFabricPathConfigWithRequiredParams(podId, NodeId, Interface string) string {
-	fmt.Println("=== STEP  testing interface_blacklist creation with updated naming arguments")
+	fmt.Printf("=== STEP  testing interface_blacklist creation with pod_id %s, node_id %s and interface %s\n", podId, NodeId, Interface)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_interface_blacklist" "test" {
 	
-		pod_id  = %s
-  		node_id = %s
+		pod_id  = "%s"
+  		node_id = "%s"
  		interface = "%s"
 	}
 	`, podId, NodeId, Interface)
@@ -296,18 +295,6 @@ func CreateAccOutofServiceFabricPathConfigWithOptionalValues(podId, NodeId, Inte
 		
 	}
 	`, podId, NodeId, Interface)
-
-	return resource
-}
-
-func CreateAccOutofServiceFabricPathRemovingRequiredField() string {
-	fmt.Println("=== STEP  Basic: testing interface_blacklist updation without required parameters")
-	resource := fmt.Sprintf(`
-	resource "aci_interface_blacklist" "test" {
-		annotation = "orchestrator:terraform_testacc"
-		
-	}
-	`)
 
 	return resource
 }

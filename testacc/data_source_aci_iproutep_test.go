@@ -142,8 +142,8 @@ func CreateL3outStaticRouteDSWithoutRequired(rName, tdn, ip, attrName string) st
 	case "fabric_node_dn":
 		rBlock += `
 	data "aci_l3out_static_route" "test" {
-	#	ip  = aci_l3out_static_route.test.ip
-		fabric_node_dn = aci_l3out_static_route.test.fabric_node_dn
+		ip  = aci_l3out_static_route.test.ip
+	#	fabric_node_dn = aci_l3out_static_route.test.fabric_node_dn
 		depends_on = [ aci_l3out_static_route.test ]
 	}
 		`

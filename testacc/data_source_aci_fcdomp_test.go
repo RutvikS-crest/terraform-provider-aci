@@ -95,7 +95,7 @@ func CreateFCDomainDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccFCDomainDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing fc_domain Data Source with required arguments only")
+	fmt.Println("=== STEP  testing fc_domain Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_fc_domain" "test" {

@@ -123,7 +123,7 @@ func CreateBGPAddressFamilyContextDSWithoutRequired(fvTenantName, rName, attrNam
 }
 
 func CreateAccBGPAddressFamilyContextDSWithInvalidName(fvTenantName, rName string) string {
-	fmt.Println("=== STEP  testing bgp_address_family_context Data Source with Invalid Parent Dn")
+	fmt.Println("=== STEP  testing bgp_address_family_context Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tenant" "test" {

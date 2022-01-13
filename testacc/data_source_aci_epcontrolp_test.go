@@ -100,7 +100,7 @@ func CreateEndpointControlsDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccEndpointControlsDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing endpoint_controls Data Source with required arguments only")
+	fmt.Println("=== STEP  testing endpoint_controls Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_endpoint_controls" "test" {
@@ -111,7 +111,6 @@ func CreateAccEndpointControlsDSWithInvalidName(rName string) string {
 	data "aci_endpoint_controls" "test" {
 	
 		name  = "${aci_endpoint_controls.test.name}_invalid"
-		name  = aci_endpoint_controls.test.name
 		depends_on = [ aci_endpoint_controls.test ]
 	}
 	`, rName)

@@ -104,7 +104,7 @@ func CreateConfigurationImportPolicyDSWithoutRequired(rName, attrName string) st
 }
 
 func CreateAccConfigurationImportPolicyDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing configuration_import_policy Data Source with required arguments only")
+	fmt.Println("=== STEP  testing configuration_import_policy Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_configuration_import_policy" "test" {

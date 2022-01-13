@@ -52,7 +52,7 @@ func TestAccAciOutofServiceFabricPathlistDataSource_Basic(t *testing.T) {
 			},
 
 			{
-				Config:      CreateAccInterfaceBlacklistDSWithInvalidName(podId, nodeId, interfaceName),
+				Config:      CreateAccInterfaceBlacklistDSWithInvalidPodID(podId, nodeId, interfaceName),
 				ExpectError: regexp.MustCompile(`Object may not exists`),
 			},
 			{
@@ -133,7 +133,7 @@ func CreateInterfaceBlacklistDSWithoutRequired(podId, nodeId, interfaceName, att
 	return fmt.Sprintf(rBlock, podId, nodeId, interfaceName)
 }
 
-func CreateAccInterfaceBlacklistDSWithInvalidName(podId, nodeId, interfaceName string) string {
+func CreateAccInterfaceBlacklistDSWithInvalidPodID(podId, nodeId, interfaceName string) string {
 	fmt.Println("=== STEP  testing interface_blacklist Data Source with invalid pod_id")
 	resource := fmt.Sprintf(`
 	

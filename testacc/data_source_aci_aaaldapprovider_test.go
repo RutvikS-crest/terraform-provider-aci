@@ -109,7 +109,7 @@ func CreateLDAPProviderDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccLDAPProviderDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing ldap_provider Data Source with required arguments only")
+	fmt.Println("=== STEP  testing ldap_provider Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_ldap_provider" "test" {
@@ -120,7 +120,6 @@ func CreateAccLDAPProviderDSWithInvalidName(rName string) string {
 	data "aci_ldap_provider" "test" {
 	
 		name  = "${aci_ldap_provider.test.name}_invalid"
-		name  = aci_ldap_provider.test.name
 		depends_on = [ aci_ldap_provider.test ]
 	}
 	`, rName)

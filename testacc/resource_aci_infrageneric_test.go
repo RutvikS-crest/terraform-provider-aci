@@ -226,7 +226,7 @@ func CreateAccessGenericWithoutRequired(infraAttEntityPName, rName, attrName str
 }
 
 func CreateAccAccessGenericConfigWithRequiredParams(infraAttEntityPName, rName string) string {
-	fmt.Println("=== STEP  testing access_generic creation with required arguments only")
+	fmt.Printf("=== STEP  testing access_generic creation with parent resource name %s and resource name %s\n", infraAttEntityPName, rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_attachable_access_entity_profile" "test" {

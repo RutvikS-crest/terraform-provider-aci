@@ -113,7 +113,7 @@ func CreateSAMLProviderDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccSAMLProviderDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing saml_provider Data Source with required arguments only")
+	fmt.Println("=== STEP  testing saml_provider Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_saml_provider" "test" {
@@ -124,7 +124,6 @@ func CreateAccSAMLProviderDSWithInvalidName(rName string) string {
 	data "aci_saml_provider" "test" {
 	
 		name  = "${aci_saml_provider.test.name}_invalid"
-		name  = aci_saml_provider.test.name
 		depends_on = [ aci_saml_provider.test ]
 	}
 	`, rName)

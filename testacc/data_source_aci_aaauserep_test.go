@@ -65,7 +65,7 @@ func CreateAccGlobalSecurityConfigDataSource() string {
 }
 
 func CreateAccGlobalSecurityDSWithInvalidName() string {
-	fmt.Println("=== STEP  testing global_security Data Source with required arguments only")
+	fmt.Println("=== STEP  testing global_security Data Source with invalid name")
 	resource := `
 	
 	resource "aci_global_security" "test" {

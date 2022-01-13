@@ -96,7 +96,7 @@ func CreateAccessSwitchPolicyGroupDSWithoutRequired(rName, attrName string) stri
 }
 
 func CreateAccAccessSwitchPolicyGroupDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing access_switch_policy_group Data Source with required arguments only")
+	fmt.Println("=== STEP  testing access_switch_policy_group Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_access_switch_policy_group" "test" {

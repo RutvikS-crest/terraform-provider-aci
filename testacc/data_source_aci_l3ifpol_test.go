@@ -97,7 +97,7 @@ func CreateL3InterfacePolicyDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccL3InterfacePolicyDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing l3_interface_policy Data Source with required arguments only")
+	fmt.Println("=== STEP  testing l3_interface_policy Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_l3_interface_policy" "test" {

@@ -100,7 +100,7 @@ func CreatePortTrackingDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccPortTrackingDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing port_tracking Data Source with required arguments only")
+	fmt.Println("=== STEP  testing port_tracking Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_port_tracking" "test" {
@@ -111,7 +111,6 @@ func CreateAccPortTrackingDSWithInvalidName(rName string) string {
 	data "aci_port_tracking" "test" {
 	
 		name  = "${aci_port_tracking.test.name}_invalid"
-		name  = aci_port_tracking.test.name
 		depends_on = [ aci_port_tracking.test ]
 	}
 	`, rName)

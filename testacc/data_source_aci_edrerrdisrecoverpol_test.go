@@ -97,7 +97,7 @@ func CreateErrorDisableRecoveryDSWithoutRequired(rName, attrName string) string 
 }
 
 func CreateAccErrorDisableRecoveryDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing error_disable_recovery Data Source with required arguments only")
+	fmt.Println("=== STEP  testing error_disable_recovery Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_error_disable_recovery" "test" {
@@ -108,7 +108,6 @@ func CreateAccErrorDisableRecoveryDSWithInvalidName(rName string) string {
 	data "aci_error_disable_recovery" "test" {
 	
 		name  = "${aci_error_disable_recovery.test.name}_invalid"
-		name  = aci_error_disable_recovery.test.name
 		depends_on = [ aci_error_disable_recovery.test ]
 	}
 	`, rName)

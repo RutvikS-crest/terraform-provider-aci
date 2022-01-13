@@ -96,7 +96,7 @@ func CreateFexProfileDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccFexProfileDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing fex_profile Data Source with required arguments only")
+	fmt.Println("=== STEP  testing fex_profile Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_fex_profile" "test" {

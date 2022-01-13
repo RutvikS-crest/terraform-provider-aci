@@ -96,7 +96,7 @@ func CreateTACACSAccountingDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccTACACSAccountingDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing tacacs_accounting Data Source with required arguments only")
+	fmt.Println("=== STEP  testing tacacs_accounting Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tacacs_accounting" "test" {
@@ -107,7 +107,6 @@ func CreateAccTACACSAccountingDSWithInvalidName(rName string) string {
 	data "aci_tacacs_accounting" "test" {
 	
 		name  = "${aci_tacacs_accounting.test.name}_invalid"
-		name  = aci_tacacs_accounting.test.name
 		depends_on = [ aci_tacacs_accounting.test ]
 	}
 	`, rName)

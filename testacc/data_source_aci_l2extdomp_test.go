@@ -96,7 +96,7 @@ func CreateL2DomainDSWithoutRequired(rName, attrName string) string {
 }
 
 func CreateAccL2DomainDSWithInvalidName(rName string) string {
-	fmt.Println("=== STEP  testing l2_domain Data Source with required arguments only")
+	fmt.Println("=== STEP  testing l2_domain Data Source with invalid name")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_l2_domain" "test" {
