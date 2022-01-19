@@ -65,7 +65,7 @@ func dataSourceAciCloudContextProfileRead(ctx context.Context, d *schema.Resourc
 
 	dn := fmt.Sprintf("%s/%s", TenantDn, rn)
 
-	cloudCtxProfile, err := getRemoteCloudContextProfile(aciClient, dn)
+	cloudCtxProfile, err := GetRemoteCloudContextProfile(aciClient, dn)
 
 	if err != nil {
 		return diag.FromErr(err)

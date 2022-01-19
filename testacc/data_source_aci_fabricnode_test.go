@@ -117,27 +117,3 @@ func CreateAccTopologyFabricNodeDataSourceUpdate(podId, nodeId, key, value strin
 	`, podId, nodeId, key, value)
 	return resource
 }
-
-func CreateAccTopologyFabricNodeDataSourceUpdatedResource(fabricPodName, fabric_node_id, key, value string) string {
-	fmt.Println("=== STEP  testing fabric_node Data Source with updated resource")
-	resource := fmt.Sprintf(`
-	
-	resource "aci_fabric_pod" "test" {
-		name 		= "%s"
-	
-	}
-	
-	resource "aci_fabric_node" "test" {
-		fabric_pod_dn  = aci_fabric_pod.test.id
-		fabric_node_id  = "%s"
-		%s = "%s"
-	}
-
-	data "aci_fabric_node" "test" {
-		fabric_pod_dn  = aci_fabric_pod.test.id
-		fabric_node_id  = aci_fabric_node.test.fabric_node_id
-		depends_on = [ aci_fabric_node.test ]
-	}
-	`, fabricPodName, fabric_node_id, key, value)
-	return resource
-}
