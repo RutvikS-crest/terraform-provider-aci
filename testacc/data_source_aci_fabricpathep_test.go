@@ -39,6 +39,7 @@ func TestAccAciFabricPathEpDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(dataSourceName, "pod_id", podId),
 					resource.TestCheckResourceAttr(dataSourceName, "name", pathEpName),
 					resource.TestCheckResourceAttr(dataSourceName, "node_id", nodeId),
+					resource.TestCheckResourceAttrSet(dataSourceName, "vpc"),
 				),
 			},
 			{

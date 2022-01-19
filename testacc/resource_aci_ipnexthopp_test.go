@@ -82,7 +82,7 @@ func TestAccAciL3outStaticRouteNextHop_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config:      CreateAccL3outStaticRouteNextHopWithInavalidIP(rName, fabDn2, rtrId),
+				Config:      CreateAccL3outStaticRouteNextHopWithInvalidIP(rName, fabDn2, rtrId),
 				ExpectError: regexp.MustCompile(`unknown property value (.)+`),
 			},
 
@@ -336,7 +336,7 @@ func CreateAccL3outStaticRouteNextHopConfigWithRequiredParams(rName, tdn, rtrId,
 	return resource
 }
 
-func CreateAccL3outStaticRouteNextHopWithInavalidIP(rName, tdn, rtrId string) string {
+func CreateAccL3outStaticRouteNextHopWithInvalidIP(rName, tdn, rtrId string) string {
 	fmt.Println("=== STEP  testing l3out_static_route_next_hop creation with invalid IP")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
