@@ -42,7 +42,7 @@ func TestAccAciIPAgingPolicy_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config:      CreateAccIPAgingPolicyUpdatedAttr("admin_st", "disabled"),
+				Config: CreateAccIPAgingPolicyUpdatedAttr("admin_st", "disabled"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciIPAgingPolicyExists(resourceName, &endpoint_ip_aging_profile_updated),
 					resource.TestCheckResourceAttr(resourceName, "admin_st", "disabled"),

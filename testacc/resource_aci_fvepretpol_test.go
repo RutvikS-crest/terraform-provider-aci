@@ -108,7 +108,6 @@ func TestAccAciEndPointRetentionPolicy_Basic(t *testing.T) {
 	})
 }
 
-
 func TestAccAciEndPointRetentionPolicy_Negative(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 
