@@ -9,9 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-const fabricNodeId = "101"
-const fabricPodDn = "topology/pod-1"
-
 func TestAccAciTopologyFabricNodeDataSource_Basic(t *testing.T) {
 	dataSourceName := "data.aci_fabric_node.test"
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")

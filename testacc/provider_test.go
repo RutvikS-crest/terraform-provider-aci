@@ -18,6 +18,32 @@ var testAccProvider *schema.Provider
 var systemInfo *models.System
 var providerProfileDn string = "uni/vmmp-VMware"
 
+const region = "us-west-1"
+const cloudVendor = "aws"
+const cloudProvPName = "aws"
+const name = "us-east-1"
+const cloudProviderRegion = "uni/clouddomp/provp-aws/region-us-east-1"
+const zoneName = "us-east-1a"
+const fabricNodeId = "101"
+const fabricPodDn = "topology/pod-1"
+const podId = "1"
+const nodeId = "101"
+const pathEpName = "eth1/12"
+const fabDn1 = "topology/pod-1/node-101"
+const systemPodId = "1"
+const systemNodeId = "1"
+const hubNetwork = "uni/tn-infra/gwrouterp-default"
+const tdn1 = "topology/pod-1/paths-101/pathep-[eth1/12]"
+const tdn2 = "topology/pod-1/paths-101/pathep-[eth1/6]"
+const multdn1 = "topology/pod-1/paths-101/pathep-[eth1/21]"
+const multdn2 = "topology/pod-1/paths-101/pathep-[eth1/30]"
+const multdn3 = "topology/pod-1/paths-101/pathep-[eth1/1]"
+const fabDn2 = "topology/pod-1/node-201"
+const fabDn3 = "topology/pod-1/node-111"
+const fabDn4 = "topology/pod-1/node-1"
+const vmmProvProfileDn = "uni/vmmp-VMware"
+const vmmProvProfileDnOther = "uni/vmmp-OpenShift"
+
 func init() {
 	testAccProvider = aci.Provider()
 	testAccProviders = map[string]func() (*schema.Provider, error){
