@@ -19,7 +19,7 @@ func TestAccAciVMMController_Basic(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
 	rNameUpdated := makeTestVariable(acctest.RandString(5))
 	ip, _ := acctest.RandIpAddress("10.0.0.0/16")
-	ipUpdated, _ := acctest.RandIpAddress("10.0.0.0/16")
+	ipUpdated, _ := acctest.RandIpAddress("10.1.0.0/16")
 	rootContName := makeTestVariable(acctest.RandString(5))
 	rootContNameUpdated := makeTestVariable(acctest.RandString(5))
 	vmmDomPName := makeTestVariable(acctest.RandString(5))
@@ -88,6 +88,7 @@ func TestAccAciVMMController_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "scope", "MicrosoftSCVMM"),
 					resource.TestCheckResourceAttr(resourceName, "stats_mode", "enabled"),
 					resource.TestCheckResourceAttr(resourceName, "vxlan_depl_pref", "nsx"),
+					testAccCheckAciVMMControllerIdNotEqual(&vmm_controller_default, &vmm_controller_updated),
 				),
 			},
 			{
@@ -123,7 +124,7 @@ func TestAccAciVMMController_Basic(t *testing.T) {
 					testAccCheckAciVMMControllerExists(resourceName, &vmm_controller_updated),
 					resource.TestCheckResourceAttr(resourceName, "vmm_domain_dn", fmt.Sprintf("%v/dom-%s", providerProfileDn, vmmDomPName)),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdated),
-					resource.TestCheckResourceAttr(resourceName, "ip", ipUpdated),
+					resource.TestCheckResourceAttr(resourceName, "host_or_ip", ipUpdated),
 					resource.TestCheckResourceAttr(resourceName, "root_cont_name", rootContNameUpdated),
 					testAccCheckAciVMMControllerIdNotEqual(&vmm_controller_default, &vmm_controller_updated),
 				),

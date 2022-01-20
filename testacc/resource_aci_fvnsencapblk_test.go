@@ -131,6 +131,23 @@ func TestAccAciRanges_Update(t *testing.T) {
 				),
 			},
 			{
+				Config: CreateAccRangesConfig(rName, "4095", "4095"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciRangesExists(resourceName, &ranges_updated),
+					resource.TestCheckResourceAttr(resourceName, "from", "vlan-4095"),
+					resource.TestCheckResourceAttr(resourceName, "to", "vlan-4095"),
+					testAccCheckAciRangesIdNotEqual(&ranges_default, &ranges_updated),
+				),
+			},
+			{
+				Config: CreateAccRangesConfig(rName, from, "4095"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciRangesExists(resourceName, &ranges_updated),
+					resource.TestCheckResourceAttr(resourceName, "to", "vlan-4095"),
+					testAccCheckAciRangesIdNotEqual(&ranges_default, &ranges_updated),
+				),
+			},
+			{
 				Config: CreateAccRangesUpdatedAttr(rName, from, to, "alloc_mode", "static"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciRangesExists(resourceName, &ranges_updated),
@@ -173,12 +190,12 @@ func TestAccAciRanges_Negative(t *testing.T) {
 				ExpectError: regexp.MustCompile(`unknown property value`),
 			},
 			{
-				Config:      CreateAccRangesConfig(rName, to, from),
-				ExpectError: regexp.MustCompile(`Range (.)* is invalid. From value cannot be larger than To value`),
+				Config:      CreateAccRangesConfig(rName, "0", to),
+				ExpectError: regexp.MustCompile(`Invalid encapsulation type. Only VLAN encapsulation type is allowed`),
 			},
 			{
-				Config:      CreateAccRangesUpdatedAttr(rName, from, to, "description", acctest.RandString(129)),
-				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
+				Config:      CreateAccRangesConfig(rName, to, from),
+				ExpectError: regexp.MustCompile(`Range (.)* is invalid. From value cannot be larger than To value`),
 			},
 			{
 				Config:      CreateAccRangesUpdatedAttr(rName, from, to, "description", acctest.RandString(129)),

@@ -16,6 +16,7 @@ import (
 var testAccProviders map[string]func() (*schema.Provider, error)
 var testAccProvider *schema.Provider
 var systemInfo *models.System
+var providerProfileDn string = "uni/vmmp-VMware"
 
 func init() {
 	testAccProvider = aci.Provider()

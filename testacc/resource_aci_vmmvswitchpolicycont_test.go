@@ -12,8 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-var providerProfileDn string = "uni/vmmp-VMware"
-
 func TestAccAciVSwitchPolicy_Basic(t *testing.T) {
 	var vswitch_policy_default models.VSwitchPolicyGroup
 	var vswitch_policy_updated models.VSwitchPolicyGroup

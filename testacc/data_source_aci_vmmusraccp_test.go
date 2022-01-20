@@ -67,7 +67,7 @@ func CreateAccVMMCredentialConfigDataSource(vmmDomPName, rName string) string {
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}
 	
 	resource "aci_vmm_credential" "test" {
@@ -80,7 +80,7 @@ func CreateAccVMMCredentialConfigDataSource(vmmDomPName, rName string) string {
 		name  = aci_vmm_credential.test.name
 		depends_on = [ aci_vmm_credential.test ]
 	}
-	`, vmmDomPName, rName)
+	`, vmmDomPName, providerProfileDn, rName)
 	return resource
 }
 
@@ -90,7 +90,7 @@ func CreateVMMCredentialDSWithoutRequired(vmmDomPName, rName, attrName string) s
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}	
 	resource "aci_vmm_credential" "test" {
 		vmm_domain_dn  = aci_vmm_domain.test.id
@@ -115,7 +115,7 @@ func CreateVMMCredentialDSWithoutRequired(vmmDomPName, rName, attrName string) s
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock, vmmDomPName, rName)
+	return fmt.Sprintf(rBlock, vmmDomPName, providerProfileDn, rName)
 }
 
 func CreateAccVMMCredentialDSWithInvalidParentDn(vmmDomPName, rName string) string {
@@ -124,7 +124,7 @@ func CreateAccVMMCredentialDSWithInvalidParentDn(vmmDomPName, rName string) stri
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}
 	
 	resource "aci_vmm_credential" "test" {
@@ -137,7 +137,7 @@ func CreateAccVMMCredentialDSWithInvalidParentDn(vmmDomPName, rName string) stri
 		name  = "${aci_vmm_credential.test.name}_invalid"
 		depends_on = [ aci_vmm_credential.test ]
 	}
-	`, vmmDomPName, rName)
+	`, vmmDomPName, providerProfileDn, rName)
 	return resource
 }
 
@@ -147,7 +147,7 @@ func CreateAccVMMCredentialDataSourceUpdate(vmmDomPName, rName, key, value strin
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}	
 	resource "aci_vmm_credential" "test" {
 		vmm_domain_dn  = aci_vmm_domain.test.id
@@ -160,7 +160,7 @@ func CreateAccVMMCredentialDataSourceUpdate(vmmDomPName, rName, key, value strin
 		%s = "%s"
 		depends_on = [ aci_vmm_credential.test ]
 	}
-	`, vmmDomPName, rName, key, value)
+	`, vmmDomPName, providerProfileDn, rName, key, value)
 	return resource
 }
 
@@ -170,7 +170,7 @@ func CreateAccVMMCredentialDataSourceUpdatedResource(vmmDomPName, rName, key, va
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}
 	
 	resource "aci_vmm_credential" "test" {
@@ -184,6 +184,6 @@ func CreateAccVMMCredentialDataSourceUpdatedResource(vmmDomPName, rName, key, va
 		name  = aci_vmm_credential.test.name
 		depends_on = [ aci_vmm_credential.test ]
 	}
-	`, vmmDomPName, rName, key, value)
+	`, vmmDomPName, providerProfileDn, rName, key, value)
 	return resource
 }
