@@ -36,7 +36,7 @@ func TestAccAciVMMCredential_Basic(t *testing.T) {
 				Config: CreateAccVMMCredentialConfig(vmmDomPName, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciVMMCredentialExists(resourceName, &vmm_credential_default),
-					resource.TestCheckResourceAttr(resourceName, "vmm_domain_dn", fmt.Sprintf("uni/vmmp-VMware/dom-%s", vmmDomPName)),
+					resource.TestCheckResourceAttr(resourceName, "vmm_domain_dn", fmt.Sprintf("%v/dom-%s", providerProfileDn, vmmDomPName)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
@@ -49,7 +49,7 @@ func TestAccAciVMMCredential_Basic(t *testing.T) {
 				Config: CreateAccVMMCredentialConfigWithOptionalValues(vmmDomPName, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciVMMCredentialExists(resourceName, &vmm_credential_updated),
-					resource.TestCheckResourceAttr(resourceName, "vmm_domain_dn", fmt.Sprintf("uni/vmmp-VMware/dom-%s", vmmDomPName)),
+					resource.TestCheckResourceAttr(resourceName, "vmm_domain_dn", fmt.Sprintf("%v/dom-%s", providerProfileDn, vmmDomPName)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
@@ -78,7 +78,7 @@ func TestAccAciVMMCredential_Basic(t *testing.T) {
 				Config: CreateAccVMMCredentialConfigWithRequiredParams(rNameUpdated, rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciVMMCredentialExists(resourceName, &vmm_credential_updated),
-					resource.TestCheckResourceAttr(resourceName, "vmm_domain_dn", fmt.Sprintf("uni/vmmp-VMware/dom-%s", rNameUpdated)),
+					resource.TestCheckResourceAttr(resourceName, "vmm_domain_dn", fmt.Sprintf("%v/dom-%s", providerProfileDn, rNameUpdated)),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					testAccCheckAciVMMCredentialIdNotEqual(&vmm_credential_default, &vmm_credential_updated),
 				),
@@ -90,7 +90,7 @@ func TestAccAciVMMCredential_Basic(t *testing.T) {
 				Config: CreateAccVMMCredentialConfigWithRequiredParams(rName, rNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciVMMCredentialExists(resourceName, &vmm_credential_updated),
-					resource.TestCheckResourceAttr(resourceName, "vmm_domain_dn", fmt.Sprintf("uni/vmmp-VMware/dom-%s", rName)),
+					resource.TestCheckResourceAttr(resourceName, "vmm_domain_dn", fmt.Sprintf("%v/dom-%s", providerProfileDn, rName)),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdated),
 					testAccCheckAciVMMCredentialIdNotEqual(&vmm_credential_default, &vmm_credential_updated),
 				),
@@ -146,7 +146,6 @@ func TestAccAciVMMCredential_Negative(t *testing.T) {
 
 func TestAccAciVMMCredential_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
-	// vmmProvPName := makeTestVariable(acctest.RandString(5))
 	vmmDomPName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -229,7 +228,7 @@ func CreateVMMCredentialWithoutRequired(vmmDomPName, rName, attrName string) str
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}
 	
 	`
@@ -249,7 +248,7 @@ func CreateVMMCredentialWithoutRequired(vmmDomPName, rName, attrName string) str
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock, vmmDomPName, rName)
+	return fmt.Sprintf(rBlock, vmmDomPName, providerProfileDn, rName)
 }
 
 func CreateAccVMMCredentialConfigWithRequiredParams(vmmDomPName, rName string) string {
@@ -258,14 +257,14 @@ func CreateAccVMMCredentialConfigWithRequiredParams(vmmDomPName, rName string) s
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}
 
 	resource "aci_vmm_credential" "test" {
 		vmm_domain_dn  = aci_vmm_domain.test.id
 		name  = "%s"
 	}
-	`, vmmDomPName, rName)
+	`, vmmDomPName, providerProfileDn, rName)
 	return resource
 }
 func CreateAccVMMCredentialConfigUpdatedName(vmmDomPName, rName string) string {
@@ -274,13 +273,13 @@ func CreateAccVMMCredentialConfigUpdatedName(vmmDomPName, rName string) string {
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}	
 	resource "aci_vmm_credential" "test" {
 		vmm_domain_dn  = aci_vmm_domain.test.id
 		name  = "%s"
 	}
-	`, vmmDomPName, rName)
+	`, vmmDomPName, providerProfileDn, rName)
 	return resource
 }
 
@@ -290,14 +289,14 @@ func CreateAccVMMCredentialConfig(vmmDomPName, rName string) string {
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}
 	
 	resource "aci_vmm_credential" "test" {
 		vmm_domain_dn  = aci_vmm_domain.test.id
 		name  = "%s"
 	}
-	`, vmmDomPName, rName)
+	`, vmmDomPName, providerProfileDn, rName)
 	return resource
 }
 
@@ -307,7 +306,7 @@ func CreateAccVMMCredentialConfigMultiple(vmmDomPName, rName string) string {
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}
 	
 	resource "aci_vmm_credential" "test" {
@@ -315,7 +314,7 @@ func CreateAccVMMCredentialConfigMultiple(vmmDomPName, rName string) string {
 		name  = "%s_${count.index}"
 		count = 5
 	}
-	`, vmmDomPName, rName)
+	`, vmmDomPName, providerProfileDn, rName)
 	return resource
 }
 
@@ -339,7 +338,7 @@ func CreateAccVMMCredentialConfigWithOptionalValues(vmmDomPName, rName string) s
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}
 	
 	resource "aci_vmm_credential" "test" {
@@ -352,7 +351,7 @@ func CreateAccVMMCredentialConfigWithOptionalValues(vmmDomPName, rName string) s
 		usr = "ABCD"
 		
 	}
-	`, vmmDomPName, rName)
+	`, vmmDomPName, providerProfileDn, rName)
 
 	return resource
 }
@@ -378,7 +377,7 @@ func CreateAccVMMCredentialUpdatedAttr(vmmDomPName, rName, attribute, value stri
 	
 	resource "aci_vmm_domain" "test" {
 		name 		= "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%v"
 	}
 	
 	resource "aci_vmm_credential" "test" {
@@ -386,6 +385,6 @@ func CreateAccVMMCredentialUpdatedAttr(vmmDomPName, rName, attribute, value stri
 		name  = "%s"
 		%s = "%s"
 	}
-	`, vmmDomPName, rName, attribute, value)
+	`, vmmDomPName, providerProfileDn, rName, attribute, value)
 	return resource
 }
