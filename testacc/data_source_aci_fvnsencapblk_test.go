@@ -141,7 +141,7 @@ func CreateRangesDSWithoutRequired(rName, from, to, attrName string) string {
 }
 
 func CreateAccRangesDSWithInvalidName(rName, from, to string) string {
-	fmt.Println("=== STEP  testing ranges Data Source with required arguments only")
+	fmt.Println("=== STEP  testing ranges Data Source with Invalid Name")
 	resource := fmt.Sprintf(`
 
 	resource "aci_vlan_pool" "test" {
