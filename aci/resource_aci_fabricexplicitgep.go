@@ -58,7 +58,7 @@ func resourceAciVPCExplicitProtectionGroup() *schema.Resource {
 	}
 }
 
-func getRemoteVPCExplicitProtectionGroup(client *client.Client, dn string) (*models.VPCExplicitProtectionGroup, error) {
+func GetRemoteVPCExplicitProtectionGroup(client *client.Client, dn string) (*models.VPCExplicitProtectionGroup, error) {
 	baseurlStr := "/api/node/mo"
 	dnUrl := fmt.Sprintf("%s/%s.json?rsp-subtree=children", baseurlStr, dn)
 	fabricExplicitGEpCont, err := client.GetViaURL(dnUrl)
@@ -86,17 +86,24 @@ func setVPCExplicitProtectionGroupAttributes(fabricExplicitGEp *models.VPCExplic
 
 	d.Set("annotation", fabricExplicitGEpMap["annotation"])
 	d.Set("vpc_explicit_protection_group_id", fabricExplicitGEpMap["id"])
-	d.Set("switch1", fabricExplicitGEpMap["switch1"])
-	d.Set("switch2", fabricExplicitGEpMap["switch2"])
 
 	sw1 := d.Get("switch1").(string)
 	sw2 := d.Get("switch2").(string)
 
 	if sw1 != fabricExplicitGEpMap["switch1"] && sw1 != fabricExplicitGEpMap["switch2"] {
 		d.Set("switch1", "")
+	} else {
+		if sw1 == "" {
+			d.Set("switch1", fabricExplicitGEpMap["switch1"])
+		}
 	}
+
 	if sw2 != fabricExplicitGEpMap["switch1"] && sw2 != fabricExplicitGEpMap["switch2"] {
 		d.Set("switch2", "")
+	} else {
+		if sw2 == "" {
+			d.Set("switch2", fabricExplicitGEpMap["switch2"])
+		}
 	}
 
 	d.Set("vpc_domain_policy", fabricExplicitGEpMap["vpc_domain_policy"])
@@ -110,7 +117,7 @@ func resourceAciVPCExplicitProtectionGroupImport(d *schema.ResourceData, m inter
 
 	dn := d.Id()
 
-	fabricExplicitGEp, err := getRemoteVPCExplicitProtectionGroup(aciClient, dn)
+	fabricExplicitGEp, err := GetRemoteVPCExplicitProtectionGroup(aciClient, dn)
 
 	if err != nil {
 		return nil, err
@@ -204,7 +211,7 @@ func resourceAciVPCExplicitProtectionGroupRead(ctx context.Context, d *schema.Re
 	aciClient := m.(*client.Client)
 
 	dn := d.Id()
-	fabricExplicitGEp, err := getRemoteVPCExplicitProtectionGroup(aciClient, dn)
+	fabricExplicitGEp, err := GetRemoteVPCExplicitProtectionGroup(aciClient, dn)
 
 	if err != nil {
 		d.SetId("")

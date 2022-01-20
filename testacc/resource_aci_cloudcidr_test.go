@@ -499,5 +499,3 @@ func CreateAccCloudCIDRPoolUpdatedAttr(fvTenantName, cloudCtxProfileName, addr, 
 	`, fvTenantName, fvTenantName, cloudCtxProfileName, primaryCidrVal, regionVal, cloudVendorVal, addr, attribute, value)
 	return resource
 }
-
-

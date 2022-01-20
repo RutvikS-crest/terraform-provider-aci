@@ -14,8 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-const hubNetwork = "uni/tn-infra/gwrouterp-default"
-
 func TestAccAciCloudContextProfile_Basic(t *testing.T) {
 	var cloud_context_profile_default models.CloudContextProfile
 	var cloud_context_profile_updated models.CloudContextProfile

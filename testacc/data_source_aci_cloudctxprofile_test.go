@@ -9,8 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-const region = "us-west-1"
-
 func TestAccAciCloudContextProfileDataSource_Basic(t *testing.T) {
 	resourceName := "aci_cloud_context_profile.test"
 	dataSourceName := "data.aci_cloud_context_profile.test"
