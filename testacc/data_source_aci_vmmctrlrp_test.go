@@ -157,8 +157,8 @@ func CreateAccVMMControllerDSWithInvalidParentDn(vmmDomPName, rName, ip, rootCon
 	}
 
 	data "aci_vmm_controller" "test" {
-		vmm_domain_dn  = aci_vmm_domain.test.id
-		name  = "${aci_vmm_controller.test.name}_invalid"
+		vmm_domain_dn  = "${aci_vmm_domain.test.id}_invalid"
+		name  = aci_vmm_controller.test.name
 		host_or_ip  = aci_vmm_controller.test.host_or_ip
 		root_cont_name  = aci_vmm_controller.test.root_cont_name
 		depends_on = [ aci_vmm_controller.test ]
