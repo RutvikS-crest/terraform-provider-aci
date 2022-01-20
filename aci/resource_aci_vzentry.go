@@ -4,9 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"reflect"
-	"sort"
-	"strings"
 
 	"github.com/ciscoecosystem/aci-go-client/client"
 	"github.com/ciscoecosystem/aci-go-client/models"
@@ -201,20 +198,17 @@ func resourceAciFilterEntry() *schema.Resource {
 			},
 
 			"tcp_rules": {
-				Type:     schema.TypeList,
+				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-					ValidateFunc: validation.StringInSlice([]string{
-						"ack",
-						"est",
-						"fin",
-						"rst",
-						"syn",
-						"unspecified",
-					}, false),
-				},
+				ValidateFunc: validation.StringInSlice([]string{
+					"ack",
+					"est",
+					"fin",
+					"rst",
+					"syn",
+					"unspecified",
+				}, false),
 			},
 		}),
 	}
@@ -261,29 +255,7 @@ func setFilterEntryAttributes(vzEntry *models.FilterEntry, d *schema.ResourceDat
 	d.Set("name_alias", vzEntryMap["nameAlias"])
 	d.Set("prot", vzEntryMap["prot"])
 	d.Set("stateful", vzEntryMap["stateful"])
-	tcpRulesGet := make([]string, 0, 1)
-	for _, val := range strings.Split(vzEntryMap["tcpRules"], ",") {
-		if val == "" {
-			tcpRulesGet = append(tcpRulesGet, "unspecified")
-		} else {
-			tcpRulesGet = append(tcpRulesGet, strings.Trim(val, " "))
-		}
-	}
-	sort.Strings(tcpRulesGet)
-	if tcpRulesIntr, ok := d.GetOk("tcp_rules"); ok {
-		tcpRulesAct := make([]string, 0, 1)
-		for _, val := range tcpRulesIntr.([]interface{}) {
-			tcpRulesAct = append(tcpRulesAct, val.(string))
-		}
-		sort.Strings(tcpRulesAct)
-		if reflect.DeepEqual(tcpRulesAct, tcpRulesGet) {
-			d.Set("tcp_rules", d.Get("tcp_rules").([]interface{}))
-		} else {
-			d.Set("tcp_rules", tcpRulesGet)
-		}
-	} else {
-		d.Set("tcp_rules", tcpRulesGet)
-	}
+	d.Set("tcp_rules", vzEntryMap["tcpRules"])
 	return d, nil
 }
 
@@ -444,12 +416,7 @@ func resourceAciFilterEntryCreate(ctx context.Context, d *schema.ResourceData, m
 		vzEntryAttr.Stateful = Stateful.(string)
 	}
 	if TcpRules, ok := d.GetOk("tcp_rules"); ok {
-		tcpRulesList := make([]string, 0, 1)
-		for _, val := range TcpRules.([]interface{}) {
-			tcpRulesList = append(tcpRulesList, val.(string))
-		}
-		TcpRules := strings.Join(tcpRulesList, ",")
-		vzEntryAttr.TcpRules = TcpRules
+		vzEntryAttr.TcpRules = TcpRules.(string)
 	}
 	vzEntry := models.NewFilterEntry(fmt.Sprintf("e-%s", name), FilterDn, desc, vzEntryAttr)
 
@@ -520,12 +487,7 @@ func resourceAciFilterEntryUpdate(ctx context.Context, d *schema.ResourceData, m
 		vzEntryAttr.Stateful = Stateful.(string)
 	}
 	if TcpRules, ok := d.GetOk("tcp_rules"); ok {
-		tcpRulesList := make([]string, 0, 1)
-		for _, val := range TcpRules.([]interface{}) {
-			tcpRulesList = append(tcpRulesList, val.(string))
-		}
-		TcpRules := strings.Join(tcpRulesList, ",")
-		vzEntryAttr.TcpRules = TcpRules
+		vzEntryAttr.TcpRules = TcpRules.(string)
 	}
 	vzEntry := models.NewFilterEntry(fmt.Sprintf("e-%s", name), FilterDn, desc, vzEntryAttr)
 
