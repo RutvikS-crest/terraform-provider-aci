@@ -12,8 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-const vmmProvProfileDn = "uni/vmmp-VMware"
-
 func TestAccAciVMMDomain_Basic(t *testing.T) {
 	var vmm_domain_default models.VMMDomain
 	var vmm_domain_updated models.VMMDomain
@@ -40,6 +38,7 @@ func TestAccAciVMMDomain_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "provider_profile_dn", vmmProvProfileDn),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
+					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 					resource.TestCheckResourceAttr(resourceName, "access_mode", "read-write"),
 					resource.TestCheckResourceAttr(resourceName, "arp_learning", "disabled"),
 					resource.TestCheckResourceAttr(resourceName, "ave_time_out", "30"),
@@ -65,6 +64,7 @@ func TestAccAciVMMDomain_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "provider_profile_dn", "uni/vmmp-VMware"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
+					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_vmm_domain"),
 					resource.TestCheckResourceAttr(resourceName, "access_mode", "read-write"),
 					resource.TestCheckResourceAttr(resourceName, "arp_learning", "disabled"),
 					resource.TestCheckResourceAttr(resourceName, "ave_time_out", "10"),
@@ -94,11 +94,23 @@ func TestAccAciVMMDomain_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config: CreateAccVMMDomainConfigWithRequiredParams(rNameUpdated),
+				Config: CreateAccVMMDomainConfigWithRequiredParams(vmmProvProfileDn, rNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciVMMDomainExists(resourceName, &vmm_domain_updated),
 					resource.TestCheckResourceAttr(resourceName, "provider_profile_dn", vmmProvProfileDn),
 					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdated),
+					testAccCheckAciVMMDomainIdNotEqual(&vmm_domain_default, &vmm_domain_updated),
+				),
+			},
+			{
+				Config: CreateAccVMMDomainConfig(rName),
+			},
+			{
+				Config: CreateAccVMMDomainConfigWithRequiredParams(vmmProvProfileDnOther, rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciVMMDomainExists(resourceName, &vmm_domain_updated),
+					resource.TestCheckResourceAttr(resourceName, "provider_profile_dn", vmmProvProfileDnOther),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					testAccCheckAciVMMDomainIdNotEqual(&vmm_domain_default, &vmm_domain_updated),
 				),
 			},
@@ -476,14 +488,14 @@ func CreateVMMDomainWithoutRequired(rName, attrName string) string {
 	return fmt.Sprintf(rBlock, rName, vmmProvProfileDn)
 }
 
-func CreateAccVMMDomainConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing vmm_domain creation with required arguments only")
+func CreateAccVMMDomainConfigWithRequiredParams(provProfileDn, rName string) string {
+	fmt.Printf("=== STEP  testing vmm_domain creation with provider_profile_dn %s and name %s\n", provProfileDn, rName)
 	resource := fmt.Sprintf(`
 	resource "aci_vmm_domain" "test" {
-		provider_profile_dn  = "uni/vmmp-VMware"
+		provider_profile_dn  = "%s"
 		name  = "%s"
 	}
-	`, rName)
+	`, provProfileDn, rName)
 	return resource
 }
 
@@ -491,10 +503,10 @@ func CreateAccVMMDomainConfigUpdatedName(rName string) string {
 	fmt.Println("=== STEP  testing vmm_domain creation with invalid name = ", rName)
 	resource := fmt.Sprintf(`
 	resource "aci_vmm_domain" "test" {
-		provider_profile_dn  = "uni/vmmp-VMware"
+		provider_profile_dn  = "%s"
 		name  = "%s"
 	}
-	`, rName)
+	`, vmmProvProfileDn, rName)
 	return resource
 }
 
@@ -502,10 +514,10 @@ func CreateAccVMMDomainConfig(rName string) string {
 	fmt.Println("=== STEP  testing vmm_domain creation with required arguments only")
 	resource := fmt.Sprintf(`
 	resource "aci_vmm_domain" "test" {
-		provider_profile_dn  = "uni/vmmp-VMware"
+		provider_profile_dn  = "%s"
 		name  = "%s"
 	}
-	`, rName)
+	`, vmmProvProfileDn, rName)
 	return resource
 }
 
@@ -539,7 +551,7 @@ func CreateAccVMMDomainConfigWithOptionalValues(rName string) string {
 	fmt.Println("=== STEP  Basic: testing vmm_domain creation with optional parameters")
 	resource := fmt.Sprintf(`
 	resource "aci_vmm_domain" "test" {
-		provider_profile_dn  =  "uni/vmmp-VMware"
+		provider_profile_dn  =  "%s"
 		name  = "%s"
 		annotation = "orchestrator:terraform_testacc"
 		ave_time_out = "10"
@@ -554,8 +566,9 @@ func CreateAccVMMDomainConfigWithOptionalValues(rName string) string {
 		hv_avail_monitor = "yes"
 		mcast_addr = "224.0.0.22"
 		pref_encap_mode = "vlan"
+		name_alias = "test_vmm_domain"
 	}
-	`, rName)
+	`, vmmProvProfileDn, rName)
 
 	return resource
 }
@@ -568,10 +581,10 @@ func CreateAccVMMDomainRemovingRequiredField() string {
 		annotation = "orchestrator:terraform_testacc"
 		name_alias = "test_vmm_domain"
 		access_mode = "read-only"
-		arp_learning = ["enabled"]
+		arp_learning = "enabled"
 		ave_time_out = "11"
 		config_infra_pg = "yes"
-		ctrl_knob = ["none"]
+		ctrl_knob = "none"
 		delimiter = ""
 		enable_ave = "yes"
 		enable_tag = "yes"

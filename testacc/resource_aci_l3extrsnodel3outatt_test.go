@@ -12,10 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-const fabDn2 = "topology/pod-1/node-201"
-const fabDn3 = "topology/pod-1/node-111"
-const fabDn4 = "topology/pod-1/node-1"
-
 func TestAccAciFabricNode_Basic(t *testing.T) {
 	var fabric_node_default models.FabricNode
 	var fabric_node_updated models.FabricNode
