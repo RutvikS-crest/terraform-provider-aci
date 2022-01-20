@@ -9,9 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-const cloudProviderRegion = "uni/clouddomp/provp-aws/region-us-east-1"
-const zoneName = "us-east-1a"
-
 func TestAccAciCloudAvailabilityZoneDataSource_Basic(t *testing.T) {
 	dataSourceName := "data.aci_cloud_availability_zone.test"
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")

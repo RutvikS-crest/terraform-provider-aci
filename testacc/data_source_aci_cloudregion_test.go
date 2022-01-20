@@ -9,9 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-const cloudProvPName = "aws"
-const name = "us-east-1"
-
 func TestAccAciCloudProvidersRegionDataSource_Basic(t *testing.T) {
 	dataSourceName := "data.aci_cloud_providers_region.test"
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")

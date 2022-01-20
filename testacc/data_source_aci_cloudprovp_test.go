@@ -9,8 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-const cloudVendor = "aws"
-
 func TestAccAciCloudProviderProfileDataSource_Basic(t *testing.T) {
 	dataSourceName := "data.aci_cloud_provider_profile.test"
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")

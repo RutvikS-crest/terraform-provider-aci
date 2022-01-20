@@ -159,7 +159,7 @@ func CreateAccFVDomainDSConfigWithInvalidEPgDn(rName string) string {
 
 	  resource "aci_vmm_domain" "test" {
 		name = "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%s"
 		enable_ave = "yes"
 	  }
 	  
@@ -172,7 +172,7 @@ func CreateAccFVDomainDSConfigWithInvalidEPgDn(rName string) string {
 		application_epg_dn    = "${aci_epg_to_domain.test.application_epg_dn}xyz"
 		tdn                   = aci_epg_to_domain.test.tdn
 	  }
-	`, rName, rName, rName, rName)
+	`, rName, rName, rName, rName, vmmProvProfileDn)
 	return resource
 }
 
@@ -195,7 +195,7 @@ func CreateAccFVDomainDSConfigWithUpdatedResource(rName, key, value string) stri
 
 	  resource "aci_vmm_domain" "test" {
 		name = "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%s"
 		enable_ave = "yes"
 	  }
 	  
@@ -209,7 +209,7 @@ func CreateAccFVDomainDSConfigWithUpdatedResource(rName, key, value string) stri
 		application_epg_dn    = aci_epg_to_domain.test.application_epg_dn
 		tdn                   = aci_epg_to_domain.test.tdn
 	  }
-	`, rName, rName, rName, rName, key, value)
+	`, rName, rName, rName, rName, vmmProvProfileDn, key, value)
 	return resource
 }
 
@@ -232,7 +232,7 @@ func CreateAccFVDomainDSConfigUpdatedAttr(rName, key, value string) string {
 
 	  resource "aci_vmm_domain" "test" {
 		name = "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%s"
 		enable_ave = "yes"
 	  }
 	  
@@ -246,7 +246,7 @@ func CreateAccFVDomainDSConfigUpdatedAttr(rName, key, value string) string {
 		tdn                   = aci_epg_to_domain.test.tdn
 		%s                    = "%s"
 	  }
-	`, rName, rName, rName, rName, key, value)
+	`, rName, rName, rName, rName, vmmProvProfileDn, key, value)
 	return resource
 }
 
@@ -269,7 +269,7 @@ func CreateAccFVDomainDSConfig(rName string) string {
 
 	  resource "aci_vmm_domain" "test" {
 		name = "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%s"
 		enable_ave = "yes"
 	  }
 	  
@@ -282,6 +282,6 @@ func CreateAccFVDomainDSConfig(rName string) string {
 		application_epg_dn    = aci_epg_to_domain.test.application_epg_dn
 		tdn                   = aci_epg_to_domain.test.tdn
 	  }
-	`, rName, rName, rName, rName)
+	`, rName, rName, rName, rName, vmmProvProfileDn)
 	return resource
 }
