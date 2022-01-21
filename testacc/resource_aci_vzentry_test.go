@@ -52,6 +52,8 @@ func TestAccAciFilterEntry_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "s_from_port", "unspecified"),
 					resource.TestCheckResourceAttr(resourceName, "s_to_port", "unspecified"),
 					resource.TestCheckResourceAttr(resourceName, "stateful", "no"),
+					resource.TestCheckResourceAttr(resourceName, "tcp_rules.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tcp_rules.0", "unspecified"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "filter_dn", fmt.Sprintf("uni/tn-%s/flt-%s", rName, rName)),
@@ -74,7 +76,8 @@ func TestAccAciFilterEntry_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "s_from_port", "https"),
 					resource.TestCheckResourceAttr(resourceName, "s_to_port", "https"),
 					resource.TestCheckResourceAttr(resourceName, "stateful", "yes"),
-					resource.TestCheckResourceAttr(resourceName, "tcp_rules", "est"),
+					resource.TestCheckResourceAttr(resourceName, "tcp_rules.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tcp_rules.0", "est"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_name_alias"),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "filter_dn", fmt.Sprintf("uni/tn-%s/flt-%s", rName, rName)),
@@ -518,34 +521,57 @@ func TestAccAciFilterEntry_Update(t *testing.T) {
 				Config: CreateAccFilterEntryUpdatedAttr(rName, "prot", "tcp"),
 			},
 			{
-				Config: CreateAccFilterEntryUpdatedAttr(rName, "tcp_rules", "syn"),
+				Config: CreateAccFilterEntryUpdatedAttrList(rName, "tcp_rules", StringListtoString([]string{"syn"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciFilterEntryExists(resourceName, &filter_entry_updated),
-					resource.TestCheckResourceAttr(resourceName, "tcp_rules", "syn"),
+					resource.TestCheckResourceAttr(resourceName, "tcp_rules.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tcp_rules.0", "syn"),
 					testAccCheckAciFilterEntryIdEqual(&filter_entry_default, &filter_entry_updated),
 				),
 			},
 			{
-				Config: CreateAccFilterEntryUpdatedAttr(rName, "tcp_rules", "ack"),
+				Config: CreateAccFilterEntryUpdatedAttrList(rName, "tcp_rules", StringListtoString([]string{"ack"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciFilterEntryExists(resourceName, &filter_entry_updated),
-					resource.TestCheckResourceAttr(resourceName, "tcp_rules", "ack"),
+					resource.TestCheckResourceAttr(resourceName, "tcp_rules.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tcp_rules.0", "ack"),
 					testAccCheckAciFilterEntryIdEqual(&filter_entry_default, &filter_entry_updated),
 				),
 			},
 			{
-				Config: CreateAccFilterEntryUpdatedAttr(rName, "tcp_rules", "fin"),
+				Config: CreateAccFilterEntryUpdatedAttrList(rName, "tcp_rules", StringListtoString([]string{"fin"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciFilterEntryExists(resourceName, &filter_entry_updated),
-					resource.TestCheckResourceAttr(resourceName, "tcp_rules", "fin"),
+					resource.TestCheckResourceAttr(resourceName, "tcp_rules.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tcp_rules.0", "fin"),
 					testAccCheckAciFilterEntryIdEqual(&filter_entry_default, &filter_entry_updated),
 				),
 			},
 			{
-				Config: CreateAccFilterEntryUpdatedAttr(rName, "tcp_rules", "rst"),
+				Config: CreateAccFilterEntryUpdatedAttrList(rName, "tcp_rules", StringListtoString([]string{"rst"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciFilterEntryExists(resourceName, &filter_entry_updated),
-					resource.TestCheckResourceAttr(resourceName, "tcp_rules", "rst"),
+					resource.TestCheckResourceAttr(resourceName, "tcp_rules.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tcp_rules.0", "rst"),
+					testAccCheckAciFilterEntryIdEqual(&filter_entry_default, &filter_entry_updated),
+				),
+			},
+			{
+				Config: CreateAccFilterEntryUpdatedAttrList(rName, "tcp_rules", StringListtoString([]string{"syn"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciFilterEntryExists(resourceName, &filter_entry_updated),
+					resource.TestCheckResourceAttr(resourceName, "tcp_rules.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tcp_rules.0", "syn"),
+					testAccCheckAciFilterEntryIdEqual(&filter_entry_default, &filter_entry_updated),
+				),
+			},
+			{
+				Config: CreateAccFilterEntryUpdatedAttrList(rName, "tcp_rules", StringListtoString([]string{"rst", "fin"})),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciFilterEntryExists(resourceName, &filter_entry_updated),
+					resource.TestCheckResourceAttr(resourceName, "tcp_rules.#", "2"),
+					resource.TestCheckResourceAttr(resourceName, "tcp_rules.0", "rst"),
+					resource.TestCheckResourceAttr(resourceName, "tcp_rules.0", "fin"),
 					testAccCheckAciFilterEntryIdEqual(&filter_entry_default, &filter_entry_updated),
 				),
 			},
@@ -699,8 +725,16 @@ func TestAccAciFilterEntry_NegativeCases(t *testing.T) {
 				ExpectError: regexp.MustCompile(`expected stateful to be one of (.)+, got (.)+`),
 			},
 			{
-				Config:      CreateAccFilterEntryUpdatedAttr(rName, "tcp_rules", randomValue),
-				ExpectError: regexp.MustCompile(`expected tcp_rules to be one of (.)+, got (.)+`),
+				Config:      CreateAccFilterEntryUpdatedAttrList(rName, "tcp_rules", StringListtoString([]string{randomValue})),
+				ExpectError: regexp.MustCompile(`expected (.)* to be one of (.)+, got (.)+`),
+			},
+			{
+				Config:      CreateAccFilterEntryUpdatedAttrList(rName, "tcp_rules", StringListtoString([]string{"ack", "ack"})),
+				ExpectError: regexp.MustCompile(`duplication is not supported in list`),
+			},
+			{
+				Config:      CreateAccFilterEntryUpdatedAttrList(rName, "tcp_rules", StringListtoString([]string{"unspecified", "ack"})),
+				ExpectError: regexp.MustCompile(`unspecified should not be used along with other values`),
 			},
 			{
 				Config:      CreateAccFilterEntryUpdatedAttr(rName, randomParameter, randomValue),
@@ -807,29 +841,11 @@ func CreateAccFilterEntryConfigWithOptionalValues(rName string) string {
 		prot = "tcp"
 		s_from_port = "https"
 		s_to_port = "https"
-		tcp_rules = "est"
+		tcp_rules = ["est"]
 	}
 	`, rName, rName, rName)
 	return resource
 }
-
-// filter_entry_name = "%s"
-// apply_to_frag = "no"
-// arp_opc = "unspecified"
-// d_from_port = "https"
-// d_to_port = "https"
-// entry_annotation = "entry_annotation"
-// entry_description = "entry_description"
-// entry_name_alias = "entry_name_alias"
-// ether_t = "ip"
-// icmpv4_t = "echo-rep"
-// icmpv6_t = "dst-unreach"
-// match_dscp = "CS0"
-// prot = "tcp"
-// s_from_port = "https"
-// s_to_port = "https"
-// stateful = "yes"
-// tcp_rules = "est"
 
 func CreateAccFilterEntryConfigUpdatedName(rName, longerName string) string {
 	fmt.Println("=== STEP  Basic: testing filter entry creation with invalid name with long lenght")
@@ -887,6 +903,27 @@ func CreateAccFilterEntryUpdatedAttr(rName, attribute, value string) string {
 		filter_dn = aci_filter.test.id
 		name = "%s"
 		%s = "%s"
+	}
+	`, rName, rName, rName, attribute, value)
+	return resource
+}
+
+func CreateAccFilterEntryUpdatedAttrList(rName, attribute, value string) string {
+	fmt.Printf("=== STEP  Basic: testing filter entry %s = %s\n", attribute, value)
+	resource := fmt.Sprintf(`
+	resource "aci_tenant" "test"{
+		name = "%s"
+	}
+
+	resource "aci_filter" "test"{
+		tenant_dn = aci_tenant.test.id
+		name = "%s"
+	}
+
+	resource "aci_filter_entry" "test"{
+		filter_dn = aci_filter.test.id
+		name = "%s"
+		%s = %s
 	}
 	`, rName, rName, rName, attribute, value)
 	return resource
