@@ -18,13 +18,13 @@ func TestAccAciTACACSProvider_Basic(t *testing.T) {
 	resourceName := "aci_tacacs_provider.test"
 	rName := makeTestVariable(acctest.RandString(5))
 	rNameUpdated := makeTestVariable(acctest.RandString(5))
-	
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciTACACSProviderDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciTACACSProviderDestroy,
 		Steps: []resource.TestStep{
-			
+
 			{
 				Config:      CreateTACACSProviderWithoutRequired(rName, "name"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
@@ -33,27 +33,24 @@ func TestAccAciTACACSProvider_Basic(t *testing.T) {
 				Config: CreateAccTACACSProviderConfig(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciTACACSProviderExists(resourceName, &tacacs_provider_default),
-					
-					resource.TestCheckResourceAttr(resourceName, "name",rName),
-					resource.TestCheckResourceAttr(resourceName, "annotation","orchestrator:terraform"),
-					resource.TestCheckResourceAttr(resourceName, "description",""),
-					resource.TestCheckResourceAttr(resourceName, "name_alias",""),
+
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 					resource.TestCheckResourceAttr(resourceName, "auth_protocol", "pap"),
-					resource.TestCheckResourceAttr(resourceName, "key", ""),
 					resource.TestCheckResourceAttr(resourceName, "monitor_server", "disabled"),
-					resource.TestCheckResourceAttr(resourceName, "monitoring_password", ""),
 					resource.TestCheckResourceAttr(resourceName, "monitoring_user", "default"),
 					resource.TestCheckResourceAttr(resourceName, "port", "49"),
 					resource.TestCheckResourceAttr(resourceName, "retries", "1"),
 					resource.TestCheckResourceAttr(resourceName, "timeout", "5"),
-					
 				),
 			},
 			{
-				Config: CreateAccTACACSProviderConfigWithOptionalValues(rName), 
+				Config: CreateAccTACACSProviderConfigWithOptionalValues(rName),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSProviderExists(resourceName, &tacacs_provider_updated),	
-					resource.TestCheckResourceAttr(resourceName, "name",rName),
+					testAccCheckAciTACACSProviderExists(resourceName, &tacacs_provider_updated),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_tacacs_provider"),
@@ -64,30 +61,31 @@ func TestAccAciTACACSProvider_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "monitoring_user", "monitoring_user_example"),
 					resource.TestCheckResourceAttr(resourceName, "port", "1"),
 					resource.TestCheckResourceAttr(resourceName, "retries", "5"),
-					resource.TestCheckResourceAttr(resourceName, "timeout", "1"),	
+					resource.TestCheckResourceAttr(resourceName, "timeout", "1"),
 					testAccCheckAciTACACSProviderIdEqual(&tacacs_provider_default, &tacacs_provider_updated),
 				),
-			},  
+			},
 			{
-				ResourceName:      resourceName,
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            resourceName,
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"key", "monitoring_password"},
 			},
 			{
 				Config:      CreateAccTACACSProviderConfigUpdatedName(acctest.RandString(65)),
 				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
 			},
-			
+
 			{
 				Config:      CreateAccTACACSProviderRemovingRequiredField(),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
-			
+
 			{
 				Config: CreateAccTACACSProviderConfigWithRequiredParams(rNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciTACACSProviderExists(resourceName, &tacacs_provider_updated),
-					resource.TestCheckResourceAttr(resourceName, "name",rNameUpdated),
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdated),
 					testAccCheckAciTACACSProviderIdNotEqual(&tacacs_provider_default, &tacacs_provider_updated),
 				),
 			},
@@ -100,11 +98,11 @@ func TestAccAciTACACSProvider_Update(t *testing.T) {
 	var tacacs_provider_updated models.TACACSProvider
 	resourceName := "aci_tacacs_provider.test"
 	rName := makeTestVariable(acctest.RandString(5))
-	
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciTACACSProviderDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciTACACSProviderDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccTACACSProviderConfig(rName),
@@ -125,14 +123,6 @@ func TestAccAciTACACSProvider_Update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciTACACSProviderExists(resourceName, &tacacs_provider_updated),
 					resource.TestCheckResourceAttr(resourceName, "port", "32767"),
-					testAccCheckAciTACACSProviderIdEqual(&tacacs_provider_default, &tacacs_provider_updated),
-				),
-			},
-			{
-				Config: CreateAccTACACSProviderUpdatedAttr(rName, "retries", "5"),
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciTACACSProviderExists(resourceName, &tacacs_provider_updated),
-					resource.TestCheckResourceAttr(resourceName, "retries", "5"),
 					testAccCheckAciTACACSProviderIdEqual(&tacacs_provider_default, &tacacs_provider_updated),
 				),
 			},
@@ -160,7 +150,14 @@ func TestAccAciTACACSProvider_Update(t *testing.T) {
 					testAccCheckAciTACACSProviderIdEqual(&tacacs_provider_default, &tacacs_provider_updated),
 				),
 			},
-			
+			{
+				Config: CreateAccTACACSProviderUpdatedAttr(rName, "auth_protocol", "mschap"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciTACACSProviderExists(resourceName, &tacacs_provider_updated),
+					resource.TestCheckResourceAttr(resourceName, "auth_protocol", "mschap"),
+					testAccCheckAciTACACSProviderIdEqual(&tacacs_provider_default, &tacacs_provider_updated),
+				),
+			},
 			{
 				Config: CreateAccTACACSProviderConfig(rName),
 			},
@@ -170,19 +167,19 @@ func TestAccAciTACACSProvider_Update(t *testing.T) {
 
 func TestAccAciTACACSProvider_Negative(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
-	
+
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(5)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciTACACSProviderDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciTACACSProviderDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccTACACSProviderConfig(rName),
 			},
-			
+
 			{
 				Config:      CreateAccTACACSProviderUpdatedAttr(rName, "description", acctest.RandString(129)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
@@ -195,32 +192,22 @@ func TestAccAciTACACSProvider_Negative(t *testing.T) {
 				Config:      CreateAccTACACSProviderUpdatedAttr(rName, "name_alias", acctest.RandString(64)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
-			
+
 			{
 				Config:      CreateAccTACACSProviderUpdatedAttr(rName, "auth_protocol", randomValue),
 				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
 			},
-			
-			{
-				Config:      CreateAccTACACSProviderUpdatedAttr(rName, "key", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
-			},
-			
+
 			{
 				Config:      CreateAccTACACSProviderUpdatedAttr(rName, "monitor_server", randomValue),
 				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
 			},
-			
+
 			{
-				Config:      CreateAccTACACSProviderUpdatedAttr(rName, "monitoring_password", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
+				Config:      CreateAccTACACSProviderUpdatedAttr(rName, "monitoring_user", acctest.RandString(33)),
+				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
-			
-			{
-				Config:      CreateAccTACACSProviderUpdatedAttr(rName, "monitoring_user", randomValue),
-				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
-			},
-			
+
 			{
 				Config:      CreateAccTACACSProviderUpdatedAttr(rName, "port", randomValue),
 				ExpectError: regexp.MustCompile(`unknown property value`),
@@ -233,7 +220,7 @@ func TestAccAciTACACSProvider_Negative(t *testing.T) {
 				Config:      CreateAccTACACSProviderUpdatedAttr(rName, "port", "65536"),
 				ExpectError: regexp.MustCompile(`out of range`),
 			},
-			
+
 			{
 				Config:      CreateAccTACACSProviderUpdatedAttr(rName, "retries", randomValue),
 				ExpectError: regexp.MustCompile(`unknown property value`),
@@ -246,7 +233,7 @@ func TestAccAciTACACSProvider_Negative(t *testing.T) {
 				Config:      CreateAccTACACSProviderUpdatedAttr(rName, "retries", "6"),
 				ExpectError: regexp.MustCompile(`out of range`),
 			},
-			
+
 			{
 				Config:      CreateAccTACACSProviderUpdatedAttr(rName, "timeout", randomValue),
 				ExpectError: regexp.MustCompile(`unknown property value`),
@@ -259,7 +246,7 @@ func TestAccAciTACACSProvider_Negative(t *testing.T) {
 				Config:      CreateAccTACACSProviderUpdatedAttr(rName, "timeout", "61"),
 				ExpectError: regexp.MustCompile(`out of range`),
 			},
-			
+
 			{
 				Config:      CreateAccTACACSProviderUpdatedAttr(rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
@@ -273,11 +260,11 @@ func TestAccAciTACACSProvider_Negative(t *testing.T) {
 
 func TestAccAciTACACSProvider_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
-	
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciTACACSProviderDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciTACACSProviderDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccTACACSProviderConfigMultiple(rName),
@@ -314,17 +301,17 @@ func testAccCheckAciTACACSProviderExists(name string, tacacs_provider *models.TA
 	}
 }
 
-func testAccCheckAciTACACSProviderDestroy(s *terraform.State) error {	
+func testAccCheckAciTACACSProviderDestroy(s *terraform.State) error {
 	fmt.Println("=== STEP  testing tacacs_provider destroy")
 	client := testAccProvider.Meta().(*client.Client)
 	for _, rs := range s.RootModule().Resources {
-		 if rs.Type == "aci_tacacs_provider" {
-			cont,err := client.Get(rs.Primary.ID)
+		if rs.Type == "aci_tacacs_provider" {
+			cont, err := client.Get(rs.Primary.ID)
 			tacacs_provider := models.TACACSProviderFromContainer(cont)
 			if err == nil {
-				return fmt.Errorf("TACACS Provider %s Still exists",tacacs_provider.DistinguishedName)
+				return fmt.Errorf("TACACS Provider %s Still exists", tacacs_provider.DistinguishedName)
 			}
-		}else{
+		} else {
 			continue
 		}
 	}
@@ -350,7 +337,7 @@ func testAccCheckAciTACACSProviderIdNotEqual(m1, m2 *models.TACACSProvider) reso
 }
 
 func CreateTACACSProviderWithoutRequired(rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing tacacs_provider creation without ",attrName)
+	fmt.Println("=== STEP  Basic: testing tacacs_provider creation without ", attrName)
 	rBlock := `
 	
 	`
@@ -363,11 +350,11 @@ func CreateTACACSProviderWithoutRequired(rName, attrName string) string {
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock,rName)
+	return fmt.Sprintf(rBlock, rName)
 }
 
 func CreateAccTACACSProviderConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing tacacs_provider creation with updated naming arguments")
+	fmt.Println("=== STEP  testing tacacs_provider creation with name", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tacacs_provider" "test" {
@@ -378,7 +365,7 @@ func CreateAccTACACSProviderConfigWithRequiredParams(rName string) string {
 	return resource
 }
 func CreateAccTACACSProviderConfigUpdatedName(rName string) string {
-	fmt.Println("=== STEP  testing tacacs_provider creation with invalid name = ",rName)
+	fmt.Println("=== STEP  testing tacacs_provider creation with invalid name = ", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tacacs_provider" "test" {
@@ -413,8 +400,6 @@ func CreateAccTACACSProviderConfigMultiple(rName string) string {
 	`, rName)
 	return resource
 }
-
-
 
 func CreateAccTACACSProviderConfigWithOptionalValues(rName string) string {
 	fmt.Println("=== STEP  Basic: testing tacacs_provider creation with optional parameters")
@@ -463,7 +448,7 @@ func CreateAccTACACSProviderRemovingRequiredField() string {
 	return resource
 }
 
-func CreateAccTACACSProviderUpdatedAttr(rName,attribute,value string) string {
+func CreateAccTACACSProviderUpdatedAttr(rName, attribute, value string) string {
 	fmt.Printf("=== STEP  testing tacacs_provider attribute: %s = %s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	
@@ -472,11 +457,11 @@ func CreateAccTACACSProviderUpdatedAttr(rName,attribute,value string) string {
 		name  = "%s"
 		%s = "%s"
 	}
-	`, rName,attribute,value)
+	`, rName, attribute, value)
 	return resource
 }
 
-func CreateAccTACACSProviderUpdatedAttrList(rName,attribute,value string) string {
+func CreateAccTACACSProviderUpdatedAttrList(rName, attribute, value string) string {
 	fmt.Printf("=== STEP  testing tacacs_provider attribute: %s = %s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	
@@ -485,6 +470,6 @@ func CreateAccTACACSProviderUpdatedAttrList(rName,attribute,value string) string
 		name  = "%s"
 		%s = %s
 	}
-	`, rName,attribute,value)
+	`, rName, attribute, value)
 	return resource
 }
