@@ -9,8 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-const fabDn1 = "topology/pod-1/node-101"
-
 func TestAccAciFabricNodeDataSource_Basic(t *testing.T) {
 	resourceName := "aci_logical_node_to_fabric_node.test"
 	dataSourceName := "data.aci_logical_node_to_fabric_node.test"

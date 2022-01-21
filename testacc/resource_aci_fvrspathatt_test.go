@@ -12,12 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-const tdn1 = "topology/pod-1/paths-101/pathep-[eth1/12]"
-const tdn2 = "topology/pod-1/paths-101/pathep-[eth1/6]"
-const multdn1 = "topology/pod-1/paths-101/pathep-[eth1/21]"
-const multdn2 = "topology/pod-1/paths-101/pathep-[eth1/30]"
-const multdn3 = "topology/pod-1/paths-101/pathep-[eth1/1]"
-
 func TestAccAciStaticPath_Basic(t *testing.T) {
 	var static_path_default models.StaticPath
 	var static_path_updated models.StaticPath

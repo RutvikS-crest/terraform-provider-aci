@@ -55,8 +55,8 @@ func TestAccAciFVDomain_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "res_imedcy", "lazy"),
 					resource.TestCheckResourceAttr(resourceName, "secondary_encap_inner", "unknown"),
 					resource.TestCheckResourceAttr(resourceName, "switching_mode", "native"),
-					resource.TestCheckResourceAttr(resourceName, "tdn", fmt.Sprintf("uni/vmmp-VMware/dom-%s", rName)),
-					resource.TestCheckResourceAttr(resourceName, "vmm_id", fmt.Sprintf("uni/tn-%s/ap-%s/epg-%s/rsdomAtt-[uni/vmmp-VMware/dom-%s]/sec", rName, rName, rName, rName)),
+					resource.TestCheckResourceAttr(resourceName, "tdn", fmt.Sprintf("%s/dom-%s", vmmProvProfileDn, rName)),
+					resource.TestCheckResourceAttr(resourceName, "vmm_id", fmt.Sprintf("uni/tn-%s/ap-%s/epg-%s/rsdomAtt-[%s/dom-%s]/sec", rName, rName, rName, vmmProvProfileDn, rName)),
 					resource.TestCheckResourceAttr(resourceName, "vmm_allow_promiscuous", "reject"),
 					resource.TestCheckResourceAttr(resourceName, "vmm_forged_transmits", "reject"),
 					resource.TestCheckResourceAttr(resourceName, "vmm_mac_changes", "reject"),
@@ -85,8 +85,8 @@ func TestAccAciFVDomain_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "res_imedcy", "immediate"),
 					resource.TestCheckResourceAttr(resourceName, "secondary_encap_inner", "vlan-7"),
 					resource.TestCheckResourceAttr(resourceName, "switching_mode", "AVE"),
-					resource.TestCheckResourceAttr(resourceName, "tdn", fmt.Sprintf("uni/vmmp-VMware/dom-%s", rName)),
-					resource.TestCheckResourceAttr(resourceName, "vmm_id", fmt.Sprintf("uni/tn-%s/ap-%s/epg-%s/rsdomAtt-[uni/vmmp-VMware/dom-%s]/sec", rName, rName, rName, rName)),
+					resource.TestCheckResourceAttr(resourceName, "tdn", fmt.Sprintf("%s/dom-%s", vmmProvProfileDn, rName)),
+					resource.TestCheckResourceAttr(resourceName, "vmm_id", fmt.Sprintf("uni/tn-%s/ap-%s/epg-%s/rsdomAtt-[%s/dom-%s]/sec", rName, rName, rName, vmmProvProfileDn, rName)),
 					resource.TestCheckResourceAttr(resourceName, "vmm_allow_promiscuous", "accept"),
 					resource.TestCheckResourceAttr(resourceName, "vmm_forged_transmits", "accept"),
 					resource.TestCheckResourceAttr(resourceName, "vmm_mac_changes", "accept"),
@@ -108,7 +108,7 @@ func TestAccAciFVDomain_Basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciFVDomainExists(resourceName, &epg_to_domain_updated),
 					resource.TestCheckResourceAttr(resourceName, "application_epg_dn", fmt.Sprintf("uni/tn-%s/ap-%s/epg-%s", rName, rName, rName)),
-					resource.TestCheckResourceAttr(resourceName, "tdn", fmt.Sprintf("uni/vmmp-VMware/dom-%s", rother)),
+					resource.TestCheckResourceAttr(resourceName, "tdn", fmt.Sprintf("%s/dom-%s", vmmProvProfileDn, rother)),
 					testAccCheckAciFVDomainIdNotEqual(&epg_to_domain_default, &epg_to_domain_updated),
 				),
 			},
@@ -120,7 +120,7 @@ func TestAccAciFVDomain_Basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciFVDomainExists(resourceName, &epg_to_domain_updated),
 					resource.TestCheckResourceAttr(resourceName, "application_epg_dn", fmt.Sprintf("uni/tn-%s/ap-%s/epg-%s", rother, rother, rother)),
-					resource.TestCheckResourceAttr(resourceName, "tdn", fmt.Sprintf("uni/vmmp-VMware/dom-%s", rName)),
+					resource.TestCheckResourceAttr(resourceName, "tdn", fmt.Sprintf("%s/dom-%s", vmmProvProfileDn, rName)),
 					testAccCheckAciFVDomainIdNotEqual(&epg_to_domain_default, &epg_to_domain_updated),
 				),
 			},
@@ -500,13 +500,13 @@ func CreateAccFVDomainWithoutApplicationEPG(rName string) string {
 	resource := fmt.Sprintf(`
 	  resource "aci_vmm_domain" "test" {
 		name = "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%s"
 	  }
 	  
 	 resource "aci_epg_to_domain" "test" {
 		tdn                   = aci_vmm_domain.test.id
 	  }
-	`, rName)
+	`, vmmProvProfileDn, rName)
 	return resource
 
 }
@@ -559,17 +559,17 @@ func CreateAccFVDomainConfigs(rName string) string {
 
 	  resource "aci_vmm_domain" "test1" {
 		name = "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%s"
 	  }
 
 	  resource "aci_vmm_domain" "test2" {
 		name = "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%s"
 	  }
 
 	  resource "aci_vmm_domain" "test3" {
 		name = "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%s"
 	  }
 	  
 	 resource "aci_epg_to_domain" "test1" {
@@ -586,7 +586,7 @@ func CreateAccFVDomainConfigs(rName string) string {
 		application_epg_dn    = aci_application_epg.test.id
 		tdn                   = aci_vmm_domain.test3.id
 	  }
-	`, rName, rName, rName, rName+"1", rName+"2", rName+"3")
+	`, rName, rName, rName, rName+"1", vmmProvProfileDn, rName+"2", vmmProvProfileDn, rName+"3", vmmProvProfileDn)
 	return resource
 }
 
@@ -609,7 +609,7 @@ func CreateAccFVDomainConfig(rName string) string {
 
 	  resource "aci_vmm_domain" "test" {
 		name = "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%s"
 		enable_ave = "yes"
 	  }
 	  
@@ -617,7 +617,7 @@ func CreateAccFVDomainConfig(rName string) string {
 		application_epg_dn    = aci_application_epg.test.id
 		tdn                   = aci_vmm_domain.test.id
 	  }
-	`, rName, rName, rName, rName)
+	`, rName, rName, rName, rName, vmmProvProfileDn)
 	return resource
 }
 
@@ -640,14 +640,14 @@ func CreateAccFVDomainConfigWithEpgAndDomainName(r1, r2 string) string {
 
 	  resource "aci_vmm_domain" "test" {
 		name = "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%s"
 	  }
 	  
 	 resource "aci_epg_to_domain" "test" {
 		application_epg_dn    = aci_application_epg.test.id
 		tdn                   = aci_vmm_domain.test.id
 	  }
-	`, r1, r1, r1, r2)
+	`, r1, r1, r1, r2, vmmProvProfileDn)
 	return resource
 }
 
@@ -700,7 +700,7 @@ func CreateAccFVDomainConfigWithOptionalValues(rName string) string {
 
 	  resource "aci_vmm_domain" "test" {
 		name = "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%s"
 		enable_ave = "yes"
 	  }
 	  
@@ -729,7 +729,7 @@ func CreateAccFVDomainConfigWithOptionalValues(rName string) string {
   		vmm_forged_transmits  = "accept"
   		vmm_mac_changes       = "accept"
 	  }
-	`, rName, rName, rName, rName)
+	`, rName, rName, rName, rName, vmmProvProfileDn)
 	return resource
 }
 
@@ -798,7 +798,7 @@ func CreateAccFVDomainUpdatedAttr(rName, attribute, value string) string {
 
 	  resource "aci_vmm_domain" "test" {
 		name = "%s"
-		provider_profile_dn = "uni/vmmp-VMware"
+		provider_profile_dn = "%s"
 		enable_ave = "yes"
 	  }
 	  
@@ -807,7 +807,7 @@ func CreateAccFVDomainUpdatedAttr(rName, attribute, value string) string {
 		tdn                   = aci_vmm_domain.test.id
 		%s = "%s"
 	  }
-	`, rName, rName, rName, rName, attribute, value)
+	`, rName, rName, rName, rName, vmmProvProfileDn, attribute, value)
 	return resource
 }
 

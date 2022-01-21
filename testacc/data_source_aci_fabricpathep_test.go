@@ -9,10 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-const podId = "1"
-const nodeId = "101"
-const pathEpName = "eth1/12"
-
 func TestAccAciFabricPathEpDataSource_Basic(t *testing.T) {
 	dataSourceName := "data.aci_fabric_path_ep.test"
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")

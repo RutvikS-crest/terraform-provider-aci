@@ -9,9 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-const systemPodId = "1"
-const systemNodeId = "1"
-
 func TestAccAciSystemDataSource_Basic(t *testing.T) {
 	dataSourceName := "data.aci_system.test"
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")
