@@ -326,7 +326,7 @@ func checkWhetherListContainOnlyParameter(arr []string, val string) error {
 		}
 	}
 	if vis && len(arr) > 1 {
-		return fmt.Errorf("%s should't be used along with other values", val)
+		return fmt.Errorf("%s should not be used along with other values", val)
 	}
 	return nil
 }
