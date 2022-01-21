@@ -298,15 +298,6 @@ func testAccCheckAciFabricWideSettingsPolicyIdEqual(m1, m2 *models.FabricWideSet
 	}
 }
 
-func testAccCheckAciFabricWideSettingsPolicyIdNotEqual(m1, m2 *models.FabricWideSettingsPolicy) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		if m1.DistinguishedName == m2.DistinguishedName {
-			return fmt.Errorf("fabric_wide_settings_policy DNs are equal")
-		}
-		return nil
-	}
-}
-
 func CreateAccFabricWideSettingsPolicyConfig() string {
 	fmt.Println("=== STEP  testing fabric_wide_settings_policy creation with required arguments only")
 	resource := fmt.Sprintf(`
