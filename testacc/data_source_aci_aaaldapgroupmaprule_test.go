@@ -27,6 +27,10 @@ func TestAccAciLDAPGroupMapRuleDataSource_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
+				Config:      CreateLDAPGroupMapRuleDSWithoutRequired(rName, "type"),
+				ExpectError: regexp.MustCompile(`Missing required argument`),
+			},
+			{
 				Config: CreateAccLDAPGroupMapRuleConfigDataSource(rName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "type", resourceName, "type"),
