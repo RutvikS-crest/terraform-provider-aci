@@ -571,7 +571,7 @@ func TestAccAciFilterEntry_Update(t *testing.T) {
 					testAccCheckAciFilterEntryExists(resourceName, &filter_entry_updated),
 					resource.TestCheckResourceAttr(resourceName, "tcp_rules.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "tcp_rules.0", "rst"),
-					resource.TestCheckResourceAttr(resourceName, "tcp_rules.0", "fin"),
+					resource.TestCheckResourceAttr(resourceName, "tcp_rules.1", "fin"),
 					testAccCheckAciFilterEntryIdEqual(&filter_entry_default, &filter_entry_updated),
 				),
 			},
