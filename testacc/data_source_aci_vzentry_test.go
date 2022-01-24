@@ -70,7 +70,7 @@ func TestAccAciFilterEntryDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccFilterEntryUpdatedConfigDataSourceRandomAttr(rName, attribute, value string) string {
-	fmt.Println("=== STEP  Basic: Testing filter entry data source with updated resource")
+	fmt.Println("=== STEP  Basic: Testing filter entry data source with Random Attribute")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
 		name = "%s"

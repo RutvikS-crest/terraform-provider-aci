@@ -66,6 +66,7 @@ func TestAccAciFilterEntry_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "description", "test_description"),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "test_annotation"),
 					resource.TestCheckResourceAttr(resourceName, "arp_opc", "unspecified"),
+					resource.TestCheckResourceAttr(resourceName, "apply_to_frag", "no"),
 					resource.TestCheckResourceAttr(resourceName, "d_from_port", "https"),
 					resource.TestCheckResourceAttr(resourceName, "d_to_port", "https"),
 					resource.TestCheckResourceAttr(resourceName, "ether_t", "ip"),
@@ -961,16 +962,11 @@ func CreateAccFilterEntryWithInvalidFilter(rName string) string {
 		name = "%s"
 	}
 
-	resource "aci_filter" "test"{
-		tenant_dn = aci_tenant.test.id
-		name = "%s"
-	}
-
 	resource "aci_filter_entry" "test"{
 		filter_dn = aci_tenant.test.id
 		name = "%s"
 	}
-	`, rName, rName, rName)
+	`, rName, rName)
 	return resource
 }
 
