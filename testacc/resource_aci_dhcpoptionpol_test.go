@@ -98,8 +98,13 @@ func TestAccAciDHCPOptionPolicy_Basic(t *testing.T) {
 					testAccCheckAciDHCPOptionPolicyIdEqual(&dhcp_option_policy_default, &dhcp_option_policy_updated),
 				),
 			},
+
 			{
 				Config:      CreateAccDHCPOptionPolicyConfigUpdatedName(fvTenantName, acctest.RandString(65)),
+				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
+			},
+			{
+				Config:      CreateAccDHCPOptionPolicyConfigWithInvalidOptionName(fvTenantName, rName, acctest.RandString(65)),
 				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
 			},
 
@@ -323,6 +328,27 @@ func CreateAccDHCPOptionPolicyConfigWithRequiredParams(fvTenantName, rName strin
 	`, fvTenantName, rName)
 	return resource
 }
+
+func CreateAccDHCPOptionPolicyConfigWithInvalidOptionName(fvTenantName, rName, longName string) string {
+	fmt.Println("=== STEP  testing dhcp_option creation with invalid name = ", longName)
+	resource := fmt.Sprintf(`
+	
+	resource "aci_tenant" "test" {
+		name 		= "%s"
+	
+	}
+	
+	resource "aci_dhcp_option_policy" "test" {
+		tenant_dn  = aci_tenant.test.id
+		name  = "%s"
+		dhcp_option {
+			name = "%s"
+		}
+	}
+	`, fvTenantName, rName, longName)
+	return resource
+}
+
 func CreateAccDHCPOptionPolicyConfigUpdatedName(fvTenantName, rName string) string {
 	fmt.Println("=== STEP  testing dhcp_option_policy creation with invalid name = ", rName)
 	resource := fmt.Sprintf(`
