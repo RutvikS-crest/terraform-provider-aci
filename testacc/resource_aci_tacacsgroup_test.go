@@ -12,20 +12,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-
 func TestAccAciTACACSMonitoringDestinationGroup_Basic(t *testing.T) {
 	var tacacs_accounting_default models.TACACSMonitoringDestinationGroup
 	var tacacs_accounting_updated models.TACACSMonitoringDestinationGroup
 	resourceName := "aci_tacacs_accounting.test"
 	rName := makeTestVariable(acctest.RandString(5))
 	rNameUpdated := makeTestVariable(acctest.RandString(5))
-	
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciTACACSMonitoringDestinationGroupDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciTACACSMonitoringDestinationGroupDestroy,
 		Steps: []resource.TestStep{
-			
+
 			{
 				Config:      CreateTACACSMonitoringDestinationGroupWithoutRequired(rName, "name"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
@@ -34,27 +33,26 @@ func TestAccAciTACACSMonitoringDestinationGroup_Basic(t *testing.T) {
 				Config: CreateAccTACACSMonitoringDestinationGroupConfig(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciTACACSMonitoringDestinationGroupExists(resourceName, &tacacs_accounting_default),
-					
-					resource.TestCheckResourceAttr(resourceName, "name",rName),
-					resource.TestCheckResourceAttr(resourceName, "annotation","orchestrator:terraform"),
-					resource.TestCheckResourceAttr(resourceName, "description",""),
-					resource.TestCheckResourceAttr(resourceName, "name_alias",""),
-					
+
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 				),
 			},
 			{
-				Config: CreateAccTACACSMonitoringDestinationGroupConfigWithOptionalValues(rName), 
+				Config: CreateAccTACACSMonitoringDestinationGroupConfigWithOptionalValues(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciTACACSMonitoringDestinationGroupExists(resourceName, &tacacs_accounting_updated),
-					
-					resource.TestCheckResourceAttr(resourceName, "name",rName),
+
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_tacacs_accounting"),
-					
+
 					testAccCheckAciTACACSMonitoringDestinationGroupIdEqual(&tacacs_accounting_default, &tacacs_accounting_updated),
 				),
-			},  
+			},
 			{
 				ResourceName:      resourceName,
 				ImportState:       true,
@@ -64,18 +62,18 @@ func TestAccAciTACACSMonitoringDestinationGroup_Basic(t *testing.T) {
 				Config:      CreateAccTACACSMonitoringDestinationGroupConfigUpdatedName(acctest.RandString(65)),
 				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
 			},
-			
+
 			{
 				Config:      CreateAccTACACSMonitoringDestinationGroupRemovingRequiredField(),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
-			
+
 			{
 				Config: CreateAccTACACSMonitoringDestinationGroupConfigWithRequiredParams(rNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciTACACSMonitoringDestinationGroupExists(resourceName, &tacacs_accounting_updated),
-					
-					resource.TestCheckResourceAttr(resourceName, "name",rNameUpdated),
+
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdated),
 					testAccCheckAciTACACSMonitoringDestinationGroupIdNotEqual(&tacacs_accounting_default, &tacacs_accounting_updated),
 				),
 			},
@@ -85,19 +83,19 @@ func TestAccAciTACACSMonitoringDestinationGroup_Basic(t *testing.T) {
 
 func TestAccAciTACACSMonitoringDestinationGroup_Negative(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
-	
+
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(5)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciTACACSMonitoringDestinationGroupDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciTACACSMonitoringDestinationGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccTACACSMonitoringDestinationGroupConfig(rName),
 			},
-			
+
 			{
 				Config:      CreateAccTACACSMonitoringDestinationGroupUpdatedAttr(rName, "description", acctest.RandString(129)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
@@ -110,7 +108,7 @@ func TestAccAciTACACSMonitoringDestinationGroup_Negative(t *testing.T) {
 				Config:      CreateAccTACACSMonitoringDestinationGroupUpdatedAttr(rName, "name_alias", acctest.RandString(64)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
-			
+
 			{
 				Config:      CreateAccTACACSMonitoringDestinationGroupUpdatedAttr(rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
@@ -124,11 +122,11 @@ func TestAccAciTACACSMonitoringDestinationGroup_Negative(t *testing.T) {
 
 func TestAccAciTACACSMonitoringDestinationGroup_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
-	
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciTACACSMonitoringDestinationGroupDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciTACACSMonitoringDestinationGroupDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccTACACSMonitoringDestinationGroupConfigMultiple(rName),
@@ -165,17 +163,17 @@ func testAccCheckAciTACACSMonitoringDestinationGroupExists(name string, tacacs_a
 	}
 }
 
-func testAccCheckAciTACACSMonitoringDestinationGroupDestroy(s *terraform.State) error {	
+func testAccCheckAciTACACSMonitoringDestinationGroupDestroy(s *terraform.State) error {
 	fmt.Println("=== STEP  testing tacacs_accounting destroy")
 	client := testAccProvider.Meta().(*client.Client)
 	for _, rs := range s.RootModule().Resources {
-		 if rs.Type == "aci_tacacs_accounting" {
-			cont,err := client.Get(rs.Primary.ID)
+		if rs.Type == "aci_tacacs_accounting" {
+			cont, err := client.Get(rs.Primary.ID)
 			tacacs_accounting := models.TACACSMonitoringDestinationGroupFromContainer(cont)
 			if err == nil {
-				return fmt.Errorf("TACACS Monitoring Destination Group %s Still exists",tacacs_accounting.DistinguishedName)
+				return fmt.Errorf("TACACS Monitoring Destination Group %s Still exists", tacacs_accounting.DistinguishedName)
 			}
-		}else{
+		} else {
 			continue
 		}
 	}
@@ -201,7 +199,7 @@ func testAccCheckAciTACACSMonitoringDestinationGroupIdNotEqual(m1, m2 *models.TA
 }
 
 func CreateTACACSMonitoringDestinationGroupWithoutRequired(rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing tacacs_accounting creation without ",attrName)
+	fmt.Println("=== STEP  Basic: testing tacacs_accounting creation without ", attrName)
 	rBlock := `
 	
 	`
@@ -214,7 +212,7 @@ func CreateTACACSMonitoringDestinationGroupWithoutRequired(rName, attrName strin
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock,rName)
+	return fmt.Sprintf(rBlock, rName)
 }
 
 func CreateAccTACACSMonitoringDestinationGroupConfigWithRequiredParams(rName string) string {
@@ -229,7 +227,7 @@ func CreateAccTACACSMonitoringDestinationGroupConfigWithRequiredParams(rName str
 	return resource
 }
 func CreateAccTACACSMonitoringDestinationGroupConfigUpdatedName(rName string) string {
-	fmt.Println("=== STEP  testing tacacs_accounting creation with invalid name = ",rName)
+	fmt.Println("=== STEP  testing tacacs_accounting creation with invalid name = ", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_tacacs_accounting" "test" {
@@ -265,8 +263,6 @@ func CreateAccTACACSMonitoringDestinationGroupConfigMultiple(rName string) strin
 	return resource
 }
 
-
-
 func CreateAccTACACSMonitoringDestinationGroupConfigWithOptionalValues(rName string) string {
 	fmt.Println("=== STEP  Basic: testing tacacs_accounting creation with optional parameters")
 	resource := fmt.Sprintf(`
@@ -298,7 +294,7 @@ func CreateAccTACACSMonitoringDestinationGroupRemovingRequiredField() string {
 	return resource
 }
 
-func CreateAccTACACSMonitoringDestinationGroupUpdatedAttr(rName,attribute,value string) string {
+func CreateAccTACACSMonitoringDestinationGroupUpdatedAttr(rName, attribute, value string) string {
 	fmt.Printf("=== STEP  testing tacacs_accounting attribute: %s = %s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	
@@ -307,11 +303,11 @@ func CreateAccTACACSMonitoringDestinationGroupUpdatedAttr(rName,attribute,value 
 		name  = "%s"
 		%s = "%s"
 	}
-	`, rName,attribute,value)
+	`, rName, attribute, value)
 	return resource
 }
 
-func CreateAccTACACSMonitoringDestinationGroupUpdatedAttrList(rName,attribute,value string) string {
+func CreateAccTACACSMonitoringDestinationGroupUpdatedAttrList(rName, attribute, value string) string {
 	fmt.Printf("=== STEP  testing tacacs_accounting attribute: %s = %s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	
@@ -320,6 +316,6 @@ func CreateAccTACACSMonitoringDestinationGroupUpdatedAttrList(rName,attribute,va
 		name  = "%s"
 		%s = %s
 	}
-	`, rName,attribute,value)
+	`, rName, attribute, value)
 	return resource
 }

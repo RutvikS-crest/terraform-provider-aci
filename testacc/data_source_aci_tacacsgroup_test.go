@@ -15,13 +15,13 @@ func TestAccAciTACACSMonitoringDestinationGroupDataSource_Basic(t *testing.T) {
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(10)
 	rName := makeTestVariable(acctest.RandString(5))
-	
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciTACACSMonitoringDestinationGroupDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciTACACSMonitoringDestinationGroupDestroy,
 		Steps: []resource.TestStep{
-			
+
 			{
 				Config:      CreateTACACSMonitoringDestinationGroupDSWithoutRequired(rName, "name"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
@@ -29,19 +29,18 @@ func TestAccAciTACACSMonitoringDestinationGroupDataSource_Basic(t *testing.T) {
 			{
 				Config: CreateAccTACACSMonitoringDestinationGroupConfigDataSource(rName),
 				Check: resource.ComposeTestCheckFunc(
-					
+
 					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
-					
 				),
 			},
 			{
 				Config:      CreateAccTACACSMonitoringDestinationGroupDataSourceUpdate(rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
-			
+
 			{
 				Config:      CreateAccTACACSMonitoringDestinationGroupDSWithInvalidName(rName),
 				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
@@ -55,7 +54,6 @@ func TestAccAciTACACSMonitoringDestinationGroupDataSource_Basic(t *testing.T) {
 		},
 	})
 }
-
 
 func CreateAccTACACSMonitoringDestinationGroupConfigDataSource(rName string) string {
 	fmt.Println("=== STEP  testing tacacs_accounting Data Source with required arguments only")
@@ -76,7 +74,7 @@ func CreateAccTACACSMonitoringDestinationGroupConfigDataSource(rName string) str
 }
 
 func CreateTACACSMonitoringDestinationGroupDSWithoutRequired(rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing tacacs_accounting Data Source without ",attrName)
+	fmt.Println("=== STEP  Basic: testing tacacs_accounting Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_tacacs_accounting" "test" {
@@ -94,9 +92,8 @@ func CreateTACACSMonitoringDestinationGroupDSWithoutRequired(rName, attrName str
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock,rName)
+	return fmt.Sprintf(rBlock, rName)
 }
-
 
 func CreateAccTACACSMonitoringDestinationGroupDSWithInvalidName(rName string) string {
 	fmt.Println("=== STEP  testing tacacs_accounting Data Source with invalid name")
@@ -131,7 +128,7 @@ func CreateAccTACACSMonitoringDestinationGroupDataSourceUpdate(rName, key, value
 		%s = "%s"
 		depends_on = [ aci_tacacs_accounting.test ]
 	}
-	`, rName,key,value)
+	`, rName, key, value)
 	return resource
 }
 
@@ -150,6 +147,6 @@ func CreateAccTACACSMonitoringDestinationGroupDataSourceUpdatedResource(rName, k
 		name  = aci_tacacs_accounting.test.name
 		depends_on = [ aci_tacacs_accounting.test ]
 	}
-	`, rName,key,value)
+	`, rName, key, value)
 	return resource
 }
