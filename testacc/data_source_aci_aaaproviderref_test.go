@@ -15,15 +15,15 @@ func TestAccAciProviderGroupMemberDataSource_Basic(t *testing.T) {
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(10)
 	rName := makeTestVariable(acctest.RandString(5))
-	
+
 	aaaDuoProviderGroupName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciProviderGroupMemberDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciProviderGroupMemberDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      CreateProviderGroupMemberDSWithoutRequired(aaaDuoProviderGroupName, rName,"parent_dn"),
+				Config:      CreateProviderGroupMemberDSWithoutRequired(aaaDuoProviderGroupName, rName, "parent_dn"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
@@ -33,25 +33,24 @@ func TestAccAciProviderGroupMemberDataSource_Basic(t *testing.T) {
 			{
 				Config: CreateAccProviderGroupMemberConfigDataSource(aaaDuoProviderGroupName, rName),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair(dataSourceName, "parent_dn", resourceName, "parent_dn",),
+					resource.TestCheckResourceAttrPair(dataSourceName, "parent_dn", resourceName, "parent_dn"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "order", resourceName, "order"),
-					
 				),
 			},
 			{
 				Config:      CreateAccProviderGroupMemberDataSourceUpdate(aaaDuoProviderGroupName, rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
-			
+
 			{
 				Config:      CreateAccProviderGroupMemberDSWithInvalidName(aaaDuoProviderGroupName, rName),
 				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
 			},
-			
+
 			{
 				Config: CreateAccProviderGroupMemberDataSourceUpdatedResource(aaaDuoProviderGroupName, rName, "annotation", "orchestrator:terraform-testacc"),
 				Check: resource.ComposeTestCheckFunc(
@@ -61,7 +60,6 @@ func TestAccAciProviderGroupMemberDataSource_Basic(t *testing.T) {
 		},
 	})
 }
-
 
 func CreateAccProviderGroupMemberConfigDataSource(aaaDuoProviderGroupName, rName string) string {
 	fmt.Println("=== STEP  testing login_domain_provider Data Source with required arguments only")
@@ -87,7 +85,7 @@ func CreateAccProviderGroupMemberConfigDataSource(aaaDuoProviderGroupName, rName
 }
 
 func CreateProviderGroupMemberDSWithoutRequired(aaaDuoProviderGroupName, rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing login_domain_provider Data Source without ",attrName)
+	fmt.Println("=== STEP  Basic: testing login_domain_provider Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_duo_provider_group" "test" {
@@ -118,7 +116,7 @@ func CreateProviderGroupMemberDSWithoutRequired(aaaDuoProviderGroupName, rName, 
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock,aaaDuoProviderGroupName, rName)
+	return fmt.Sprintf(rBlock, aaaDuoProviderGroupName, rName)
 }
 
 func CreateAccProviderGroupMemberDSWithInvalidName(aaaDuoProviderGroupName, rName string) string {
@@ -164,7 +162,7 @@ func CreateAccProviderGroupMemberDataSourceUpdate(aaaDuoProviderGroupName, rName
 		%s = "%s"
 		depends_on = [ aci_login_domain_provider.test ]
 	}
-	`, aaaDuoProviderGroupName, rName,key,value)
+	`, aaaDuoProviderGroupName, rName, key, value)
 	return resource
 }
 
@@ -188,6 +186,6 @@ func CreateAccProviderGroupMemberDataSourceUpdatedResource(aaaDuoProviderGroupNa
 		name  = aci_login_domain_provider.test.name
 		depends_on = [ aci_login_domain_provider.test ]
 	}
-	`, aaaDuoProviderGroupName, rName,key,value)
+	`, aaaDuoProviderGroupName, rName, key, value)
 	return resource
 }

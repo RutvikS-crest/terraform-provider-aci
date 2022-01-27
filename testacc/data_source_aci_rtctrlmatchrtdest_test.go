@@ -13,17 +13,17 @@ func TestAccAciMatchRouteDestinationRuleDataSource_Basic(t *testing.T) {
 	resourceName := "aci_match_route_destination_rule.test"
 	dataSourceName := "data.aci_match_route_destination_rule.test"
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")
-	randomValue := acctest.RandString(10)	 
+	randomValue := acctest.RandString(10)
 	ip, _ := acctest.RandIpAddress("10.4.0.0/16")
 	fvTenantName := makeTestVariable(acctest.RandString(5))
 	rtctrlSubjPName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciMatchRouteDestinationRuleDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciMatchRouteDestinationRuleDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      CreateMatchRouteDestinationRuleDSWithoutRequired(fvTenantName, rtctrlSubjPName, ip,"match_rule_dn"),
+				Config:      CreateMatchRouteDestinationRuleDSWithoutRequired(fvTenantName, rtctrlSubjPName, ip, "match_rule_dn"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
@@ -33,7 +33,7 @@ func TestAccAciMatchRouteDestinationRuleDataSource_Basic(t *testing.T) {
 			{
 				Config: CreateAccMatchRouteDestinationRuleConfigDataSource(fvTenantName, rtctrlSubjPName, ip),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrPair(dataSourceName, "match_rule_dn", resourceName, "match_rule_dn",),
+					resource.TestCheckResourceAttrPair(dataSourceName, "match_rule_dn", resourceName, "match_rule_dn"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "ip", resourceName, "ip"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
@@ -41,19 +41,18 @@ func TestAccAciMatchRouteDestinationRuleDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "aggregate", resourceName, "aggregate"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "greater_than_mask", resourceName, "greater_than_mask"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "less_than_mask", resourceName, "less_than_mask"),
-					
 				),
 			},
 			{
 				Config:      CreateAccMatchRouteDestinationRuleDataSourceUpdate(fvTenantName, rtctrlSubjPName, ip, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
-			
+
 			{
 				Config:      CreateAccMatchRouteDestinationRuleDSWithInvalidParentDn(fvTenantName, rtctrlSubjPName, ip),
 				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
 			},
-			
+
 			{
 				Config: CreateAccMatchRouteDestinationRuleDataSourceUpdatedResource(fvTenantName, rtctrlSubjPName, ip, "annotation", "orchestrator:terraform-testacc"),
 				Check: resource.ComposeTestCheckFunc(
@@ -63,7 +62,6 @@ func TestAccAciMatchRouteDestinationRuleDataSource_Basic(t *testing.T) {
 		},
 	})
 }
-
 
 func CreateAccMatchRouteDestinationRuleConfigDataSource(fvTenantName, rtctrlSubjPName, ip string) string {
 	fmt.Println("=== STEP  testing match_route_destination_rule Data Source with required arguments only")
@@ -94,7 +92,7 @@ func CreateAccMatchRouteDestinationRuleConfigDataSource(fvTenantName, rtctrlSubj
 }
 
 func CreateMatchRouteDestinationRuleDSWithoutRequired(fvTenantName, rtctrlSubjPName, ip, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing match_route_destination_rule Data Source without ",attrName)
+	fmt.Println("=== STEP  Basic: testing match_route_destination_rule Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_tenant" "test" {
@@ -130,7 +128,7 @@ func CreateMatchRouteDestinationRuleDSWithoutRequired(fvTenantName, rtctrlSubjPN
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock,fvTenantName, rtctrlSubjPName, ip)
+	return fmt.Sprintf(rBlock, fvTenantName, rtctrlSubjPName, ip)
 }
 
 func CreateAccMatchRouteDestinationRuleDSWithInvalidParentDn(fvTenantName, rtctrlSubjPName, ip string) string {
@@ -186,7 +184,7 @@ func CreateAccMatchRouteDestinationRuleDataSourceUpdate(fvTenantName, rtctrlSubj
 		%s = "%s"
 		depends_on = [ aci_match_route_destination_rule.test ]
 	}
-	`, fvTenantName, rtctrlSubjPName, ip,key,value)
+	`, fvTenantName, rtctrlSubjPName, ip, key, value)
 	return resource
 }
 
@@ -215,6 +213,6 @@ func CreateAccMatchRouteDestinationRuleDataSourceUpdatedResource(fvTenantName, r
 		ip  = aci_match_route_destination_rule.test.ip
 		depends_on = [ aci_match_route_destination_rule.test ]
 	}
-	`, fvTenantName, rtctrlSubjPName, ip,key,value)
+	`, fvTenantName, rtctrlSubjPName, ip, key, value)
 	return resource
 }

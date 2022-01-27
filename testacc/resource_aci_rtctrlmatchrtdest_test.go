@@ -240,9 +240,9 @@ func TestAccAciMatchRouteDestinationRule_MultipleCreateDelete(t *testing.T) {
 	fvTenantName := makeTestVariable(acctest.RandString(5))
 	rtctrlSubjPName := makeTestVariable(acctest.RandString(5))
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciMatchRouteDestinationRuleDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciMatchRouteDestinationRuleDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccMatchRouteDestinationRuleConfigMultiple(fvTenantName, rtctrlSubjPName),

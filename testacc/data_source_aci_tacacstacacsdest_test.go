@@ -22,11 +22,11 @@ func TestAccAciTACACSDestinationDataSource_Basic(t *testing.T) {
 		CheckDestroy:      testAccCheckAciTACACSDestinationDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config:      CreateTACACSDestinationDSWithoutRequired(tacacsGroupName, host,  "tacacs_accounting_dn"),
+				Config:      CreateTACACSDestinationDSWithoutRequired(tacacsGroupName, host, "tacacs_accounting_dn"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
 			{
-				Config:      CreateTACACSDestinationDSWithoutRequired(tacacsGroupName, host,  "host"),
+				Config:      CreateTACACSDestinationDSWithoutRequired(tacacsGroupName, host, "host"),
 				ExpectError: regexp.MustCompile(`Invalid RN`),
 			},
 			{
@@ -43,7 +43,7 @@ func TestAccAciTACACSDestinationDataSource_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config:      CreateAccTACACSDestinationDataSourceUpdate(tacacsGroupName, host,  randomParameter, randomValue),
+				Config:      CreateAccTACACSDestinationDataSourceUpdate(tacacsGroupName, host, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
 
@@ -53,7 +53,7 @@ func TestAccAciTACACSDestinationDataSource_Basic(t *testing.T) {
 			},
 
 			{
-				Config: CreateAccTACACSDestinationDataSourceUpdatedResource(tacacsGroupName, host,  "annotation", "orchestrator:terraform-testacc"),
+				Config: CreateAccTACACSDestinationDataSourceUpdatedResource(tacacsGroupName, host, "annotation", "orchestrator:terraform-testacc"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 				),
@@ -167,7 +167,7 @@ func CreateAccTACACSDestinationDataSourceUpdate(tacacsGroupName, host, key, valu
 	return resource
 }
 
-func CreateAccTACACSDestinationDataSourceUpdatedResource(tacacsGroupName, host,  key, value string) string {
+func CreateAccTACACSDestinationDataSourceUpdatedResource(tacacsGroupName, host, key, value string) string {
 	fmt.Println("=== STEP  testing tacacs_accounting_destination Data Source with updated resource")
 	resource := fmt.Sprintf(`
 	
@@ -187,6 +187,6 @@ func CreateAccTACACSDestinationDataSourceUpdatedResource(tacacsGroupName, host, 
 		host  = aci_tacacs_accounting_destination.test.host
 		depends_on = [ aci_tacacs_accounting_destination.test ]
 	}
-	`, tacacsGroupName, host,  key, value)
+	`, tacacsGroupName, host, key, value)
 	return resource
 }
