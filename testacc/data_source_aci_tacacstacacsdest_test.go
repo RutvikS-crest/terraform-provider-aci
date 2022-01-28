@@ -39,7 +39,7 @@ func TestAccAciTACACSDestinationDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "name_alias", resourceName, "name_alias"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "auth_protocol", resourceName, "auth_protocol"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "key", resourceName, "key"),
+					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
 				),
 			},
 			{
