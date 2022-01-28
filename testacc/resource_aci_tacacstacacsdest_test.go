@@ -43,6 +43,7 @@ func TestAccAciTACACSDestination_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
 					resource.TestCheckResourceAttr(resourceName, "description", ""),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
+					resource.TestCheckResourceAttr(resourceName, "name", ""),
 					resource.TestCheckResourceAttr(resourceName, "auth_protocol", "pap"),
 				),
 			},
@@ -58,6 +59,7 @@ func TestAccAciTACACSDestination_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_tacacs_accounting_destination"),
 					resource.TestCheckResourceAttr(resourceName, "auth_protocol", "chap"),
 					resource.TestCheckResourceAttr(resourceName, "key", "test_key"),
+					resource.TestCheckResourceAttr(resourceName, "name", "test_name"),
 					testAccCheckAciTACACSDestinationIdEqual(&tacacs_accounting_destination_default, &tacacs_accounting_destination_updated),
 				),
 			},
@@ -197,7 +199,10 @@ func TestAccAciTACACSDestination_Negative(t *testing.T) {
 				Config:      CreateAccTACACSDestinationUpdatedAttr(tacacsGroupName, host, "name_alias", acctest.RandString(64)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
-
+			{
+				Config:      CreateAccTACACSDestinationUpdatedAttr(tacacsGroupName, host, "name", acctest.RandString(65)),
+				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
+			},
 			{
 				Config:      CreateAccTACACSDestinationUpdatedAttr(tacacsGroupName, host, "auth_protocol", randomValue),
 				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
@@ -406,7 +411,7 @@ func CreateAccTACACSDestinationConfigWithOptionalValues(tacacsGroupName, host st
 		name_alias = "test_tacacs_accounting_destination"
 		auth_protocol = "chap"
 		key = "test_key"
-		
+		name = "test_name"
 	}
 	`, tacacsGroupName, host)
 

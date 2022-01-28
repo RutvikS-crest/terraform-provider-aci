@@ -79,7 +79,7 @@ func TestAccAciWebTokenData_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "maximum_validity_period", "4"),
 					resource.TestCheckResourceAttr(resourceName, "session_record_flags.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "session_record_flags.0", "login"),
-					resource.TestCheckResourceAttr(resourceName, "session_record_flags.0", "logout"),
+					resource.TestCheckResourceAttr(resourceName, "session_record_flags.1", "logout"),
 					resource.TestCheckResourceAttr(resourceName, "ui_idle_timeout_seconds", "60"),
 					resource.TestCheckResourceAttr(resourceName, "webtoken_timeout_seconds", "300"),
 					testAccCheckAciWebTokenDataIdEqual(&global_security_default, &global_security_updated),
@@ -367,7 +367,7 @@ func TestAccAciWebTokenData_Negative(t *testing.T) {
 	if err != nil {
 		t.Errorf("reading initial config of pkiWebTokenData")
 	}
-	resource.ParallelTest(t, resource.TestCase{
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: testAccProviders,
 
@@ -535,7 +535,7 @@ func TestAccAciWebTokenData_Negative(t *testing.T) {
 			},
 			{
 				Config:      CreateAccWebTokenDataUpdatedAttrList("session_record_flags", StringListtoString([]string{"login", "login"})),
-				ExpectError: regexp.MustCompile(`out of range`),
+				ExpectError: regexp.MustCompile(`duplication is not supported in list`),
 			},
 			{
 				Config:      CreateAccWebTokenDataUpdatedAttr(randomParameter, randomValue),
