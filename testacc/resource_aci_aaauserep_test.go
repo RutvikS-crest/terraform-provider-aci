@@ -128,10 +128,10 @@ func TestAccAciWebTokenData_Update(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccWebTokenDataUpdatedAttr("pwd_strength_check", "no"),
+				Config: CreateAccWebTokenDataUpdatedAttr("pwd_strength_check", "yes"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciWebTokenDataExists(resourceName, &global_security_updated),
-					resource.TestCheckResourceAttr(resourceName, "pwd_strength_check", "no"),
+					resource.TestCheckResourceAttr(resourceName, "pwd_strength_check", "yes"),
 					testAccCheckAciWebTokenDataIdEqual(&global_security_default, &global_security_updated),
 				),
 			},
@@ -180,6 +180,14 @@ func TestAccAciWebTokenData_Update(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciWebTokenDataExists(resourceName, &global_security_updated),
 					resource.TestCheckResourceAttr(resourceName, "expiration_warn_time", "15"),
+					testAccCheckAciWebTokenDataIdEqual(&global_security_default, &global_security_updated),
+				),
+			},
+			{
+				Config: CreateAccWebTokenDataUpdatedAttr("expiration_warn_time", "30"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciWebTokenDataExists(resourceName, &global_security_updated),
+					resource.TestCheckResourceAttr(resourceName, "expiration_warn_time", "30"),
 					testAccCheckAciWebTokenDataIdEqual(&global_security_default, &global_security_updated),
 				),
 			},
@@ -538,6 +546,10 @@ func TestAccAciWebTokenData_Negative(t *testing.T) {
 				ExpectError: regexp.MustCompile(`duplication is not supported in list`),
 			},
 			{
+				Config:      CreateAccWebTokenDataUpdatedAttrList("session_record_flags", StringListtoString([]string{randomValue})),
+				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
+			},
+			{
 				Config:      CreateAccWebTokenDataUpdatedAttr(randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
@@ -566,9 +578,11 @@ func restoreGlobalUser(aaaUserEp *models.UserManagement, aaaPwdProfile *models.P
 		max_failed_attempts = "%s"
 		max_failed_attempts_window = "%s"
 		maximum_validity_period = "%s"
+		ui_idle_timeout_seconds = "%s"
+		webtoken_timeout_seconds = "%s"
 		session_record_flags = %s
 	}
-	`, aaaUserEp.Annotation, aaaUserEp.Description, aaaUserEp.NameAlias, aaaUserEp.PwdStrengthCheck, aaaPwdProfile.ChangeCount, aaaPwdProfile.ChangeDuringInterval, aaaPwdProfile.ChangeInterval, aaaPwdProfile.ExpirationWarnTime, aaaPwdProfile.HistoryCount, aaaPwdProfile.NoChangeInterval, aaaBlockLoginProfile.BlockDuration, aaaBlockLoginProfile.EnableLoginBlock, aaaBlockLoginProfile.MaxFailedAttempts, aaaBlockLoginProfile.MaxFailedAttemptsWindow, pkiWebTokenData.MaximumValidityPeriod, StringListtoString(convertToStringArray(pkiWebTokenData.SessionRecordFlags)))
+	`, aaaUserEp.Annotation, aaaUserEp.Description, aaaUserEp.NameAlias, aaaUserEp.PwdStrengthCheck, aaaPwdProfile.ChangeCount, aaaPwdProfile.ChangeDuringInterval, aaaPwdProfile.ChangeInterval, aaaPwdProfile.ExpirationWarnTime, aaaPwdProfile.HistoryCount, aaaPwdProfile.NoChangeInterval, aaaBlockLoginProfile.BlockDuration, aaaBlockLoginProfile.EnableLoginBlock, aaaBlockLoginProfile.MaxFailedAttempts, aaaBlockLoginProfile.MaxFailedAttemptsWindow, pkiWebTokenData.MaximumValidityPeriod, pkiWebTokenData.UiIdleTimeoutSeconds, pkiWebTokenData.WebtokenTimeoutSeconds, StringListtoString(convertToStringArray(pkiWebTokenData.SessionRecordFlags)))
 	return resource
 }
 
