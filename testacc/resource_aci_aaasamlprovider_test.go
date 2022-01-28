@@ -168,7 +168,14 @@ func TestAccAciSAMLProvider_Update(t *testing.T) {
 					testAccCheckAciSAMLProviderIdEqual(&saml_provider_default, &saml_provider_updated),
 				),
 			},
-
+			{
+				Config: CreateAccSAMLProviderUpdatedAttr(rName, "id_p", "ping identity"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciSAMLProviderExists(resourceName, &saml_provider_updated),
+					resource.TestCheckResourceAttr(resourceName, "id_p", "ping identity"),
+					testAccCheckAciSAMLProviderIdEqual(&saml_provider_default, &saml_provider_updated),
+				),
+			},
 			{
 				Config: CreateAccSAMLProviderConfig(rName),
 			},
