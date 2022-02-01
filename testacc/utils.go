@@ -239,7 +239,7 @@ func GetQuoted(s string) string {
 func StringListtoString(list []string) string {
 	val := ""
 	if len(list) == 1 && list[0] == "" {
-		return "\"\""
+		return "[]"
 	}
 	val = val + "["
 	for i := 0; i < len(list)-1; i++ {

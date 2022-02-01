@@ -80,11 +80,11 @@ func TestAccAciEndpointLoopProtection_Update(t *testing.T) {
 				),
 			},
 			{
-				Config: CreateAccEndpointLoopProtectionUpdatedAttrList("action", StringListtoString([]string{"bd-learn-disable"})),
+				Config: CreateAccEndpointLoopProtectionUpdatedAttrList("action", StringListtoString([]string{"port-disable"})),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciEndpointLoopProtectionExists(resourceName, &endpoint_loop_protection_updated),
 					resource.TestCheckResourceAttr(resourceName, "action.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "action.0", "bd-learn-disable"),
+					resource.TestCheckResourceAttr(resourceName, "action.0", "port-disable"),
 				),
 			},
 			{
@@ -103,6 +103,14 @@ func TestAccAciEndpointLoopProtection_Update(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "action.#", "2"),
 					resource.TestCheckResourceAttr(resourceName, "action.0", "port-disable"),
 					resource.TestCheckResourceAttr(resourceName, "action.1", "bd-learn-disable"),
+				),
+			},
+			{
+				Config: CreateAccEndpointLoopProtectionUpdatedAttr("admin_st", "disabled"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciEndpointLoopProtectionExists(resourceName, &endpoint_loop_protection_updated),
+					resource.TestCheckResourceAttr(resourceName, "admin_st", "disabled"),
+					testAccCheckAciEndpointLoopProtectionIdEqual(&endpoint_loop_protection_default, &endpoint_loop_protection_updated),
 				),
 			},
 			{

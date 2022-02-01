@@ -80,6 +80,14 @@ func TestAccAciEndpointControls_Update(t *testing.T) {
 				),
 			},
 			{
+				Config: CreateAccEndpointControlsUpdatedAttr("admin_st", "disabled"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciEndpointControlsExists(resourceName, &endpoint_controls_updated),
+					resource.TestCheckResourceAttr(resourceName, "admin_st", "disabled"),
+					testAccCheckAciEndpointControlsIdEqual(&endpoint_controls_default, &endpoint_controls_updated),
+				),
+			},
+			{
 				Config: CreateAccEndpointControlsUpdatedAttr("hold_intvl", "3600"),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciEndpointControlsExists(resourceName, &endpoint_controls_updated),
