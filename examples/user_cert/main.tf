@@ -5,7 +5,7 @@ resource "aci_x509_certificate" "test_cert" {
   name       = "test_1"
   annotation = "x509_certificate_tag"
   name_alias = "alias_name"
-  data       = file("terraformuser.cert")
+  data       = file("x509_certificate.cert")
 }
 
 terraform {
