@@ -18,13 +18,13 @@ func TestAccAciFirmwarePolicy_Basic(t *testing.T) {
 	resourceName := "aci_firmware_policy.test"
 	rName := makeTestVariable(acctest.RandString(5))
 	rNameUpdated := makeTestVariable(acctest.RandString(5))
-	
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciFirmwarePolicyDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciFirmwarePolicyDestroy,
 		Steps: []resource.TestStep{
-			
+
 			{
 				Config:      CreateFirmwarePolicyWithoutRequired(rName, "name"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
@@ -33,35 +33,34 @@ func TestAccAciFirmwarePolicy_Basic(t *testing.T) {
 				Config: CreateAccFirmwarePolicyConfig(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciFirmwarePolicyExists(resourceName, &firmware_policy_default),
-					
-					resource.TestCheckResourceAttr(resourceName, "name",rName),
-					resource.TestCheckResourceAttr(resourceName, "annotation","orchestrator:terraform"),
-					resource.TestCheckResourceAttr(resourceName, "description",""),
-					resource.TestCheckResourceAttr(resourceName, "name_alias",""),
+
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
+					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform"),
+					resource.TestCheckResourceAttr(resourceName, "description", ""),
+					resource.TestCheckResourceAttr(resourceName, "name_alias", ""),
 					resource.TestCheckResourceAttr(resourceName, "effective_on_reboot", "no"),
 					resource.TestCheckResourceAttr(resourceName, "ignore_compat", "no"),
 					resource.TestCheckResourceAttr(resourceName, "internal_label", ""),
 					resource.TestCheckResourceAttr(resourceName, "version", ""),
 					resource.TestCheckResourceAttr(resourceName, "version_check_override", "untriggered"),
-					
 				),
 			},
 			{
-				Config: CreateAccFirmwarePolicyConfigWithOptionalValues(rName), 
+				Config: CreateAccFirmwarePolicyConfigWithOptionalValues(rName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciFirmwarePolicyExists(resourceName, &firmware_policy_updated),
-					resource.TestCheckResourceAttr(resourceName, "name",rName),
+					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "annotation", "orchestrator:terraform_testacc"),
 					resource.TestCheckResourceAttr(resourceName, "description", "created while acceptance testing"),
 					resource.TestCheckResourceAttr(resourceName, "name_alias", "test_firmware_policy"),
 					resource.TestCheckResourceAttr(resourceName, "effective_on_reboot", "yes"),
 					resource.TestCheckResourceAttr(resourceName, "ignore_compat", "yes"),
-					resource.TestCheckResourceAttr(resourceName, "internal_label", "internal_label_test"),					
+					resource.TestCheckResourceAttr(resourceName, "internal_label", "internal_label_test"),
 					resource.TestCheckResourceAttr(resourceName, "version", "n9000-14.2(3q)"),
 					resource.TestCheckResourceAttr(resourceName, "version_check_override", "trigger"),
 					testAccCheckAciFirmwarePolicyIdEqual(&firmware_policy_default, &firmware_policy_updated),
 				),
-			},  
+			},
 			{
 				ResourceName:      resourceName,
 				ImportState:       true,
@@ -71,18 +70,18 @@ func TestAccAciFirmwarePolicy_Basic(t *testing.T) {
 				Config:      CreateAccFirmwarePolicyConfigUpdatedName(acctest.RandString(65)),
 				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
 			},
-			
+
 			{
 				Config:      CreateAccFirmwarePolicyRemovingRequiredField(),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
-			
+
 			{
 				Config: CreateAccFirmwarePolicyConfigWithRequiredParams(rNameUpdated),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciFirmwarePolicyExists(resourceName, &firmware_policy_updated),
-					
-					resource.TestCheckResourceAttr(resourceName, "name",rNameUpdated),
+
+					resource.TestCheckResourceAttr(resourceName, "name", rNameUpdated),
 					testAccCheckAciFirmwarePolicyIdNotEqual(&firmware_policy_default, &firmware_policy_updated),
 				),
 			},
@@ -95,11 +94,11 @@ func TestAccAciFirmwarePolicy_Update(t *testing.T) {
 	var firmware_policy_updated models.FirmwarePolicy
 	resourceName := "aci_firmware_policy.test"
 	rName := makeTestVariable(acctest.RandString(5))
-	
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciFirmwarePolicyDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciFirmwarePolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccFirmwarePolicyConfig(rName),
@@ -107,7 +106,7 @@ func TestAccAciFirmwarePolicy_Update(t *testing.T) {
 					testAccCheckAciFirmwarePolicyExists(resourceName, &firmware_policy_default),
 				),
 			},
-			
+
 			{
 				Config: CreateAccFirmwarePolicyUpdatedAttr(rName, "version_check_override", "trigger-immediate"),
 				Check: resource.ComposeTestCheckFunc(
@@ -133,19 +132,19 @@ func TestAccAciFirmwarePolicy_Update(t *testing.T) {
 
 func TestAccAciFirmwarePolicy_Negative(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
-	
+
 	randomParameter := acctest.RandStringFromCharSet(5, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(5)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciFirmwarePolicyDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciFirmwarePolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccFirmwarePolicyConfig(rName),
 			},
-			
+
 			{
 				Config:      CreateAccFirmwarePolicyUpdatedAttr(rName, "description", acctest.RandString(129)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
@@ -158,32 +157,32 @@ func TestAccAciFirmwarePolicy_Negative(t *testing.T) {
 				Config:      CreateAccFirmwarePolicyUpdatedAttr(rName, "name_alias", acctest.RandString(64)),
 				ExpectError: regexp.MustCompile(`failed validation for value '(.)+'`),
 			},
-			
+
 			{
 				Config:      CreateAccFirmwarePolicyUpdatedAttr(rName, "effective_on_reboot", randomValue),
 				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
 			},
-			
+
 			{
 				Config:      CreateAccFirmwarePolicyUpdatedAttr(rName, "ignore_compat", randomValue),
 				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
 			},
-			
+
 			{
 				Config:      CreateAccFirmwarePolicyUpdatedAttr(rName, "internal_label", acctest.RandString(513)),
 				ExpectError: regexp.MustCompile(`failed validation for value`),
 			},
-			
+
 			{
 				Config:      CreateAccFirmwarePolicyUpdatedAttr(rName, "version", acctest.RandString(513)),
 				ExpectError: regexp.MustCompile(`failed validation for value`),
 			},
-			
+
 			{
 				Config:      CreateAccFirmwarePolicyUpdatedAttr(rName, "version_check_override", randomValue),
 				ExpectError: regexp.MustCompile(`expected(.)+ to be one of (.)+, got(.)+`),
 			},
-			
+
 			{
 				Config:      CreateAccFirmwarePolicyUpdatedAttr(rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
@@ -197,11 +196,11 @@ func TestAccAciFirmwarePolicy_Negative(t *testing.T) {
 
 func TestAccAciFirmwarePolicy_MultipleCreateDelete(t *testing.T) {
 	rName := makeTestVariable(acctest.RandString(5))
-	
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciFirmwarePolicyDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciFirmwarePolicyDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: CreateAccFirmwarePolicyConfigMultiple(rName),
@@ -238,17 +237,17 @@ func testAccCheckAciFirmwarePolicyExists(name string, firmware_policy *models.Fi
 	}
 }
 
-func testAccCheckAciFirmwarePolicyDestroy(s *terraform.State) error {	
+func testAccCheckAciFirmwarePolicyDestroy(s *terraform.State) error {
 	fmt.Println("=== STEP  testing firmware_policy destroy")
 	client := testAccProvider.Meta().(*client.Client)
 	for _, rs := range s.RootModule().Resources {
-		 if rs.Type == "aci_firmware_policy" {
-			cont,err := client.Get(rs.Primary.ID)
+		if rs.Type == "aci_firmware_policy" {
+			cont, err := client.Get(rs.Primary.ID)
 			firmware_policy := models.FirmwarePolicyFromContainer(cont)
 			if err == nil {
-				return fmt.Errorf("Firmware Policy %s Still exists",firmware_policy.DistinguishedName)
+				return fmt.Errorf("Firmware Policy %s Still exists", firmware_policy.DistinguishedName)
 			}
-		}else{
+		} else {
 			continue
 		}
 	}
@@ -274,7 +273,7 @@ func testAccCheckAciFirmwarePolicyIdNotEqual(m1, m2 *models.FirmwarePolicy) reso
 }
 
 func CreateFirmwarePolicyWithoutRequired(rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing firmware_policy creation without ",attrName)
+	fmt.Println("=== STEP  Basic: testing firmware_policy creation without ", attrName)
 	rBlock := `
 	
 	`
@@ -287,11 +286,11 @@ func CreateFirmwarePolicyWithoutRequired(rName, attrName string) string {
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock,rName)
+	return fmt.Sprintf(rBlock, rName)
 }
 
 func CreateAccFirmwarePolicyConfigWithRequiredParams(rName string) string {
-	fmt.Println("=== STEP  testing firmware_policy creation with name =",rName)
+	fmt.Println("=== STEP  testing firmware_policy creation with name =", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_firmware_policy" "test" {
@@ -302,7 +301,7 @@ func CreateAccFirmwarePolicyConfigWithRequiredParams(rName string) string {
 	return resource
 }
 func CreateAccFirmwarePolicyConfigUpdatedName(rName string) string {
-	fmt.Println("=== STEP  testing firmware_policy creation with invalid name = ",rName)
+	fmt.Println("=== STEP  testing firmware_policy creation with invalid name = ", rName)
 	resource := fmt.Sprintf(`
 	
 	resource "aci_firmware_policy" "test" {
@@ -337,8 +336,6 @@ func CreateAccFirmwarePolicyConfigMultiple(rName string) string {
 	`, rName)
 	return resource
 }
-
-
 
 func CreateAccFirmwarePolicyConfigWithOptionalValues(rName string) string {
 	fmt.Println("=== STEP  Basic: testing firmware_policy creation with optional parameters")
@@ -381,7 +378,7 @@ func CreateAccFirmwarePolicyRemovingRequiredField() string {
 	return resource
 }
 
-func CreateAccFirmwarePolicyUpdatedAttr(rName,attribute,value string) string {
+func CreateAccFirmwarePolicyUpdatedAttr(rName, attribute, value string) string {
 	fmt.Printf("=== STEP  testing firmware_policy attribute: %s = %s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	
@@ -390,11 +387,11 @@ func CreateAccFirmwarePolicyUpdatedAttr(rName,attribute,value string) string {
 		name  = "%s"
 		%s = "%s"
 	}
-	`, rName,attribute,value)
+	`, rName, attribute, value)
 	return resource
 }
 
-func CreateAccFirmwarePolicyUpdatedAttrList(rName,attribute,value string) string {
+func CreateAccFirmwarePolicyUpdatedAttrList(rName, attribute, value string) string {
 	fmt.Printf("=== STEP  testing firmware_policy attribute: %s = %s \n", attribute, value)
 	resource := fmt.Sprintf(`
 	
@@ -403,6 +400,6 @@ func CreateAccFirmwarePolicyUpdatedAttrList(rName,attribute,value string) string
 		name  = "%s"
 		%s = %s
 	}
-	`, rName,attribute,value)
+	`, rName, attribute, value)
 	return resource
 }

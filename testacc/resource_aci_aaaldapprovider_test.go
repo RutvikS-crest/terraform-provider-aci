@@ -176,6 +176,14 @@ func TestAccAciLDAPProvider_Update(t *testing.T) {
 				),
 			},
 			{
+				Config: CreateAccLDAPProviderUpdatedAttr(rName, "ldap", "timeout", "18"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckAciLDAPProviderExists(resourceName, &ldap_provider_updated),
+					resource.TestCheckResourceAttr(resourceName, "timeout", "18"),
+					testAccCheckAciLDAPProviderIdEqual(&ldap_provider_default, &ldap_provider_updated),
+				),
+			},
+			{
 				Config: CreateAccLDAPProviderConfig(rName, "ldap"),
 			},
 		},
