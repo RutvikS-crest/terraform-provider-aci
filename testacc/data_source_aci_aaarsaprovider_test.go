@@ -15,13 +15,13 @@ func TestAccAciRSAProviderDataSource_Basic(t *testing.T) {
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(10)
 	rName := makeTestVariable(acctest.RandString(5))
-	
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciRSAProviderDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciRSAProviderDestroy,
 		Steps: []resource.TestStep{
-			
+
 			{
 				Config:      CreateRSAProviderDSWithoutRequired(rName, "name"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
@@ -29,7 +29,7 @@ func TestAccAciRSAProviderDataSource_Basic(t *testing.T) {
 			{
 				Config: CreateAccRSAProviderConfigDataSource(rName),
 				Check: resource.ComposeTestCheckFunc(
-					
+
 					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
@@ -40,14 +40,13 @@ func TestAccAciRSAProviderDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "monitoring_user", resourceName, "monitoring_user"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "retries", resourceName, "retries"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "timeout", resourceName, "timeout"),
-					
 				),
 			},
 			{
 				Config:      CreateAccRSAProviderDataSourceUpdate(rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
-			
+
 			{
 				Config:      CreateAccRSAProviderDSWithInvalidName(rName),
 				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
@@ -61,7 +60,6 @@ func TestAccAciRSAProviderDataSource_Basic(t *testing.T) {
 		},
 	})
 }
-
 
 func CreateAccRSAProviderConfigDataSource(rName string) string {
 	fmt.Println("=== STEP  testing rsa_provider Data Source with required arguments only")
@@ -82,7 +80,7 @@ func CreateAccRSAProviderConfigDataSource(rName string) string {
 }
 
 func CreateRSAProviderDSWithoutRequired(rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing rsa_provider Data Source without ",attrName)
+	fmt.Println("=== STEP  Basic: testing rsa_provider Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_rsa_provider" "test" {
@@ -100,9 +98,8 @@ func CreateRSAProviderDSWithoutRequired(rName, attrName string) string {
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock,rName)
+	return fmt.Sprintf(rBlock, rName)
 }
-
 
 func CreateAccRSAProviderDSWithInvalidName(rName string) string {
 	fmt.Println("=== STEP  testing rsa_provider Data Source with invalid name")
@@ -137,7 +134,7 @@ func CreateAccRSAProviderDataSourceUpdate(rName, key, value string) string {
 		%s = "%s"
 		depends_on = [ aci_rsa_provider.test ]
 	}
-	`, rName,key,value)
+	`, rName, key, value)
 	return resource
 }
 
@@ -156,6 +153,6 @@ func CreateAccRSAProviderDataSourceUpdatedResource(rName, key, value string) str
 		name  = aci_rsa_provider.test.name
 		depends_on = [ aci_rsa_provider.test ]
 	}
-	`, rName,key,value)
+	`, rName, key, value)
 	return resource
 }

@@ -15,7 +15,7 @@ Manages ACI Cloud Context Profile
 ```hcl
 
 	resource "aci_cloud_context_profile" "foocloud_context_profile" {
-		name 		         = "cloud_ctx_prof"
+		name 		             = "cloud_ctx_prof"
 		description              = "cloud_context_profile created while acceptance testing"
 		tenant_dn                = aci_tenant.footenant.id
 		primary_cidr             = "10.230.231.1/16"

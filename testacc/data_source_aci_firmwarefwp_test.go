@@ -15,13 +15,13 @@ func TestAccAciFirmwarePolicyDataSource_Basic(t *testing.T) {
 	randomParameter := acctest.RandStringFromCharSet(10, "abcdefghijklmnopqrstuvwxyz")
 	randomValue := acctest.RandString(10)
 	rName := makeTestVariable(acctest.RandString(5))
-	
+
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:	  func(){ testAccPreCheck(t) },
-		ProviderFactories:    testAccProviders,
-		CheckDestroy: testAccCheckAciFirmwarePolicyDestroy,
+		PreCheck:          func() { testAccPreCheck(t) },
+		ProviderFactories: testAccProviders,
+		CheckDestroy:      testAccCheckAciFirmwarePolicyDestroy,
 		Steps: []resource.TestStep{
-			
+
 			{
 				Config:      CreateFirmwarePolicyDSWithoutRequired(rName, "name"),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
@@ -29,7 +29,7 @@ func TestAccAciFirmwarePolicyDataSource_Basic(t *testing.T) {
 			{
 				Config: CreateAccFirmwarePolicyConfigDataSource(rName),
 				Check: resource.ComposeTestCheckFunc(
-					
+
 					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
@@ -39,14 +39,13 @@ func TestAccAciFirmwarePolicyDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "internal_label", resourceName, "internal_label"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "version", resourceName, "version"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "version_check_override", resourceName, "version_check_override"),
-					
 				),
 			},
 			{
 				Config:      CreateAccFirmwarePolicyDataSourceUpdate(rName, randomParameter, randomValue),
 				ExpectError: regexp.MustCompile(`An argument named (.)+ is not expected here.`),
 			},
-			
+
 			{
 				Config:      CreateAccFirmwarePolicyDSWithInvalidName(rName),
 				ExpectError: regexp.MustCompile(`(.)+ Object may not exists`),
@@ -60,7 +59,6 @@ func TestAccAciFirmwarePolicyDataSource_Basic(t *testing.T) {
 		},
 	})
 }
-
 
 func CreateAccFirmwarePolicyConfigDataSource(rName string) string {
 	fmt.Println("=== STEP  testing firmware_policy Data Source with required arguments only")
@@ -81,7 +79,7 @@ func CreateAccFirmwarePolicyConfigDataSource(rName string) string {
 }
 
 func CreateFirmwarePolicyDSWithoutRequired(rName, attrName string) string {
-	fmt.Println("=== STEP  Basic: testing firmware_policy Data Source without ",attrName)
+	fmt.Println("=== STEP  Basic: testing firmware_policy Data Source without ", attrName)
 	rBlock := `
 	
 	resource "aci_firmware_policy" "test" {
@@ -99,9 +97,8 @@ func CreateFirmwarePolicyDSWithoutRequired(rName, attrName string) string {
 	}
 		`
 	}
-	return fmt.Sprintf(rBlock,rName)
+	return fmt.Sprintf(rBlock, rName)
 }
-
 
 func CreateAccFirmwarePolicyDSWithInvalidName(rName string) string {
 	fmt.Println("=== STEP  testing firmware_policy Data Source with invalid name")
@@ -136,7 +133,7 @@ func CreateAccFirmwarePolicyDataSourceUpdate(rName, key, value string) string {
 		%s = "%s"
 		depends_on = [ aci_firmware_policy.test ]
 	}
-	`, rName,key,value)
+	`, rName, key, value)
 	return resource
 }
 
@@ -155,6 +152,6 @@ func CreateAccFirmwarePolicyDataSourceUpdatedResource(rName, key, value string) 
 		name  = aci_firmware_policy.test.name
 		depends_on = [ aci_firmware_policy.test ]
 	}
-	`, rName,key,value)
+	`, rName, key, value)
 	return resource
 }

@@ -43,6 +43,11 @@ const fabDn3 = "topology/pod-1/node-111"
 const fabDn4 = "topology/pod-1/node-1"
 const vmmProvProfileDn = "uni/vmmp-VMware"
 const vmmProvProfileDnOther = "uni/vmmp-OpenShift"
+const fabricNodeMemNodeId1 = "301"
+const fabricNodeMemNodeId2 = "302"
+const fabricNodeMemNodeId3 = "303"
+const fabricNodeMemNodeId4 = "304"
+const fabricNodeMemNodeId5 = "306"
 
 func init() {
 	testAccProvider = aci.Provider()
