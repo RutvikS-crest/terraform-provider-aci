@@ -142,7 +142,7 @@ func testAccCheckAciCoopPolicyIdEqual(m1, m2 *models.COOPGroupPolicy) resource.T
 }
 
 func CreateAccCoopPolicyConfig() string {
-	fmt.Println("=== STEP  testing coop_policy creation with required arguments only")
+	fmt.Println("=== STEP  testing coop_policy creation")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_coop_policy" "test" {
