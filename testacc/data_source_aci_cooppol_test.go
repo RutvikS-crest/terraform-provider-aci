@@ -50,7 +50,7 @@ func TestAccAciCoopPolicyDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccCoopPolicyConfigDataSource() string {
-	fmt.Println("=== STEP  testing coop_policy Data Source with required arguments only")
+	fmt.Println("=== STEP  testing coop_policy Data Source")
 	resource := fmt.Sprintf(`
 	resource "aci_coop_policy" "test" {
 	}
