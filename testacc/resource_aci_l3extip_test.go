@@ -67,7 +67,7 @@ func TestAccAciL3outPathAttachmentSecondaryIp_Basic(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config:      CreateAccL3outPathAttachmentSecondaryIpWithInavalidIP(rName, pathEp1),
+				Config:      CreateAccL3outPathAttachmentSecondaryIpWithInvalidIP(rName, pathEp1),
 				ExpectError: regexp.MustCompile(`unknown property value (.)+`),
 			},
 
@@ -312,7 +312,7 @@ func CreateAccL3outPathAttachmentSecondaryIpConfigWithRequiredParams(name, tdn, 
 	return resource
 }
 
-func CreateAccL3outPathAttachmentSecondaryIpWithInavalidIP(name, tdn string) string {
+func CreateAccL3outPathAttachmentSecondaryIpWithInvalidIP(name, tdn string) string {
 	fmt.Println("=== STEP  testing l3out_path_attachment_secondary_ip creation with invalid ip")
 	resource := fmt.Sprintf(`
 	resource "aci_tenant" "test" {
