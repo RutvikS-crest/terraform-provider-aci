@@ -52,7 +52,7 @@ func TestAccAciConsoleAuthenticationDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccAciConsoleAuthenticationConfigDataSource() string {
-	fmt.Println("=== STEP  Testing console_authentication Data Source with required arguments only")
+	fmt.Println("=== STEP  Testing console_authentication Data Source")
 	resource := fmt.Sprintf(`
 	resource "aci_console_authentication" "test" {}
 

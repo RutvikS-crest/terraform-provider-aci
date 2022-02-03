@@ -624,7 +624,7 @@ func testAccCheckAciWebTokenDataIdEqual(m1, m2 *models.UserManagement) resource.
 }
 
 func CreateAccWebTokenDataConfig() string {
-	fmt.Println("=== STEP  testing global_security creation with required arguments only")
+	fmt.Println("=== STEP  testing global_security creation")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_global_security" "test" {}

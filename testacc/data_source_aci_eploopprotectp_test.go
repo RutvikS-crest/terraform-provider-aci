@@ -54,7 +54,7 @@ func TestAccAciEndpointLoopProtectionDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccEndpointLoopProtectionConfigDataSource() string {
-	fmt.Println("=== STEP  testing endpoint_loop_protection Data Source with required arguments only")
+	fmt.Println("=== STEP  testing endpoint_loop_protection Data Source")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_endpoint_loop_protection" "test" {

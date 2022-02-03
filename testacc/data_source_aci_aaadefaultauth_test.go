@@ -53,7 +53,7 @@ func TestAccAciDefaultAuthenticationDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccDefaultAuthenticationConfigDataSource() string {
-	fmt.Println("=== STEP  testing default_authentication Data Source with required arguments only")
+	fmt.Println("=== STEP  testing default_authentication Data Source")
 	resource := fmt.Sprint(`
 	
 	resource "aci_default_authentication" "test" {

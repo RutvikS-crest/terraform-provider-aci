@@ -53,7 +53,7 @@ func TestAccAciPortTrackingDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccPortTrackingConfigDataSource() string {
-	fmt.Println("=== STEP  testing port_tracking Data Source with required arguments only")
+	fmt.Println("=== STEP  testing port_tracking Data Source")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_port_tracking" "test" {

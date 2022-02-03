@@ -264,7 +264,7 @@ func testAccCheckAciEndpointLoopProtectionIdEqual(m1, m2 *models.EPLoopProtectio
 }
 
 func CreateAccEndpointLoopProtectionConfig() string {
-	fmt.Println("=== STEP  testing endpoint_loop_protection creation with required arguments only")
+	fmt.Println("=== STEP  testing endpoint_loop_protection creation")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_endpoint_loop_protection" "test" {

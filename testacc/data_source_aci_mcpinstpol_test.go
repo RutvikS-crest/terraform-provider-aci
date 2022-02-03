@@ -58,7 +58,7 @@ func TestAccAciMCPInstancePolicyDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccMCPInstancePolicyConfigDataSource(rName string) string {
-	fmt.Println("=== STEP  testing mcp_instance_policy Data Source with required arguments only")
+	fmt.Println("=== STEP  testing mcp_instance_policy Data Source")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_mcp_instance_policy" "test" {

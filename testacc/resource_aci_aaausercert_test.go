@@ -69,6 +69,10 @@ func TestAccAcix509Certificate_Basic(t *testing.T) {
 				ExpectError: regexp.MustCompile(`property name of (.)+ failed validation`),
 			},
 			{
+				Config:      CreateAccx509CertificateConfigUpdatedData(aaaUserName, rName),
+				ExpectError: regexp.MustCompile(`Validation of (.)+ X509 Certificate submitted failed - error returned by low level validation routine is`),
+			},
+			{
 				Config:      CreateAccx509CertificateRemovingRequiredField(),
 				ExpectError: regexp.MustCompile(`Missing required argument`),
 			},
@@ -293,6 +297,24 @@ func CreateAccx509CertificateConfigUpdatedName(aaaUserName, rName string) string
 		EOF
 	}
 	`, aaaUserName, rName, certificate_terraformuser)
+	return resource
+}
+
+func CreateAccx509CertificateConfigUpdatedData(aaaUserName, rName string) string {
+	fmt.Println("=== STEP  testing x509_certificate creation with invalid Data = ", rName)
+	resource := fmt.Sprintf(`
+	
+	resource "aci_local_user" "test" {
+		name 		= "%s"
+		pwd = "Test_coverage"
+	}
+	
+	resource "aci_x509_certificate" "test" {
+		local_user_dn  = aci_local_user.test.id
+		name  = "%s"
+		data = "%s"
+	}
+	`, aaaUserName, rName, rName)
 	return resource
 }
 

@@ -197,7 +197,7 @@ func testAccCheckAciErrorDisabledRecoveryIdEqual(m1, m2 *models.ErrorDisabledRec
 }
 
 func CreateAccErrorDisabledRecoveryConfig() string {
-	fmt.Println("=== STEP  Testing error_disable_recovery creation with required arguments only")
+	fmt.Println("=== STEP  Testing error_disable_recovery creation")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_error_disable_recovery" "test" {}

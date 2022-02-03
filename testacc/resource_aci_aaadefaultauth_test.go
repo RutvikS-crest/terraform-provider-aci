@@ -228,7 +228,7 @@ func testAccCheckAciDefaultAuthenticationIdEqual(m1, m2 *models.DefaultAuthentic
 }
 
 func CreateAccDefaultAuthenticationConfig() string {
-	fmt.Println("=== STEP  testing default_authentication creation with required arguments only")
+	fmt.Println("=== STEP  testing default_authentication creation")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_default_authentication" "test" {
