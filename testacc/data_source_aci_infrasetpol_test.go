@@ -61,7 +61,7 @@ func TestAccAciFabricWideSettingsPolicyDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccFabricWideSettingsPolicyConfigDataSource() string {
-	fmt.Println("=== STEP  testing fabric_wide_settings_policy Data Source with required arguments only")
+	fmt.Println("=== STEP  testing fabric_wide_settings_policy Data Source")
 	resource := fmt.Sprintf(`
 
 	resource "aci_fabric_wide_settings" "test" {

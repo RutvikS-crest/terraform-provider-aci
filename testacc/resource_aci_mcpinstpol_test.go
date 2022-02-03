@@ -394,7 +394,7 @@ func CreateMCPInstancePolicyWithoutRequired(key, attrName string) string {
 }
 
 func CreateAccMCPInstancePolicyConfig(key string) string {
-	fmt.Println("=== STEP  testing mcp_instance_policy creation with required arguments only")
+	fmt.Println("=== STEP  testing mcp_instance_policy creation")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_mcp_instance_policy" "test" {

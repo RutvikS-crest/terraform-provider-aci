@@ -257,7 +257,7 @@ func testAccCheckAciEndpointControlsIdEqual(m1, m2 *models.EndpointControlPolicy
 }
 
 func CreateAccEndpointControlsConfig() string {
-	fmt.Println("=== STEP  testing endpoint_controls creation with required arguments only")
+	fmt.Println("=== STEP  testing endpoint_controls creation")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_endpoint_controls" "test" {

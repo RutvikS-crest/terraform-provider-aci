@@ -77,7 +77,7 @@ func TestAccAciWebTokenDataDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccWebTokenDataConfigDataSource() string {
-	fmt.Println("=== STEP  testing global_security Data Source with required arguments only")
+	fmt.Println("=== STEP  testing global_security Data Source")
 	resource := fmt.Sprintf(`
 
 	resource "aci_global_security" "test" {

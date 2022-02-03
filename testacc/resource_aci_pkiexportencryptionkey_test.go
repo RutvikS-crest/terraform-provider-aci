@@ -206,7 +206,7 @@ func testAccCheckAciAESEncryptionPassphraseandKeysforConfigExportImportIdEqual(m
 }
 
 func CreateAccAESEncryptionPassphraseandKeysforConfigExportImportConfig() string {
-	fmt.Println("=== STEP  Basic: testing encryption_key creation with required parameters")
+	fmt.Println("=== STEP  Basic: testing encryption_key")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_encryption_key" "test" {}

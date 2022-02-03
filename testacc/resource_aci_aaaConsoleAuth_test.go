@@ -246,7 +246,7 @@ func testAccCheckAccAciConsoleAuthenticationIdEqual(m1, m2 *models.ConsoleAuthen
 }
 
 func CreateAccAciConsoleAuthenticationConfig() string {
-	fmt.Println("=== STEP  Testing console_authentication creation with required arguments only")
+	fmt.Println("=== STEP  Testing console_authentication creation")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_console_authentication" "test" {}
@@ -281,4 +281,3 @@ func CreateAccAciConsoleAuthenticationUpdatedAttr(attribute, value string) strin
 	`, attribute, value)
 	return resource
 }
-

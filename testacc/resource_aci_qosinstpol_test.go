@@ -393,7 +393,7 @@ func restoreQOSInstancePolicy(QOSInstancePolicy *models.QOSInstancePolicy) strin
 }
 
 func CreateAccQOSInstancePolicyConfig() string {
-	fmt.Println("=== STEP  testing qos_instance_policy creation with required arguments only")
+	fmt.Println("=== STEP  testing qos_instance_policy creation")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_qos_instance_policy" "test" {

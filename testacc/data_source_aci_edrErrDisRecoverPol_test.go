@@ -50,7 +50,7 @@ func TestAccAciErrorDisableRecoveryDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccErrorDisabledRecoveryConfigDataSource() string {
-	fmt.Println("=== STEP  Testing error_disable_recovery Data Source with required arguments only")
+	fmt.Println("=== STEP  Testing error_disable_recovery Data Source")
 	resource := fmt.Sprintf(`
 
 	resource "aci_error_disable_recovery" "test" {

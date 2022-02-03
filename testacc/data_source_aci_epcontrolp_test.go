@@ -53,7 +53,7 @@ func TestAccAciEndpointControlsDataSource_Basic(t *testing.T) {
 }
 
 func CreateAccEndpointControlsConfigDataSource() string {
-	fmt.Println("=== STEP  testing endpoint_controls Data Source with required arguments only")
+	fmt.Println("=== STEP  testing endpoint_controls Data Source")
 	resource := fmt.Sprintf(`
 	
 	resource "aci_endpoint_controls" "test" {
