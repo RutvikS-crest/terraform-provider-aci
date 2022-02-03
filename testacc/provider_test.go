@@ -63,6 +63,11 @@ const fabricNodeMemNodeId2 = "302"
 const fabricNodeMemNodeId3 = "303"
 const fabricNodeMemNodeId4 = "304"
 const fabricNodeMemNodeId5 = "306"
+const pathEp1 = "topology/pod-1/paths-101/pathep-[eth1/1]"
+const pathEp2 = "topology/pod-1/paths-101/pathep-[eth1/12]"
+const pathEp3 = "topology/pod-1/paths-101/pathep-[eth1/6]"
+const pathEp4 = "topology/pod-1/paths-101/pathep-[eth1/17]"
+const pathEp5 = "topology/pod-1/paths-101/pathep-[eth1/34]"
 
 func init() {
 	testAccProvider = aci.Provider()
