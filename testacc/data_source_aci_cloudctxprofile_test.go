@@ -37,9 +37,6 @@ func TestAccAciCloudContextProfileDataSource_Basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(dataSourceName, "name", resourceName, "name"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "description", resourceName, "description"),
 					resource.TestCheckResourceAttrPair(dataSourceName, "annotation", resourceName, "annotation"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "type", resourceName, "type"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "primary_cidr", resourceName, "primary_cidr"),
-					resource.TestCheckResourceAttrPair(dataSourceName, "region", resourceName, "region"),
 				),
 			},
 			{
