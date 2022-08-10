@@ -265,11 +265,6 @@ func resourceAciL3outBGPProtocolProfileRead(ctx context.Context, d *schema.Resou
 		d.SetId("")
 		return nil
 	}
-	_, err = setL3outBGPProtocolProfileAttributes(bgpProtP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	bgpRsBestPathCtrlPolData, err := aciClient.ReadRelationbgpRsBestPathCtrlPol(dn)
 	if err != nil {
@@ -286,6 +281,13 @@ func resourceAciL3outBGPProtocolProfileRead(ctx context.Context, d *schema.Resou
 	} else {
 		d.Set("relation_bgp_rs_bgp_node_ctx_pol", bgpRsBgpNodeCtxPolData)
 	}
+
+	_, err = setL3outBGPProtocolProfileAttributes(bgpProtP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 	return nil
 }

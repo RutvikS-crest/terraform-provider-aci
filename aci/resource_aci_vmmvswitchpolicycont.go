@@ -517,11 +517,6 @@ func resourceAciVSwitchPolicyGroupRead(ctx context.Context, d *schema.ResourceDa
 		d.SetId("")
 		return diag.FromErr(err)
 	}
-	_, err = setVSwitchPolicyGroupAttributes(vmmVSwitchPolicyCont, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	vmmRsVswitchExporterPolData, err := aciClient.ReadRelationvmmRsVswitchExporterPol(dn)
 	if err != nil {
@@ -595,6 +590,13 @@ func resourceAciVSwitchPolicyGroupRead(ctx context.Context, d *schema.ResourceDa
 	} else {
 		setRelationAttribute(d, "relation_vmm_rs_vswitch_override_stp_pol", vmmRsVswitchOverrideStpPolData.(string))
 	}
+
+	_, err = setVSwitchPolicyGroupAttributes(vmmVSwitchPolicyCont, d)
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 	return nil
 }

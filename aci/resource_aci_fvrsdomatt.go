@@ -602,12 +602,6 @@ func resourceAciDomainRead(ctx context.Context, d *schema.ResourceData, m interf
 		d.SetId("")
 		return nil
 	}
-	_, err = setDomainAttributes(fvRsDomAtt, d)
-
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	if d.Get("vmm_id") != nil {
 		vmmDn := d.Get("vmm_id").(string)
@@ -620,6 +614,12 @@ func resourceAciDomainRead(ctx context.Context, d *schema.ResourceData, m interf
 				return nil
 			}
 		}
+	}
+
+	_, err = setDomainAttributes(fvRsDomAtt, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

@@ -344,11 +344,6 @@ func resourceAciSpineAccessPortPolicyGroupRead(ctx context.Context, d *schema.Re
 		d.SetId("")
 		return nil
 	}
-	_, err = setSpineAccessPortPolicyGroupAttributes(infraSpAccPortGrp, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	infraRsHIfPolData, err := aciClient.ReadRelationinfraRsHIfPolFromSpineAccessPortPolicyGroup(dn)
 	if err != nil {
@@ -393,6 +388,12 @@ func resourceAciSpineAccessPortPolicyGroupRead(ctx context.Context, d *schema.Re
 
 	} else {
 		setRelationAttribute(d, "relation_infra_rs_macsec_if_pol", infraRsMacsecIfPolData.(string))
+	}
+
+	_, err = setSpineAccessPortPolicyGroupAttributes(infraSpAccPortGrp, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

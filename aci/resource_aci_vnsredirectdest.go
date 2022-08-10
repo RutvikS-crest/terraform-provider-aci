@@ -300,11 +300,7 @@ func resourceAciDestinationofredirectedtrafficRead(ctx context.Context, d *schem
 		d.SetId("")
 		return nil
 	}
-	_, err = setDestinationofredirectedtrafficAttributes(vnsRedirectDest, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
+
 	vnsRsRedirectHealthGroupData, err := aciClient.ReadRelationvnsRsRedirectHealthGroupFromDestinationofredirectedtraffic(dn)
 	if err != nil {
 		log.Printf("[DEBUG] Error while reading relation vnsRsRedirectHealthGroup %v", err)
@@ -312,6 +308,12 @@ func resourceAciDestinationofredirectedtrafficRead(ctx context.Context, d *schem
 
 	} else {
 		setRelationAttribute(d, "relation_vns_rs_redirect_health_group", vnsRsRedirectHealthGroupData.(string))
+	}
+
+	_, err = setDestinationofredirectedtrafficAttributes(vnsRedirectDest, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

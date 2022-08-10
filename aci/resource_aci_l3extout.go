@@ -505,11 +505,6 @@ func resourceAciL3OutsideRead(ctx context.Context, d *schema.ResourceData, m int
 		d.SetId("")
 		return nil
 	}
-	_, err = setL3OutsideAttributes(l3extOut, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	l3extRsDampeningPolData, err := aciClient.ReadRelationl3extRsDampeningPolFromL3Outside(dn)
 	if err != nil {
@@ -560,6 +555,12 @@ func resourceAciL3OutsideRead(ctx context.Context, d *schema.ResourceData, m int
 
 	} else {
 		setRelationAttribute(d, "relation_l3ext_rs_l3_dom_att", l3extRsL3DomAttData.(string))
+	}
+
+	_, err = setL3OutsideAttributes(l3extOut, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

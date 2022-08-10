@@ -266,18 +266,18 @@ func resourceAciBDDHCPLabelRead(ctx context.Context, d *schema.ResourceData, m i
 		return nil
 	}
 
-	_, err = setBDDHCPLabelAttributes(dhcpLbl, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
-
 	dhcpRsDhcpOptionPolData, err := aciClient.ReadRelationdhcpRsDhcpOptionPolFromBDDHCPLabel(dn)
 	if err != nil {
 		log.Printf("[DEBUG] Error while reading relation dhcpRsDhcpOptionPol %v", err)
 		d.Set("relation_dhcp_rs_dhcp_option_pol", "")
 	} else {
 		setRelationAttribute(d, "relation_dhcp_rs_dhcp_option_pol", dhcpRsDhcpOptionPolData.(string))
+	}
+
+	_, err = setBDDHCPLabelAttributes(dhcpLbl, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

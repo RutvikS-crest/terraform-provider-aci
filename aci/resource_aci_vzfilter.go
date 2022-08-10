@@ -302,11 +302,7 @@ func resourceAciFilterRead(ctx context.Context, d *schema.ResourceData, m interf
 		d.SetId("")
 		return nil
 	}
-	_, err = setFilterAttributes(vzFilter, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
+
 	vzRsFiltGraphAttData, err := aciClient.ReadRelationvzRsFiltGraphAttFromFilter(dn)
 	if err != nil {
 		log.Printf("[DEBUG] Error while reading relation vzRsFiltGraphAtt %v", err)
@@ -332,6 +328,12 @@ func resourceAciFilterRead(ctx context.Context, d *schema.ResourceData, m interf
 
 	} else {
 		setRelationAttribute(d, "relation_vz_rs_rev_r_flt_p_att", vzRsRevRFltPAttData.(string))
+	}
+
+	_, err = setFilterAttributes(vzFilter, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

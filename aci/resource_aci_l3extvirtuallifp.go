@@ -475,11 +475,6 @@ func resourceAciVirtualLogicalInterfaceProfileRead(ctx context.Context, d *schem
 		d.SetId("")
 		return nil
 	}
-	_, err = setVirtualLogicalInterfaceProfileAttributes(l3extVirtualLIfP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	l3extRsDynPathAttData, err := aciClient.ReadRelationl3extRsDynPathAttFromLogicalInterfaceProfile(dn)
 	if err != nil {
@@ -498,6 +493,12 @@ func resourceAciVirtualLogicalInterfaceProfileRead(ctx context.Context, d *schem
 			st = append(st, obj)
 		}
 		setRelationAttribute(d, "relation_l3ext_rs_dyn_path_att", st)
+	}
+
+	_, err = setVirtualLogicalInterfaceProfileAttributes(l3extVirtualLIfP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

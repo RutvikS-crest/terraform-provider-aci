@@ -462,11 +462,6 @@ func resourceAciLogicalInterfaceProfileRead(ctx context.Context, d *schema.Resou
 		d.SetId("")
 		return nil
 	}
-	_, err = setLogicalInterfaceProfileAttributes(l3extLIfP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	l3extRsLIfPToNetflowMonitorPolData, err := aciClient.ReadRelationl3extRsLIfPToNetflowMonitorPolFromLogicalInterfaceProfile(dn)
 	if err != nil {
@@ -527,6 +522,12 @@ func resourceAciLogicalInterfaceProfileRead(ctx context.Context, d *schema.Resou
 
 	} else {
 		setRelationAttribute(d, "relation_l3ext_rs_nd_if_pol", l3extRsNdIfPolData.(string))
+	}
+
+	_, err = setLogicalInterfaceProfileAttributes(l3extLIfP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

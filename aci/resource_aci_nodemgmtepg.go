@@ -1183,12 +1183,6 @@ func inBandManagementEPgRead(ctx context.Context, d *schema.ResourceData, m inte
 		d.SetId("")
 		return nil
 	}
-	_, err = setInBandManagementEPgAttributes(mgmtInB, d)
-
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	fvRsSecInheritedData, err := aciClient.ReadRelationfvRsSecInheritedFromInBandManagementEPg(dn)
 	if err != nil {
@@ -1257,6 +1251,14 @@ func inBandManagementEPgRead(ctx context.Context, d *schema.ResourceData, m inte
 	} else {
 		setRelationAttribute(d, "relation_fv_rs_intra_epg", toStringList(fvRsIntraEpgData.(*schema.Set).List()))
 	}
+
+	_, err = setInBandManagementEPgAttributes(mgmtInB, d)
+
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 
 	return nil
@@ -1269,12 +1271,6 @@ func outOfBandManagementEPgRead(ctx context.Context, d *schema.ResourceData, m i
 
 	dn := d.Id()
 	mgmtOoB, err := getRemoteOutOfBandManagementEPg(aciClient, dn)
-
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
-	_, err = setOutOfBandManagementEPgAttributes(mgmtOoB, d)
 
 	if err != nil {
 		d.SetId("")
@@ -1302,6 +1298,13 @@ func outOfBandManagementEPgRead(ctx context.Context, d *schema.ResourceData, m i
 
 	} else {
 		setRelationAttribute(d, "relation_mgmt_rs_oo_b_ctx", mgmtRsOoBCtxData.(string))
+	}
+
+	_, err = setOutOfBandManagementEPgAttributes(mgmtOoB, d)
+
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

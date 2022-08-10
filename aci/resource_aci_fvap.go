@@ -268,11 +268,6 @@ func resourceAciApplicationProfileRead(ctx context.Context, d *schema.ResourceDa
 		d.SetId("")
 		return nil
 	}
-	_, err = setApplicationProfileAttributes(fvAp, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	fvRsApMonPolData, err := aciClient.ReadRelationfvRsApMonPolFromApplicationProfile(dn)
 	if err != nil {
@@ -281,6 +276,12 @@ func resourceAciApplicationProfileRead(ctx context.Context, d *schema.ResourceDa
 
 	} else {
 		setRelationAttribute(d, "relation_fv_rs_ap_mon_pol", fvRsApMonPolData.(string))
+	}
+
+	_, err = setApplicationProfileAttributes(fvAp, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

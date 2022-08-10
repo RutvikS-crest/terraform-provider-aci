@@ -353,12 +353,6 @@ func resourceAciHSRPGroupProfileRead(ctx context.Context, d *schema.ResourceData
 		d.SetId("")
 		return nil
 	}
-	_, err = setHSRPGroupProfileAttributes(hsrpGroupP, d)
-
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	hsrpRsGroupPolData, err := aciClient.ReadRelationhsrpRsGroupPolFromHSRPGroupProfile(dn)
 	if err != nil {
@@ -366,6 +360,13 @@ func resourceAciHSRPGroupProfileRead(ctx context.Context, d *schema.ResourceData
 		d.Set("relation_hsrp_rs_group_pol", "")
 	} else {
 		setRelationAttribute(d, "relation_hsrp_rs_group_pol", hsrpRsGroupPolData.(string))
+	}
+
+	_, err = setHSRPGroupProfileAttributes(hsrpGroupP, d)
+
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

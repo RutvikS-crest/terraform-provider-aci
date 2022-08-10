@@ -413,7 +413,6 @@ func resourceAciRemotePathofaFileRead(ctx context.Context, d *schema.ResourceDat
 		d.SetId("")
 		return nil
 	}
-	setRemotePathofaFileAttributes(fileRemotePath, d)
 
 	fileRsARemoteHostToEpgData, err := aciClient.ReadRelationfileRsARemoteHostToEpg(dn)
 	if err != nil {
@@ -430,6 +429,9 @@ func resourceAciRemotePathofaFileRead(ctx context.Context, d *schema.ResourceDat
 	} else {
 		setRelationAttribute(d, "relation_file_rs_a_remote_host_to_epp", fileRsARemoteHostToEppData)
 	}
+
+	setRemotePathofaFileAttributes(fileRemotePath, d)
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 	return nil
 }

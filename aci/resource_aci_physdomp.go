@@ -320,11 +320,7 @@ func resourceAciPhysicalDomainRead(ctx context.Context, d *schema.ResourceData, 
 		d.SetId("")
 		return nil
 	}
-	_, err = setPhysicalDomainAttributes(physDomP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
+
 	infraRsVlanNsData, err := aciClient.ReadRelationinfraRsVlanNsFromPhysicalDomain(dn)
 	if err != nil {
 		log.Printf("[DEBUG] Error while reading relation infraRsVlanNs %v", err)
@@ -359,6 +355,12 @@ func resourceAciPhysicalDomainRead(ctx context.Context, d *schema.ResourceData, 
 
 	} else {
 		setRelationAttribute(d, "relation_infra_rs_dom_vxlan_ns_def", infraRsDomVxlanNsDefData.(string))
+	}
+
+	_, err = setPhysicalDomainAttributes(physDomP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

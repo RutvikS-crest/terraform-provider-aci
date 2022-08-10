@@ -450,11 +450,6 @@ func resourceAciContractSubjectRead(ctx context.Context, d *schema.ResourceData,
 		d.SetId("")
 		return nil
 	}
-	_, err = setContractSubjectAttributes(vzSubj, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	vzRsSubjGraphAttData, err := aciClient.ReadRelationvzRsSubjGraphAttFromContractSubject(dn)
 	if err != nil {
@@ -480,6 +475,12 @@ func resourceAciContractSubjectRead(ctx context.Context, d *schema.ResourceData,
 		setRelationAttribute(d, "relation_vz_rs_subj_filt_att", make([]interface{}, 0, 1))
 	} else {
 		setRelationAttribute(d, "relation_vz_rs_subj_filt_att", toStringList(vzRsSubjFiltAttData.(*schema.Set).List()))
+	}
+
+	_, err = setContractSubjectAttributes(vzSubj, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

@@ -851,11 +851,6 @@ func resourceAciExternalNetworkInstanceProfileRead(ctx context.Context, d *schem
 		d.SetId("")
 		return nil
 	}
-	_, err = setExternalNetworkInstanceProfileAttributes(l3extInstP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	fvRsSecInheritedData, err := aciClient.ReadRelationfvRsSecInheritedFromExternalNetworkInstanceProfile(dn)
 	if err != nil {
@@ -946,6 +941,12 @@ func resourceAciExternalNetworkInstanceProfileRead(ctx context.Context, d *schem
 		setRelationAttribute(d, "relation_fv_rs_intra_epg", make([]interface{}, 0, 1))
 	} else {
 		setRelationAttribute(d, "relation_fv_rs_intra_epg", toStringList(fvRsIntraEpgData.(*schema.Set).List()))
+	}
+
+	_, err = setExternalNetworkInstanceProfileAttributes(l3extInstP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

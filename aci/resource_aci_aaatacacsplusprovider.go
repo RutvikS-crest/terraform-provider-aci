@@ -366,11 +366,6 @@ func resourceAciTACACSProviderRead(ctx context.Context, d *schema.ResourceData, 
 		d.SetId("")
 		return nil
 	}
-	_, err = setTACACSProviderAttributes(aaaTacacsPlusProvider, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	aaaRsProvToEppData, err := aciClient.ReadRelationaaaRsProvToEpp(dn)
 	if err != nil {
@@ -387,6 +382,13 @@ func resourceAciTACACSProviderRead(ctx context.Context, d *schema.ResourceData, 
 	} else {
 		setRelationAttribute(d, "relation_aaa_rs_sec_prov_to_epg", aaaRsSecProvToEpgData)
 	}
+
+	_, err = setTACACSProviderAttributes(aaaTacacsPlusProvider, d)
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 	return nil
 }

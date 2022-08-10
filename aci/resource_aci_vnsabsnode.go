@@ -555,7 +555,6 @@ func resourceAciFunctionNodeRead(ctx context.Context, d *schema.ResourceData, m 
 		d.SetId("")
 		return nil
 	}
-	setFunctionNodeAttributes(vnsAbsNode, d)
 
 	consDn := d.Get("conn_consumer_dn").(string)
 	vnsAbsFuncConn, err := getRemoteFunctionConnector(aciClient, consDn)
@@ -612,6 +611,8 @@ func resourceAciFunctionNodeRead(ctx context.Context, d *schema.ResourceData, m 
 	} else {
 		setRelationAttribute(d, "relation_vns_rs_node_to_cloud_l_dev", vnsRsNodeToCloudLDevData.(string))
 	}
+
+	setFunctionNodeAttributes(vnsAbsNode, d)
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 

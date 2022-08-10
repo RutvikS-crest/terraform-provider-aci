@@ -993,11 +993,7 @@ func resourceAciContractRead(ctx context.Context, d *schema.ResourceData, m inte
 		d.SetId("")
 		return nil
 	}
-	_, err = setContractAttributes(vzBrCP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
+
 	filters := d.Get("filter_ids").([]interface{})
 	log.Println("Check ... :", filters)
 	vzFilters := make([]*models.Filter, 0, 1)
@@ -1017,11 +1013,7 @@ func resourceAciContractRead(ctx context.Context, d *schema.ResourceData, m inte
 			vzFilters = append(vzFilters, vzfilter)
 		}
 	}
-	_, err = setFilterAttributesFromContract(vzFilters, vzEntries, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
+
 	vzRsGraphAttData, err := aciClient.ReadRelationvzRsGraphAttFromContract(dn)
 	if err != nil {
 		log.Printf("[DEBUG] Error while reading relation vzRsGraphAtt %v", err)
@@ -1029,6 +1021,18 @@ func resourceAciContractRead(ctx context.Context, d *schema.ResourceData, m inte
 
 	} else {
 		setRelationAttribute(d, "relation_vz_rs_graph_att", vzRsGraphAttData.(string))
+	}
+
+	_, err = setFilterAttributesFromContract(vzFilters, vzEntries, d)
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+
+	_, err = setContractAttributes(vzBrCP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

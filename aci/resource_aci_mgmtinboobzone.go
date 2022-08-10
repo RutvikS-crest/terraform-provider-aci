@@ -599,11 +599,6 @@ func resourceAciInBManagedNodesZoneRead(ctx context.Context, d *schema.ResourceD
 		d.SetId("")
 		return nil
 	}
-	_, err = setInBManagedNodesZoneAttributes(mgmtInBZone, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	mgmtRsAddrInstData, err := aciClient.ReadRelationmgmtRsAddrInst(dn)
 	if err != nil {
@@ -628,6 +623,13 @@ func resourceAciInBManagedNodesZoneRead(ctx context.Context, d *schema.ResourceD
 	} else {
 		setRelationAttribute(d, "relation_mgmt_rs_inb_epg", mgmtRsInbEpgData)
 	}
+
+	_, err = setInBManagedNodesZoneAttributes(mgmtInBZone, d)
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 	return nil
 }
@@ -637,11 +639,6 @@ func resourceAciOOBManagedNodesZoneRead(ctx context.Context, d *schema.ResourceD
 	aciClient := m.(*client.Client)
 	dn := d.Id()
 	mgmtOoBZone, err := getRemoteOOBManagedNodesZone(aciClient, dn)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
-	_, err = setOOBManagedNodesZoneAttributes(mgmtOoBZone, d)
 	if err != nil {
 		d.SetId("")
 		return nil
@@ -670,6 +667,13 @@ func resourceAciOOBManagedNodesZoneRead(ctx context.Context, d *schema.ResourceD
 	} else {
 		setRelationAttribute(d, "relation_mgmt_rs_oob_epg", mgmtRsOobEpgData)
 	}
+
+	_, err = setOOBManagedNodesZoneAttributes(mgmtOoBZone, d)
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 	return nil
 }

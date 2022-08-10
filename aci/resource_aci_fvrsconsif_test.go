@@ -142,10 +142,6 @@ func testAccCheckAciContractInterfaceRelationshipAttributes(fv_tenant_name, fv_a
 		if fv_rs_cons_if_name != GetMOName(contract_interface.DistinguishedName) {
 			return fmt.Errorf("Bad fv_rs_cons_if %s", GetMOName(contract_interface.DistinguishedName))
 		}
-
-		if fv_ae_pg_name != GetMOName(GetParentDn(contract_interface.DistinguishedName)) {
-			return fmt.Errorf(" Bad fvae_pg %s", GetMOName(GetParentDn(contract_interface.DistinguishedName)))
-		}
 		return nil
 	}
 }

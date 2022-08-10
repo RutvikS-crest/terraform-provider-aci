@@ -259,12 +259,6 @@ func resourceAciSpineAccessPortSelectorRead(ctx context.Context, d *schema.Resou
 		return nil
 	}
 
-	_, err = setSpineAccessPortSelectorAttributes(infraSHPortS, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
-
 	infraRsSpAccGrpData, err := aciClient.ReadRelationinfraRsSpAccGrp(dn)
 	if err != nil {
 		log.Printf("[DEBUG] Error while reading relation infraRsSpAccGrp %v", err)
@@ -277,6 +271,13 @@ func resourceAciSpineAccessPortSelectorRead(ctx context.Context, d *schema.Resou
 			}
 		}
 	}
+
+	_, err = setSpineAccessPortSelectorAttributes(infraSHPortS, d)
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 	return nil
 }

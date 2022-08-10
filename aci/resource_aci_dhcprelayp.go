@@ -316,11 +316,6 @@ func resourceAciDHCPRelayPolicyRead(ctx context.Context, d *schema.ResourceData,
 		d.SetId("")
 		return nil
 	}
-	_, err = setDHCPRelayPolicyAttributes(dhcpRelayP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	dhcpRsProvData, err := aciClient.ReadRelationdhcpRsProvFromDHCPRelayPolicy(dn)
 
@@ -338,6 +333,12 @@ func resourceAciDHCPRelayPolicyRead(ctx context.Context, d *schema.ResourceData,
 			})
 		}
 		d.Set("relation_dhcp_rs_prov", st)
+	}
+
+	_, err = setDHCPRelayPolicyAttributes(dhcpRelayP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

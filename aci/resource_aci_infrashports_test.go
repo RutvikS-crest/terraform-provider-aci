@@ -6,6 +6,7 @@ import (
 
 	"github.com/ciscoecosystem/aci-go-client/client"
 	"github.com/ciscoecosystem/aci-go-client/models"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
@@ -127,10 +128,6 @@ func testAccCheckAciSpineAccessPortSelectorAttributes(infra_sp_acc_port_p_name, 
 	return func(s *terraform.State) error {
 		if infra_sh_port_s_name != GetMOName(spine_access_port_selector.DistinguishedName) {
 			return fmt.Errorf("Bad infrash_port_s %s", GetMOName(spine_access_port_selector.DistinguishedName))
-		}
-
-		if infra_sp_acc_port_p_name != GetMOName(GetParentDn(spine_access_port_selector.DistinguishedName)) {
-			return fmt.Errorf(" Bad infra_sp_acc_port_p %s", GetMOName(GetParentDn(spine_access_port_selector.DistinguishedName)))
 		}
 		if description != spine_access_port_selector.Description {
 			return fmt.Errorf("Bad spine_access_port_selector Description %s", spine_access_port_selector.Description)

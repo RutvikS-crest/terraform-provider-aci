@@ -404,11 +404,6 @@ func resourceAciConnectionRead(ctx context.Context, d *schema.ResourceData, m in
 		d.SetId("")
 		return nil
 	}
-	_, err = setConnectionAttributes(vnsAbsConnection, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	vnsRsAbsCopyConnectionData, err := aciClient.ReadRelationvnsRsAbsCopyConnectionFromConnection(dn)
 	if err != nil {
@@ -424,6 +419,12 @@ func resourceAciConnectionRead(ctx context.Context, d *schema.ResourceData, m in
 		setRelationAttribute(d, "relation_vns_rs_abs_connection_conns", make([]interface{}, 0, 1))
 	} else {
 		setRelationAttribute(d, "relation_vns_rs_abs_connection_conns", toStringList(vnsRsAbsConnectionConnsData.(*schema.Set).List()))
+	}
+
+	_, err = setConnectionAttributes(vnsAbsConnection, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

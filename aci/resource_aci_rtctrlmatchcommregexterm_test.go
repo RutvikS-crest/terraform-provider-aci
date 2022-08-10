@@ -138,9 +138,6 @@ func testAccCheckAciMatchRuleBasedonCommunityRegularExpressionAttributes(fv_tena
 			return fmt.Errorf("Bad rtctrl_match_comm_regex_term %s", GetMOName(match_rule_basedon_community_regular_expression.DistinguishedName))
 		}
 
-		if rtctrl_subj_p_name != GetMOName(GetParentDn(match_rule_basedon_community_regular_expression.DistinguishedName)) {
-			return fmt.Errorf(" Bad rtctrl_subj_p %s", GetMOName(GetParentDn(match_rule_basedon_community_regular_expression.DistinguishedName)))
-		}
 		if description != match_rule_basedon_community_regular_expression.Description {
 			return fmt.Errorf("Bad match_rule_basedon_community_regular_expression Description %s", match_rule_basedon_community_regular_expression.Description)
 		}

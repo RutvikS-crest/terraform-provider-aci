@@ -698,11 +698,6 @@ func resourceAciVRFRead(ctx context.Context, d *schema.ResourceData, m interface
 		d.SetId("")
 		return nil
 	}
-	_, err = setVRFAttributes(fvCtx, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	fvRsOspfCtxPolData, err := aciClient.ReadRelationfvRsOspfCtxPolFromVRF(dn)
 	if err != nil {
@@ -812,6 +807,12 @@ func resourceAciVRFRead(ctx context.Context, d *schema.ResourceData, m interface
 			})
 		}
 		d.Set("relation_fv_rs_ctx_to_bgp_ctx_af_pol", relParamList)
+	}
+
+	_, err = setVRFAttributes(fvCtx, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

@@ -419,11 +419,6 @@ func resourceAciMaintenancePolicyRead(ctx context.Context, d *schema.ResourceDat
 		d.SetId("")
 		return nil
 	}
-	_, err = setMaintenancePolicyAttributes(maintMaintP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	maintRsPolSchedulerData, err := aciClient.ReadRelationmaintRsPolSchedulerFromMaintenancePolicy(dn)
 	if err != nil {
@@ -450,6 +445,12 @@ func resourceAciMaintenancePolicyRead(ctx context.Context, d *schema.ResourceDat
 
 	} else {
 		setRelationAttribute(d, "relation_trig_rs_triggerable", trigRsTriggerableData.(string))
+	}
+
+	_, err = setMaintenancePolicyAttributes(maintMaintP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

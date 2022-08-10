@@ -608,11 +608,7 @@ func resourceAciLeafProfileRead(ctx context.Context, d *schema.ResourceData, m i
 		d.SetId("")
 		return nil
 	}
-	_, err = setLeafProfileAttributes(infraNodeP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
+
 	leafSelectors := make([]*models.SwitchAssociation, 0, 1)
 	nodeBlocks := make([]*models.NodeBlock, 0, 1)
 	selectors := d.Get("leaf_selector_ids").([]interface{})
@@ -637,11 +633,7 @@ func resourceAciLeafProfileRead(ctx context.Context, d *schema.ResourceData, m i
 			leafSelectors = append(leafSelectors, selector)
 		}
 	}
-	_, err = setLeafSelectorAttributesFromLeafP(leafSelectors, nodeBlocks, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
+
 	infraRsAccCardPData, err := aciClient.ReadRelationinfraRsAccCardPFromLeafProfile(dn)
 	log.Printf("[TRACE] infraRsAccCardP %v", infraRsAccCardPData)
 	if err != nil {
@@ -657,6 +649,18 @@ func resourceAciLeafProfileRead(ctx context.Context, d *schema.ResourceData, m i
 		setRelationAttribute(d, "relation_infra_rs_acc_port_p", make([]interface{}, 0, 1))
 	} else {
 		setRelationAttribute(d, "relation_infra_rs_acc_port_p", toStringList(infraRsAccPortPData.(*schema.Set).List()))
+	}
+
+	_, err = setLeafSelectorAttributesFromLeafP(leafSelectors, nodeBlocks, d)
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+
+	_, err = setLeafProfileAttributes(infraNodeP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

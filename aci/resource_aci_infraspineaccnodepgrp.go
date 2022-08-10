@@ -389,7 +389,6 @@ func resourceAciSpineSwitchPolicyGroupRead(ctx context.Context, d *schema.Resour
 		d.SetId("")
 		return nil
 	}
-	setSpineSwitchPolicyGroupAttributes(infraSpineAccNodePGrp, d)
 
 	infraRsIaclSpineProfileData, err := aciClient.ReadRelationinfraRsIaclSpineProfile(dn)
 	if err != nil {
@@ -468,6 +467,9 @@ func resourceAciSpineSwitchPolicyGroupRead(ctx context.Context, d *schema.Resour
 			}
 		}
 	}
+
+	setSpineSwitchPolicyGroupAttributes(infraSpineAccNodePGrp, d)
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 	return nil
 }

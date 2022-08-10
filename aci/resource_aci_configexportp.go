@@ -419,11 +419,7 @@ func resourceAciConfigurationExportPolicyRead(ctx context.Context, d *schema.Res
 		d.SetId("")
 		return nil
 	}
-	_, err = setConfigurationExportPolicyAttributes(configExportP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
+
 	configRsExportDestinationData, err := aciClient.ReadRelationconfigRsExportDestinationFromConfigurationExportPolicy(dn)
 	if err != nil {
 		log.Printf("[DEBUG] Error while reading relation configRsExportDestination %v", err)
@@ -458,6 +454,12 @@ func resourceAciConfigurationExportPolicyRead(ctx context.Context, d *schema.Res
 
 	} else {
 		setRelationAttribute(d, "relation_config_rs_export_scheduler", configRsExportSchedulerData.(string))
+	}
+
+	_, err = setConfigurationExportPolicyAttributes(configExportP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

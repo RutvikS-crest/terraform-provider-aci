@@ -292,11 +292,7 @@ func resourceAciL3outStaticRouteRead(ctx context.Context, d *schema.ResourceData
 		d.SetId("")
 		return nil
 	}
-	_, err = setL3outStaticRouteAttributes(ipRouteP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
+
 	ipRsRouteTrackData, err := aciClient.ReadRelationipRsRouteTrackFromL3outStaticRoute(dn)
 	if err != nil {
 		log.Printf("[DEBUG] Error while reading relation ipRsRouteTrack %v", err)
@@ -304,6 +300,12 @@ func resourceAciL3outStaticRouteRead(ctx context.Context, d *schema.ResourceData
 
 	} else {
 		setRelationAttribute(d, "relation_ip_rs_route_track", ipRsRouteTrackData.(string))
+	}
+
+	_, err = setL3outStaticRouteAttributes(ipRouteP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

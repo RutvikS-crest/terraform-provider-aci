@@ -1188,13 +1188,6 @@ func resourceAciBridgeDomainRead(ctx context.Context, d *schema.ResourceData, m 
 		fvBD.EpMoveDetectMode = "disable"
 	}
 
-	_, err = setBridgeDomainAttributes(fvBD, d)
-
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
-
 	fvRsBDToProfileData, err := aciClient.ReadRelationfvRsBDToProfileFromBridgeDomain(dn)
 	if err != nil {
 		log.Printf("[DEBUG] Error while reading relation fvRsBDToProfile %v", err)
@@ -1306,6 +1299,13 @@ func resourceAciBridgeDomainRead(ctx context.Context, d *schema.ResourceData, m 
 		setRelationAttribute(d, "relation_fv_rs_bd_to_out", make([]interface{}, 0, 1))
 	} else {
 		setRelationAttribute(d, "relation_fv_rs_bd_to_out", toStringList(fvRsBDToOutData.(*schema.Set).List()))
+	}
+
+	_, err = setBridgeDomainAttributes(fvBD, d)
+
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

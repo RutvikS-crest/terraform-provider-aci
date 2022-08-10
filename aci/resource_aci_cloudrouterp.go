@@ -327,12 +327,6 @@ func resourceAciCloudVpnGatewayRead(ctx context.Context, d *schema.ResourceData,
 		d.SetId("")
 		return nil
 	}
-	_, err = setCloudVpnGatewayAttributes(cloudRouterP, d)
-
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	cloudRsToVpnGwPolData, err := aciClient.ReadRelationcloudRsToVpnGwPolFromCloudVpnGateway(dn)
 	if err != nil {
@@ -361,6 +355,12 @@ func resourceAciCloudVpnGatewayRead(ctx context.Context, d *schema.ResourceData,
 		setRelationAttribute(d, "relation_cloud_rs_to_host_router_pol", cloudRsToHostRouterPolData.(string))
 	}
 
+	_, err = setCloudVpnGatewayAttributes(cloudRouterP, d)
+
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 
 	return nil

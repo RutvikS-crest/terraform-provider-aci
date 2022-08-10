@@ -240,12 +240,6 @@ func resourceAciL3outHSRPInterfaceProfileRead(ctx context.Context, d *schema.Res
 		d.SetId("")
 		return nil
 	}
-	_, err = setL3outHSRPInterfaceProfileAttributes(hsrpIfP, d)
-
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	hsrpRsIfPolData, err := aciClient.ReadRelationhsrpRsIfPolFromL3outHSRPInterfaceProfile(dn)
 	if err != nil {
@@ -254,6 +248,13 @@ func resourceAciL3outHSRPInterfaceProfileRead(ctx context.Context, d *schema.Res
 
 	} else {
 		setRelationAttribute(d, "relation_hsrp_rs_if_pol", hsrpRsIfPolData.(string))
+	}
+
+	_, err = setL3outHSRPInterfaceProfileAttributes(hsrpIfP, d)
+
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

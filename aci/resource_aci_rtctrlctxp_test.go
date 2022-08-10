@@ -137,10 +137,6 @@ func testAccCheckAciRouteControlContextAttributes(fv_tenant_name, rtctrl_profile
 		if rtctrl_ctx_p_name != GetMOName(route_control_context.DistinguishedName) {
 			return fmt.Errorf("Bad rtctrl_ctx_p %s", GetMOName(route_control_context.DistinguishedName))
 		}
-
-		if rtctrl_profile_name != GetMOName(GetParentDn(route_control_context.DistinguishedName)) {
-			return fmt.Errorf(" Bad rtctrl_profile %s", GetMOName(GetParentDn(route_control_context.DistinguishedName)))
-		}
 		if description != route_control_context.Description {
 			return fmt.Errorf("Bad route_control_context Description %s", route_control_context.Description)
 		}

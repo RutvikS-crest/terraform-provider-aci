@@ -358,11 +358,6 @@ func resourceAciErrorDisabledRecoveryPolicyRead(ctx context.Context, d *schema.R
 		d.SetId("")
 		return nil
 	}
-	_, err = setErrorDisabledRecoveryPolicyAttributes(edrErrDisRecoverPol, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	events := d.Get("edr_event_ids").([]interface{})
 	edrEvents := make([]*models.ErrorDisabledRecoveryEvent, 0, 1)
@@ -377,6 +372,12 @@ func resourceAciErrorDisabledRecoveryPolicyRead(ctx context.Context, d *schema.R
 	}
 
 	_, err = setErrorDisabledRecoveryEventAttributes(edrEvents, d)
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+
+	_, err = setErrorDisabledRecoveryPolicyAttributes(edrErrDisRecoverPol, d)
 	if err != nil {
 		d.SetId("")
 		return nil

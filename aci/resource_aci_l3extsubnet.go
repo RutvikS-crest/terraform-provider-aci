@@ -405,11 +405,6 @@ func resourceAciL3ExtSubnetRead(ctx context.Context, d *schema.ResourceData, m i
 		d.SetId("")
 		return nil
 	}
-	_, err = setL3ExtSubnetAttributes(l3extSubnet, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	l3extRsSubnetToProfileData, err := aciClient.ReadRelationl3extRsSubnetToProfileFromL3ExtSubnet(dn)
 	if err != nil {
@@ -434,6 +429,12 @@ func resourceAciL3ExtSubnetRead(ctx context.Context, d *schema.ResourceData, m i
 
 	} else {
 		setRelationAttribute(d, "relation_l3ext_rs_subnet_to_rt_summ", l3extRsSubnetToRtSummData.(string))
+	}
+
+	_, err = setL3ExtSubnetAttributes(l3extSubnet, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

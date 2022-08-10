@@ -748,11 +748,6 @@ func resourceAciL2outExternalEpgRead(ctx context.Context, d *schema.ResourceData
 		d.SetId("")
 		return nil
 	}
-	_, err = setL2outExternalEpgAttributes(l2extInstP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	fvRsSecInheritedData, err := aciClient.ReadRelationfvRsSecInheritedFromL2outExternalEpg(dn)
 	if err != nil {
@@ -814,6 +809,13 @@ func resourceAciL2outExternalEpgRead(ctx context.Context, d *schema.ResourceData
 	} else {
 		setRelationAttribute(d, "relation_fv_rs_intra_epg", toStringList(fvRsIntraEpgData.(*schema.Set).List()))
 	}
+
+	_, err = setL2outExternalEpgAttributes(l2extInstP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 
 	return nil

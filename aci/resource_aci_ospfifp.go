@@ -267,11 +267,6 @@ func resourceAciOSPFInterfaceProfileRead(ctx context.Context, d *schema.Resource
 		d.SetId("")
 		return nil
 	}
-	_, err = setOSPFInterfaceProfileAttributes(ospfIfP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	ospfRsIfPolData, err := aciClient.ReadRelationospfRsIfPolFromInterfaceProfile(dn)
 	if err != nil {
@@ -280,6 +275,12 @@ func resourceAciOSPFInterfaceProfileRead(ctx context.Context, d *schema.Resource
 
 	} else {
 		setRelationAttribute(d, "relation_ospf_rs_if_pol", ospfRsIfPolData.(string))
+	}
+
+	_, err = setOSPFInterfaceProfileAttributes(ospfIfP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

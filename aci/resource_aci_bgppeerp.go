@@ -713,11 +713,6 @@ func resourceAciBgpPeerConnectivityProfileRead(ctx context.Context, d *schema.Re
 		d.SetId("")
 		return nil
 	}
-	_, err = setBgpPeerConnectivityProfileAttributes(bgpPeerP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	if _, ok := d.GetOk("as_number"); ok {
 		bgpAsP, err := getRemoteBgpAutonomousSystemProfileFromBgpPeerConnectivityProfile(aciClient, fmt.Sprintf("%s/as", dn))
@@ -751,6 +746,12 @@ func resourceAciBgpPeerConnectivityProfileRead(ctx context.Context, d *schema.Re
 		log.Printf("[DEBUG] Error while reading relation bgpRsPeerToProfile %v", err)
 	} else {
 		setRelationAttribute(d, "relation_bgp_rs_peer_to_profile", bgpRsPeerToProfileData)
+	}
+
+	_, err = setBgpPeerConnectivityProfileAttributes(bgpPeerP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

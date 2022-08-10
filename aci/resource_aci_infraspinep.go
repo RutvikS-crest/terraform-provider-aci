@@ -530,11 +530,7 @@ func resourceAciSpineProfileRead(ctx context.Context, d *schema.ResourceData, m 
 		d.SetId("")
 		return nil
 	}
-	_, err = setSpineProfileAttributes(infraSpineP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
+
 	spineSelectors := make([]*models.SwitchSpineAssociation, 0, 1)
 	nodeBlocks := make([]*models.NodeBlock, 0, 1)
 	selectors := d.Get("spine_selector_ids").([]interface{})
@@ -575,6 +571,11 @@ func resourceAciSpineProfileRead(ctx context.Context, d *schema.ResourceData, m 
 		setRelationAttribute(d, "relation_infra_rs_sp_acc_port_p", toStringList(infraRsSpAccPortPData.(*schema.Set).List()))
 	}
 
+	_, err = setSpineProfileAttributes(infraSpineP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 
 	return nil

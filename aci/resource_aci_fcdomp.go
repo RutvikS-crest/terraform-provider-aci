@@ -458,11 +458,6 @@ func resourceAciFCDomainRead(ctx context.Context, d *schema.ResourceData, m inte
 		d.SetId("")
 		return nil
 	}
-	_, err = setFCDomainAttributes(fcDomP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	infraRsVlanNsData, err := aciClient.ReadRelationinfraRsVlanNsFromFCDomain(dn)
 	if err != nil {
@@ -534,6 +529,12 @@ func resourceAciFCDomainRead(ctx context.Context, d *schema.ResourceData, m inte
 
 	} else {
 		setRelationAttribute(d, "relation_fc_rs_vsan_ns_def", fcRsVsanNsDefData.(string))
+	}
+
+	_, err = setFCDomainAttributes(fcDomP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

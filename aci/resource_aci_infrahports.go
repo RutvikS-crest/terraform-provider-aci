@@ -264,11 +264,6 @@ func resourceAciAccessPortSelectorRead(ctx context.Context, d *schema.ResourceDa
 		d.SetId("")
 		return nil
 	}
-	_, err = setAccessPortSelectorAttributes(infraHPortS, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	infraRsAccBaseGrpData, err := aciClient.ReadRelationinfraRsAccBaseGrpFromAccessPortSelector(dn)
 	if err != nil {
@@ -277,6 +272,12 @@ func resourceAciAccessPortSelectorRead(ctx context.Context, d *schema.ResourceDa
 
 	} else {
 		setRelationAttribute(d, "relation_infra_rs_acc_base_grp", infraRsAccBaseGrpData.(string))
+	}
+
+	_, err = setAccessPortSelectorAttributes(infraHPortS, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

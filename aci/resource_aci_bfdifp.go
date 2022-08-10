@@ -265,11 +265,6 @@ func resourceAciBFDInterfaceProfileRead(ctx context.Context, d *schema.ResourceD
 		d.SetId("")
 		return nil
 	}
-	_, err = setBFDInterfaceProfileAttributes(bfdIfP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	bfdRsIfPolData, err := aciClient.ReadRelationbfdRsIfPolFromInterfaceProfile(dn)
 	if err != nil {
@@ -278,6 +273,12 @@ func resourceAciBFDInterfaceProfileRead(ctx context.Context, d *schema.ResourceD
 
 	} else {
 		setRelationAttribute(d, "relation_bfd_rs_if_pol", bfdRsIfPolData)
+	}
+
+	_, err = setBFDInterfaceProfileAttributes(bfdIfP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

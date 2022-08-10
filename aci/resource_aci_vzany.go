@@ -411,11 +411,6 @@ func resourceAciAnyRead(ctx context.Context, d *schema.ResourceData, m interface
 		d.SetId("")
 		return nil
 	}
-	_, err = setAnyAttributes(vzAny, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	vzRsAnyToConsData, err := aciClient.ReadRelationvzRsAnyToConsFromAny(dn)
 	if err != nil {
@@ -439,6 +434,12 @@ func resourceAciAnyRead(ctx context.Context, d *schema.ResourceData, m interface
 		setRelationAttribute(d, "relation_vz_rs_any_to_prov", make([]interface{}, 0, 1))
 	} else {
 		setRelationAttribute(d, "relation_vz_rs_any_to_prov", toStringList(vzRsAnyToProvData.(*schema.Set).List()))
+	}
+
+	_, err = setAnyAttributes(vzAny, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

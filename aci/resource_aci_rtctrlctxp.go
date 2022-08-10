@@ -337,11 +337,6 @@ func resourceAciRouteControlContextRead(ctx context.Context, d *schema.ResourceD
 		d.SetId("")
 		return nil
 	}
-	_, err = setRouteControlContextAttributes(rtctrlCtxP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	rtctrlRsCtxPToSubjPData, err := aciClient.ReadRelationrtctrlRsCtxPToSubjP(dn)
 	if err != nil {
@@ -363,6 +358,13 @@ func resourceAciRouteControlContextRead(ctx context.Context, d *schema.ResourceD
 			}
 		}
 	}
+
+	_, err = setRouteControlContextAttributes(rtctrlCtxP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 	return nil
 }

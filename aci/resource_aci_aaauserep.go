@@ -623,11 +623,6 @@ func resourceAciUserManagementRead(ctx context.Context, d *schema.ResourceData, 
 		d.SetId("")
 		return nil
 	}
-	_, err = setUserManagementAttributes(aaaUserEp, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	_, err = aciClient.Get(dn + "/pwdprofile")
 	if err == nil {
@@ -675,6 +670,13 @@ func resourceAciUserManagementRead(ctx context.Context, d *schema.ResourceData, 
 	} else {
 		setRelationAttribute(d, "relation_aaa_rs_to_user_ep", aaaRsToUserEpData)
 	}
+
+	_, err = setUserManagementAttributes(aaaUserEp, d)
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 	return nil
 }

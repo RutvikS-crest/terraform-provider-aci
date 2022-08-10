@@ -725,11 +725,6 @@ func resourceAciEndpointSecurityGroupRead(ctx context.Context, d *schema.Resourc
 		d.SetId("")
 		return diag.FromErr(err)
 	}
-	_, err = setEndpointSecurityGroupAttributes(fvESg, d)
-	if err != nil {
-		d.SetId("")
-		return diag.FromErr(err)
-	}
 
 	fvRsConsData, err := aciClient.ReadRelationfvRsCons(dn)
 	if err != nil {
@@ -813,6 +808,13 @@ func resourceAciEndpointSecurityGroupRead(ctx context.Context, d *schema.Resourc
 	} else {
 		setRelationAttribute(d, "relation_fv_rs_sec_inherited", toStringList(fvRsSecInheritedData.(*schema.Set).List()))
 	}
+
+	_, err = setEndpointSecurityGroupAttributes(fvESg, d)
+	if err != nil {
+		d.SetId("")
+		return diag.FromErr(err)
+	}
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 	return nil
 }

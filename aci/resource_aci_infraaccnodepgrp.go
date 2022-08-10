@@ -846,7 +846,6 @@ func resourceAciAccessSwitchPolicyGroupRead(ctx context.Context, d *schema.Resou
 		d.SetId("")
 		return nil
 	}
-	setAccessSwitchPolicyGroupAttributes(infraAccNodePGrp, d)
 
 	infraRsBfdIpv4InstPolData, err := aciClient.ReadRelationinfraRsBfdIpv4InstPol(dn)
 	if err != nil {
@@ -1081,6 +1080,9 @@ func resourceAciAccessSwitchPolicyGroupRead(ctx context.Context, d *schema.Resou
 			}
 		}
 	}
+
+	setAccessSwitchPolicyGroupAttributes(infraAccNodePGrp, d)
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 	return nil
 }

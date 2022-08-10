@@ -340,12 +340,6 @@ func resourceAciAccessPortBlockRead(ctx context.Context, d *schema.ResourceData,
 		d.SetId("")
 		return nil
 	}
-	_, err = setAccessPortBlockAttributes(infraPortBlk, d)
-
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	infraRsAccBndlSubgrpData, err := aciClient.ReadRelationinfraRsAccBndlSubgrpFromAccessPortBlock(dn)
 	if err != nil {
@@ -354,6 +348,13 @@ func resourceAciAccessPortBlockRead(ctx context.Context, d *schema.ResourceData,
 
 	} else {
 		setRelationAttribute(d, "relation_infra_rs_acc_bndl_subgrp", infraRsAccBndlSubgrpData.(string))
+	}
+
+	_, err = setAccessPortBlockAttributes(infraPortBlk, d)
+
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

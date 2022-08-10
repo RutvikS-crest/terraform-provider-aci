@@ -233,7 +233,6 @@ func resourceAciFirmwareGroupRead(ctx context.Context, d *schema.ResourceData, m
 		d.SetId("")
 		return nil
 	}
-	setFirmwareGroupAttributes(firmwareFwGrp, d)
 
 	firmwareRsFwgrppData, err := aciClient.ReadRelationfirmwareRsFwgrppFromFirmwareGroup(dn)
 	if err != nil {
@@ -243,6 +242,8 @@ func resourceAciFirmwareGroupRead(ctx context.Context, d *schema.ResourceData, m
 	} else {
 		setRelationAttribute(d, "relation_firmware_rs_fwgrpp", firmwareRsFwgrppData.(string))
 	}
+
+	setFirmwareGroupAttributes(firmwareFwGrp, d)
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 

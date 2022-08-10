@@ -310,11 +310,6 @@ func resourceAciL2OutsideRead(ctx context.Context, d *schema.ResourceData, m int
 		d.SetId("")
 		return nil
 	}
-	_, err = setL2OutsideAttributes(l2extOut, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	l2extRsEBdData, err := aciClient.ReadRelationl2extRsEBdFromL2Outside(dn)
 	if err != nil {
@@ -332,6 +327,12 @@ func resourceAciL2OutsideRead(ctx context.Context, d *schema.ResourceData, m int
 
 	} else {
 		setRelationAttribute(d, "relation_l2ext_rs_l2_dom_att", l2extRsL2DomAttData.(string))
+	}
+
+	_, err = setL2OutsideAttributes(l2extOut, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

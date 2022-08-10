@@ -258,7 +258,6 @@ func resourceAciSwitchAssociationRead(ctx context.Context, d *schema.ResourceDat
 		d.SetId("")
 		return nil
 	}
-	setSwitchAssociationAttributes(infraLeafS, d)
 
 	infraRsAccNodePGrpData, err := aciClient.ReadRelationinfraRsAccNodePGrpFromSwitchAssociation(dn)
 	if err != nil {
@@ -268,6 +267,8 @@ func resourceAciSwitchAssociationRead(ctx context.Context, d *schema.ResourceDat
 	} else {
 		setRelationAttribute(d, "relation_infra_rs_acc_node_p_grp", infraRsAccNodePGrpData.(string))
 	}
+
+	setSwitchAssociationAttributes(infraLeafS, d)
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 

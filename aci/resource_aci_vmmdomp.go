@@ -862,11 +862,6 @@ func resourceAciVMMDomainRead(ctx context.Context, d *schema.ResourceData, m int
 		d.SetId("")
 		return nil
 	}
-	_, err = setVMMDomainAttributes(vmmDomP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	vmmRsPrefEnhancedLagPolData, err := aciClient.ReadRelationvmmRsPrefEnhancedLagPolFromVMMDomain(dn)
 	if err != nil {
@@ -974,6 +969,12 @@ func resourceAciVMMDomainRead(ctx context.Context, d *schema.ResourceData, m int
 
 	} else {
 		setRelationAttribute(d, "relation_vmm_rs_default_l2_inst_pol", vmmRsDefaultL2InstPolData.(string))
+	}
+
+	_, err = setVMMDomainAttributes(vmmDomP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

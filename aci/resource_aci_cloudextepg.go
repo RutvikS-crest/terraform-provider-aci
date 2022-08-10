@@ -743,12 +743,6 @@ func resourceAciCloudExternalEPgRead(ctx context.Context, d *schema.ResourceData
 		d.SetId("")
 		return nil
 	}
-	_, err = setCloudExternalEPgAttributes(cloudExtEPg, d)
-
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	fvRsSecInheritedData, err := aciClient.ReadRelationfvRsSecInheritedFromCloudExternalEPg(dn)
 	if err != nil {
@@ -814,6 +808,12 @@ func resourceAciCloudExternalEPgRead(ctx context.Context, d *schema.ResourceData
 		setRelationAttribute(d, "relation_fv_rs_intra_epg", make([]interface{}, 0, 1))
 	} else {
 		setRelationAttribute(d, "relation_fv_rs_intra_epg", toStringList(fvRsIntraEpgData.(*schema.Set).List()))
+	}
+
+	_, err = setCloudExternalEPgAttributes(cloudExtEPg, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

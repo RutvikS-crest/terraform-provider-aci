@@ -27,7 +27,6 @@ func TestAccAciL3outBGPProtocolProfile_Basic(t *testing.T) {
 				Config: testAccCheckAciL3outBGPProtocolProfileConfig_basic(fv_tenant_name, l3ext_out_name, l3ext_l_node_p_name, bgp_prot_p_name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAciL3outBGPProtocolProfileExists("aci_l3out_bgp_protocol_profile.fool3out_bgp_protocol_profile", &l3out_bgp_protocol_profile),
-					testAccCheckAciL3outBGPProtocolProfileAttributes(&l3out_bgp_protocol_profile),
 				),
 			},
 		},
@@ -140,10 +139,6 @@ func testAccCheckAciL3outBGPProtocolProfileAttributes(fv_tenant_name, l3ext_out_
 	return func(s *terraform.State) error {
 		if "bgp_prot_p_name" != GetMOName(l3out_bgp_protocol_profile.DistinguishedName) {
 			return fmt.Errorf("Bad l3out_bgp_protocol_profile %s", GetMOName(l3out_bgp_protocol_profile.DistinguishedName))
-		}
-
-		if "l3ext_l_node_p_name" != GetMOName(GetParentDn(l3out_bgp_protocol_profile.DistinguishedName)) {
-			return fmt.Errorf("Bad l3extl_node_p %s", GetMOName(GetParentDn(l3out_bgp_protocol_profile.DistinguishedName)))
 		}
 		return nil
 	}

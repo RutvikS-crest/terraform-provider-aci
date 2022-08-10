@@ -256,11 +256,6 @@ func resourceAciImportedContractRead(ctx context.Context, d *schema.ResourceData
 		d.SetId("")
 		return nil
 	}
-	_, err = setImportedContractAttributes(vzCPIf, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	vzRsIfData, err := aciClient.ReadRelationvzRsIfFromImportedContract(dn)
 	if err != nil {
@@ -269,6 +264,12 @@ func resourceAciImportedContractRead(ctx context.Context, d *schema.ResourceData
 
 	} else {
 		setRelationAttribute(d, "relation_vz_rs_if", vzRsIfData.(string))
+	}
+
+	_, err = setImportedContractAttributes(vzCPIf, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

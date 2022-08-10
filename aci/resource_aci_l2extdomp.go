@@ -374,11 +374,6 @@ func resourceAciL2DomainRead(ctx context.Context, d *schema.ResourceData, m inte
 		d.SetId("")
 		return nil
 	}
-	_, err = setL2DomainAttributes(l2extDomP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	infraRsVlanNsData, err := aciClient.ReadRelationinfraRsVlanNsFromL2Domain(dn)
 
@@ -427,6 +422,12 @@ func resourceAciL2DomainRead(ctx context.Context, d *schema.ResourceData, m inte
 
 	} else {
 		setRelationAttribute(d, "relation_infra_rs_dom_vxlan_ns_def", infraRsDomVxlanNsDefData.(string))
+	}
+
+	_, err = setL2DomainAttributes(l2extDomP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

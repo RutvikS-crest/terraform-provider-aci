@@ -512,12 +512,6 @@ func resourceAciLogicalInterfaceContextRead(ctx context.Context, d *schema.Resou
 		d.SetId("")
 		return nil
 	}
-	_, err = setLogicalInterfaceContextAttributes(vnsLIfCtx, d)
-
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	vnsRsLIfCtxToCustQosPolData, err := aciClient.ReadRelationvnsRsLIfCtxToCustQosPolFromLogicalInterfaceContext(dn)
 	if err != nil {
@@ -588,6 +582,13 @@ func resourceAciLogicalInterfaceContextRead(ctx context.Context, d *schema.Resou
 
 	} else {
 		setRelationAttribute(d, "relation_vns_rs_l_if_ctx_to_out", vnsRsLIfCtxToOutData.(string))
+	}
+
+	_, err = setLogicalInterfaceContextAttributes(vnsLIfCtx, d)
+
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

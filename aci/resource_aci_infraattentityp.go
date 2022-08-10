@@ -248,12 +248,6 @@ func resourceAciAttachableAccessEntityProfileRead(ctx context.Context, d *schema
 		d.SetId("")
 		return nil
 	}
-	_, err = setAttachableAccessEntityProfileAttributes(infraAttEntityP, d)
-
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	infraRsDomPData, err := aciClient.ReadRelationinfraRsDomPFromAttachableAccessEntityProfile(dn)
 	if err != nil {
@@ -261,6 +255,13 @@ func resourceAciAttachableAccessEntityProfileRead(ctx context.Context, d *schema
 		setRelationAttribute(d, "relation_infra_rs_dom_p", make([]interface{}, 0, 1))
 	} else {
 		setRelationAttribute(d, "relation_infra_rs_dom_p", toStringList(infraRsDomPData.(*schema.Set).List()))
+	}
+
+	_, err = setAttachableAccessEntityProfileAttributes(infraAttEntityP, d)
+
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

@@ -349,11 +349,7 @@ func resourceAciCloudSubnetRead(ctx context.Context, d *schema.ResourceData, m i
 		d.SetId("")
 		return nil
 	}
-	_, err = setCloudSubnetAttributes(cloudSubnet, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
+
 	cloudRsZoneAttachData, err := aciClient.ReadRelationcloudRsZoneAttachFromCloudSubnet(dn)
 	if err != nil {
 		log.Printf("[DEBUG] Error while reading relation cloudRsZoneAttach %v", err)
@@ -370,6 +366,12 @@ func resourceAciCloudSubnetRead(ctx context.Context, d *schema.ResourceData, m i
 
 	} else {
 		setRelationAttribute(d, "relation_cloud_rs_subnet_to_flow_log", cloudRsSubnetToFlowLogData.(string))
+	}
+
+	_, err = setCloudSubnetAttributes(cloudSubnet, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

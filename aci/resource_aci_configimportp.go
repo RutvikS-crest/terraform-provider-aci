@@ -391,11 +391,6 @@ func resourceAciConfigurationImportPolicyRead(ctx context.Context, d *schema.Res
 		d.SetId("")
 		return nil
 	}
-	_, err = setConfigurationImportPolicyAttributes(configImportP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	configRsImportSourceData, err := aciClient.ReadRelationconfigRsImportSourceFromConfigurationImportPolicy(dn)
 	if err != nil {
@@ -423,6 +418,12 @@ func resourceAciConfigurationImportPolicyRead(ctx context.Context, d *schema.Res
 	} else {
 		setRelationAttribute(d, "relation_config_rs_remote_path", configRsRemotePathData.(string))
 
+	}
+
+	_, err = setConfigurationImportPolicyAttributes(configImportP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

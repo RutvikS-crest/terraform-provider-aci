@@ -1147,11 +1147,7 @@ func resourceAciApplicationEPGRead(ctx context.Context, d *schema.ResourceData, 
 		d.SetId("")
 		return nil
 	}
-	_, err = setApplicationEPGAttributes(fvAEPg, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
+
 	fvRsBdData, err := aciClient.ReadRelationfvRsBdFromApplicationEPG(dn)
 	if err != nil {
 		log.Printf("[DEBUG] Error while reading relation fvRsBd %v", err)
@@ -1275,6 +1271,12 @@ func resourceAciApplicationEPGRead(ctx context.Context, d *schema.ResourceData, 
 		setRelationAttribute(d, "relation_fv_rs_intra_epg", make([]interface{}, 0, 1))
 	} else {
 		setRelationAttribute(d, "relation_fv_rs_intra_epg", toStringList(fvRsIntraEpgData.(*schema.Set).List()))
+	}
+
+	_, err = setApplicationEPGAttributes(fvAEPg, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

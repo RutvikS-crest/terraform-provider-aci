@@ -365,12 +365,6 @@ func resourceAciL3DomainProfileRead(ctx context.Context, d *schema.ResourceData,
 		return nil
 	}
 
-	_, err = setL3DomainProfileAttributes(l3extDomP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
-
 	infraRsVlanNsData, err := aciClient.ReadRelationinfraRsVlanNsFromL3DomainProfile(dn)
 	if err != nil {
 		log.Printf("[DEBUG] Error while reading relation infraRsVlanNs %v", err)
@@ -413,6 +407,12 @@ func resourceAciL3DomainProfileRead(ctx context.Context, d *schema.ResourceData,
 
 	} else {
 		setRelationAttribute(d, "relation_infra_rs_dom_vxlan_ns_def", infraRsDomVxlanNsDefData.(string))
+	}
+
+	_, err = setL3DomainProfileAttributes(l3extDomP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

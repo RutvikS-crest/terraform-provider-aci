@@ -6,11 +6,12 @@ import (
 
 	"github.com/ciscoecosystem/aci-go-client/client"
 	"github.com/ciscoecosystem/aci-go-client/models"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
-func TestAccAciBGPAddressFamilyContextPolicy_Basic(t *testing.T) {
+func TestAccAciBGPRsAddressFamilyContextPolicy_Basic(t *testing.T) {
 	var bgp_address_family_context_policy models.BGPAddressFamilyContextPolicy
 	fv_tenant_name := acctest.RandString(5)
 	fv_ctx_name := acctest.RandString(5)
@@ -20,20 +21,20 @@ func TestAccAciBGPAddressFamilyContextPolicy_Basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciBGPAddressFamilyContextPolicyDestroy,
+		CheckDestroy: testAccCheckAciBGPRsAddressFamilyContextPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckAciBGPAddressFamilyContextPolicyConfig_basic(fv_tenant_name, fv_ctx_name, fv_rs_ctx_to_bgp_ctx_af_pol_name),
+				Config: testAccCheckAciBGPRsAddressFamilyContextPolicyConfig_basic(fv_tenant_name, fv_ctx_name, fv_rs_ctx_to_bgp_ctx_af_pol_name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciBGPAddressFamilyContextPolicyExists("aci_bgp_address_family_context_policy.foobgp_address_family_context_policy", &bgp_address_family_context_policy),
-					testAccCheckAciBGPAddressFamilyContextPolicyAttributes(fv_tenant_name, fv_ctx_name, fv_rs_ctx_to_bgp_ctx_af_pol_name, description, &bgp_address_family_context_policy),
+					testAccCheckAciBGPRsAddressFamilyContextPolicyExists("aci_bgp_address_family_context_policy.foobgp_address_family_context_policy", &bgp_address_family_context_policy),
+					testAccCheckAciBGPRsAddressFamilyContextPolicyAttributes(fv_tenant_name, fv_ctx_name, fv_rs_ctx_to_bgp_ctx_af_pol_name, description, &bgp_address_family_context_policy),
 				),
 			},
 		},
 	})
 }
 
-func TestAccAciBGPAddressFamilyContextPolicy_Update(t *testing.T) {
+func TestAccAciBGPRsAddressFamilyContextPolicy_Update(t *testing.T) {
 	var bgp_address_family_context_policy models.BGPAddressFamilyContextPolicy
 	fv_tenant_name := acctest.RandString(5)
 	fv_ctx_name := acctest.RandString(5)
@@ -43,27 +44,27 @@ func TestAccAciBGPAddressFamilyContextPolicy_Update(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckAciBGPAddressFamilyContextPolicyDestroy,
+		CheckDestroy: testAccCheckAciBGPRsAddressFamilyContextPolicyDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckAciBGPAddressFamilyContextPolicyConfig_basic(fv_tenant_name, fv_ctx_name, fv_rs_ctx_to_bgp_ctx_af_pol_name),
+				Config: testAccCheckAciBGPRsAddressFamilyContextPolicyConfig_basic(fv_tenant_name, fv_ctx_name, fv_rs_ctx_to_bgp_ctx_af_pol_name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciBGPAddressFamilyContextPolicyExists("aci_bgp_address_family_context_policy.foobgp_address_family_context_policy", &bgp_address_family_context_policy),
-					testAccCheckAciBGPAddressFamilyContextPolicyAttributes(fv_tenant_name, fv_ctx_name, fv_rs_ctx_to_bgp_ctx_af_pol_name, description, &bgp_address_family_context_policy),
+					testAccCheckAciBGPRsAddressFamilyContextPolicyExists("aci_bgp_address_family_context_policy.foobgp_address_family_context_policy", &bgp_address_family_context_policy),
+					testAccCheckAciBGPRsAddressFamilyContextPolicyAttributes(fv_tenant_name, fv_ctx_name, fv_rs_ctx_to_bgp_ctx_af_pol_name, description, &bgp_address_family_context_policy),
 				),
 			},
 			{
-				Config: testAccCheckAciBGPAddressFamilyContextPolicyConfig_basic(fv_tenant_name, fv_ctx_name, fv_rs_ctx_to_bgp_ctx_af_pol_name),
+				Config: testAccCheckAciBGPRsAddressFamilyContextPolicyConfig_basic(fv_tenant_name, fv_ctx_name, fv_rs_ctx_to_bgp_ctx_af_pol_name),
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckAciBGPAddressFamilyContextPolicyExists("aci_bgp_address_family_context_policy.foobgp_address_family_context_policy", &bgp_address_family_context_policy),
-					testAccCheckAciBGPAddressFamilyContextPolicyAttributes(fv_tenant_name, fv_ctx_name, fv_rs_ctx_to_bgp_ctx_af_pol_name, description, &bgp_address_family_context_policy),
+					testAccCheckAciBGPRsAddressFamilyContextPolicyExists("aci_bgp_address_family_context_policy.foobgp_address_family_context_policy", &bgp_address_family_context_policy),
+					testAccCheckAciBGPRsAddressFamilyContextPolicyAttributes(fv_tenant_name, fv_ctx_name, fv_rs_ctx_to_bgp_ctx_af_pol_name, description, &bgp_address_family_context_policy),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckAciBGPAddressFamilyContextPolicyConfig_basic(fv_tenant_name, fv_ctx_name, fv_rs_ctx_to_bgp_ctx_af_pol_name string) string {
+func testAccCheckAciBGPRsAddressFamilyContextPolicyConfig_basic(fv_tenant_name, fv_ctx_name, fv_rs_ctx_to_bgp_ctx_af_pol_name string) string {
 	return fmt.Sprintf(`
 
 	resource "aci_tenant" "footenant" {
@@ -87,7 +88,7 @@ func testAccCheckAciBGPAddressFamilyContextPolicyConfig_basic(fv_tenant_name, fv
 	`, fv_tenant_name, fv_ctx_name, fv_rs_ctx_to_bgp_ctx_af_pol_name)
 }
 
-func testAccCheckAciBGPAddressFamilyContextPolicyExists(name string, bgp_address_family_context_policy *models.BGPAddressFamilyContextPolicy) resource.TestCheckFunc {
+func testAccCheckAciBGPRsAddressFamilyContextPolicyExists(name string, bgp_address_family_context_policy *models.BGPAddressFamilyContextPolicy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[name]
 
@@ -115,7 +116,7 @@ func testAccCheckAciBGPAddressFamilyContextPolicyExists(name string, bgp_address
 	}
 }
 
-func testAccCheckAciBGPAddressFamilyContextPolicyDestroy(s *terraform.State) error {
+func testAccCheckAciBGPRsAddressFamilyContextPolicyDestroy(s *terraform.State) error {
 	client := testAccProvider.Meta().(*client.Client)
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type == "aci_bgp_address_family_context_policy" {
@@ -131,14 +132,10 @@ func testAccCheckAciBGPAddressFamilyContextPolicyDestroy(s *terraform.State) err
 	return nil
 }
 
-func testAccCheckAciBGPAddressFamilyContextPolicyAttributes(fv_tenant_name, fv_ctx_name, fv_rs_ctx_to_bgp_ctx_af_pol_name, description string, bgp_address_family_context_policy *models.BGPAddressFamilyContextPolicy) resource.TestCheckFunc {
+func testAccCheckAciBGPRsAddressFamilyContextPolicyAttributes(fv_tenant_name, fv_ctx_name, fv_rs_ctx_to_bgp_ctx_af_pol_name, description string, bgp_address_family_context_policy *models.BGPAddressFamilyContextPolicy) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		if fv_rs_ctx_to_bgp_ctx_af_pol_name != GetMOName(bgp_address_family_context_policy.DistinguishedName) {
 			return fmt.Errorf("Bad fv_rs_ctx_to_bgp_ctx_af_pol %s", GetMOName(bgp_address_family_context_policy.DistinguishedName))
-		}
-
-		if fv_ctx_name != GetMOName(GetParentDn(bgp_address_family_context_policy.DistinguishedName)) {
-			return fmt.Errorf(" Bad fv_ctx %s", GetMOName(GetParentDn(bgp_address_family_context_policy.DistinguishedName)))
 		}
 		if description != bgp_address_family_context_policy.Description {
 			return fmt.Errorf("Bad bgp_address_family_context_policy Description %s", bgp_address_family_context_policy.Description)

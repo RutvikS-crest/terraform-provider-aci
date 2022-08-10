@@ -406,11 +406,6 @@ func resourceAciRADIUSProviderRead(ctx context.Context, d *schema.ResourceData, 
 	} else {
 		radius_group_type = "radius"
 	}
-	_, err = setRADIUSProviderAttributes(radius_group_type, aaaRadiusProvider, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	aaaRsProvToEppData, err := aciClient.ReadRelationaaaRsProvToEpp(dn)
 	if err != nil {
@@ -427,6 +422,13 @@ func resourceAciRADIUSProviderRead(ctx context.Context, d *schema.ResourceData, 
 	} else {
 		setRelationAttribute(d, "relation_aaa_rs_sec_prov_to_epg", aaaRsSecProvToEpgData)
 	}
+
+	_, err = setRADIUSProviderAttributes(radius_group_type, aaaRadiusProvider, d)
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 	return nil
 }

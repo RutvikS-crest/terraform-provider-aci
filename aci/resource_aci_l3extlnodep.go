@@ -299,11 +299,6 @@ func resourceAciLogicalNodeProfileRead(ctx context.Context, d *schema.ResourceDa
 		d.SetId("")
 		return nil
 	}
-	_, err = setLogicalNodeProfileAttributes(l3extLNodeP, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	l3extRsNodeL3OutAttData, err := aciClient.ReadRelationl3extRsNodeL3OutAttFromLogicalNodeProfile(dn)
 	if err != nil {
@@ -311,6 +306,12 @@ func resourceAciLogicalNodeProfileRead(ctx context.Context, d *schema.ResourceDa
 
 	} else {
 		setRelationAttribute(d, "relation_l3ext_rs_node_l3_out_att", l3extRsNodeL3OutAttData)
+	}
+
+	_, err = setLogicalNodeProfileAttributes(l3extLNodeP, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

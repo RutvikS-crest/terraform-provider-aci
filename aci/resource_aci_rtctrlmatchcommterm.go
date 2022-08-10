@@ -315,12 +315,6 @@ func resourceAciMatchCommunityTermRead(ctx context.Context, d *schema.ResourceDa
 		return nil
 	}
 
-	_, err = setMatchCommunityTermAttributes(rtctrlMatchCommTerm, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
-
 	if matchCommunityFactors, ok := d.GetOk("match_community_factors"); ok {
 		factors := matchCommunityFactors.(*schema.Set).List()
 		matchCommFactors := make([]map[string]string, 0, 1)
@@ -340,6 +334,12 @@ func resourceAciMatchCommunityTermRead(ctx context.Context, d *schema.ResourceDa
 			matchCommFactors = append(matchCommFactors, factorSet)
 		}
 		d.Set("match_community_factors", matchCommFactors)
+	}
+
+	_, err = setMatchCommunityTermAttributes(rtctrlMatchCommTerm, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

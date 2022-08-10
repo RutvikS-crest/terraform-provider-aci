@@ -1077,11 +1077,7 @@ func resourceAciPCVPCInterfacePolicyGroupRead(ctx context.Context, d *schema.Res
 		d.SetId("")
 		return nil
 	}
-	_, err = setPCVPCInterfacePolicyGroupAttributes(infraAccBndlGrp, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
+
 	infraRsSpanVSrcGrpData, err := aciClient.ReadRelationinfraRsSpanVSrcGrpFromPCVPCInterfacePolicyGroup(dn)
 	if err != nil {
 		log.Printf("[DEBUG] Error while reading relation infraRsSpanVSrcGrp %v", err)
@@ -1301,6 +1297,12 @@ func resourceAciPCVPCInterfacePolicyGroupRead(ctx context.Context, d *schema.Res
 
 	} else {
 		setRelationAttribute(d, "relation_infra_rs_l2_inst_pol", infraRsL2InstPolData.(string))
+	}
+
+	_, err = setPCVPCInterfacePolicyGroupAttributes(infraAccBndlGrp, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

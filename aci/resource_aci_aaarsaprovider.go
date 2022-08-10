@@ -367,11 +367,6 @@ func resourceAciRSAProviderRead(ctx context.Context, d *schema.ResourceData, m i
 		d.SetId("")
 		return nil
 	}
-	_, err = setRSAProviderAttributes(aaaRsaProvider, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	aaaRsProvToEppData, err := aciClient.ReadRelationaaaRsProvToEpp(dn)
 	if err != nil {
@@ -388,6 +383,13 @@ func resourceAciRSAProviderRead(ctx context.Context, d *schema.ResourceData, m i
 	} else {
 		setRelationAttribute(d, "relation_aaa_rs_sec_prov_to_epg", aaaRsSecProvToEpgData)
 	}
+
+	_, err = setRSAProviderAttributes(aaaRsaProvider, d)
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 	return nil
 }

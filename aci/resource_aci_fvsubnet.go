@@ -570,11 +570,6 @@ func resourceAciSubnetRead(ctx context.Context, d *schema.ResourceData, m interf
 		d.SetId("")
 		return nil
 	}
-	_, err = setSubnetAttributes(fvSubnet, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	fvRsBDSubnetToOutData, err := aciClient.ReadRelationfvRsBDSubnetToOutFromSubnet(dn)
 	if err != nil {
@@ -600,6 +595,12 @@ func resourceAciSubnetRead(ctx context.Context, d *schema.ResourceData, m interf
 
 	} else {
 		setRelationAttribute(d, "relation_fv_rs_bd_subnet_to_profile", fvRsBDSubnetToProfileData.(string))
+	}
+
+	_, err = setSubnetAttributes(fvSubnet, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

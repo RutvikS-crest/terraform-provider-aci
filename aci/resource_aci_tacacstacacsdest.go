@@ -317,11 +317,6 @@ func resourceAciTACACSDestinationRead(ctx context.Context, d *schema.ResourceDat
 		d.SetId("")
 		return nil
 	}
-	_, err = setTACACSDestinationAttributes(tacacsTacacsDest, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	fileRsARemoteHostToEpgData, err := aciClient.ReadRelationfileRsARemoteHostToEpg(dn)
 	if err != nil {
@@ -338,6 +333,13 @@ func resourceAciTACACSDestinationRead(ctx context.Context, d *schema.ResourceDat
 	} else {
 		setRelationAttribute(d, "relation_file_rs_a_remote_host_to_epp", fileRsARemoteHostToEppData)
 	}
+
+	_, err = setTACACSDestinationAttributes(tacacsTacacsDest, d)
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 	return nil
 }

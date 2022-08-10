@@ -277,12 +277,6 @@ func resourceAciTenantRead(ctx context.Context, d *schema.ResourceData, m interf
 		d.SetId("")
 		return nil
 	}
-	_, err = setTenantAttributes(fvTenant, d)
-
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	fvRsTnDenyRuleData, err := aciClient.ReadRelationfvRsTnDenyRuleFromTenant(dn)
 	if err != nil {
@@ -299,6 +293,13 @@ func resourceAciTenantRead(ctx context.Context, d *schema.ResourceData, m interf
 
 	} else {
 		setRelationAttribute(d, "relation_fv_rs_tenant_mon_pol", fvRsTenantMonPolData.(string))
+	}
+
+	_, err = setTenantAttributes(fvTenant, d)
+
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

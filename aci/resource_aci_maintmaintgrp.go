@@ -256,11 +256,6 @@ func resourceAciPODMaintenanceGroupRead(ctx context.Context, d *schema.ResourceD
 		d.SetId("")
 		return nil
 	}
-	_, err = setPODMaintenanceGroupAttributes(maintMaintGrp, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	maintRsMgrppData, err := aciClient.ReadRelationmaintRsMgrppFromPODMaintenanceGroup(dn)
 	if err != nil {
@@ -269,6 +264,12 @@ func resourceAciPODMaintenanceGroupRead(ctx context.Context, d *schema.ResourceD
 
 	} else {
 		setRelationAttribute(d, "relation_maint_rs_mgrpp", maintRsMgrppData.(string))
+	}
+
+	_, err = setPODMaintenanceGroupAttributes(maintMaintGrp, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

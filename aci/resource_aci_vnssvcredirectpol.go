@@ -393,12 +393,6 @@ func resourceAciServiceRedirectPolicyRead(ctx context.Context, d *schema.Resourc
 		d.SetId("")
 		return nil
 	}
-	_, err = setServiceRedirectPolicyAttributes(vnsSvcRedirectPol, d)
-
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	vnsRsIPSLAMonitoringPolData, err := aciClient.ReadRelationvnsRsIPSLAMonitoringPolFromServiceRedirectPolicy(dn)
 	if err != nil {
@@ -407,6 +401,13 @@ func resourceAciServiceRedirectPolicyRead(ctx context.Context, d *schema.Resourc
 
 	} else {
 		setRelationAttribute(d, "relation_vns_rs_ipsla_monitoring_pol", vnsRsIPSLAMonitoringPolData.(string))
+	}
+
+	_, err = setServiceRedirectPolicyAttributes(vnsSvcRedirectPol, d)
+
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

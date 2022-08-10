@@ -239,11 +239,6 @@ func resourceAciLeafBreakoutPortGroupRead(ctx context.Context, d *schema.Resourc
 		d.SetId("")
 		return nil
 	}
-	_, err = setLeafBreakoutPortGroupAttributes(infraBrkoutPortGrp, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	infraRsMonBrkoutInfraPolData, err := aciClient.ReadRelationinfraRsMonBrkoutInfraPolFromLeafBreakoutPortGroup(dn)
 	if err != nil {
@@ -252,6 +247,12 @@ func resourceAciLeafBreakoutPortGroupRead(ctx context.Context, d *schema.Resourc
 
 	} else {
 		setRelationAttribute(d, "relation_infra_rs_mon_brkout_infra_pol", infraRsMonBrkoutInfraPolData.(string))
+	}
+
+	_, err = setLeafBreakoutPortGroupAttributes(infraBrkoutPortGrp, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

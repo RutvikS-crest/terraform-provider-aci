@@ -291,11 +291,6 @@ func resourceAciFexBundleGroupRead(ctx context.Context, d *schema.ResourceData, 
 		d.SetId("")
 		return nil
 	}
-	_, err = setFexBundleGroupAttributes(infraFexBndlGrp, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	infraRsMonFexInfraPolData, err := aciClient.ReadRelationinfraRsMonFexInfraPolFromFexBundleGroup(dn)
 	if err != nil {
@@ -312,6 +307,12 @@ func resourceAciFexBundleGroupRead(ctx context.Context, d *schema.ResourceData, 
 		setRelationAttribute(d, "relation_infra_rs_fex_bndl_grp_to_aggr_if", make([]interface{}, 0, 1))
 	} else {
 		setRelationAttribute(d, "relation_infra_rs_fex_bndl_grp_to_aggr_if", toStringList(infraRsFexBndlGrpToAggrIfData.(*schema.Set).List()))
+	}
+
+	_, err = setFexBundleGroupAttributes(infraFexBndlGrp, d)
+	if err != nil {
+		d.SetId("")
+		return nil
 	}
 
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())

@@ -472,11 +472,6 @@ func resourceAciLDAPProviderRead(ctx context.Context, d *schema.ResourceData, m 
 	} else {
 		ldap_group_type = "duo"
 	}
-	_, err = setLDAPProviderAttributes(ldap_group_type, aaaLdapProvider, d)
-	if err != nil {
-		d.SetId("")
-		return nil
-	}
 
 	aaaRsProvToEppData, err := aciClient.ReadRelationaaaRsProvToEpp(dn)
 	if err != nil {
@@ -493,6 +488,13 @@ func resourceAciLDAPProviderRead(ctx context.Context, d *schema.ResourceData, m 
 	} else {
 		setRelationAttribute(d, "relation_aaa_rs_sec_prov_to_epg", aaaRsSecProvToEpgData)
 	}
+
+	_, err = setLDAPProviderAttributes(ldap_group_type, aaaLdapProvider, d)
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 	return nil
 }

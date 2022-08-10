@@ -835,11 +835,6 @@ func resourceAciVMMControllerRead(ctx context.Context, d *schema.ResourceData, m
 		d.SetId("")
 		return diag.FromErr(err)
 	}
-	_, err = setVMMControllerAttributes(vmmCtrlrP, d)
-	if err != nil {
-		d.SetId("")
-		return diag.FromErr(err)
-	}
 
 	vmmRsAccData, err := aciClient.ReadRelationvmmRsAcc(dn)
 	if err != nil {
@@ -910,6 +905,13 @@ func resourceAciVMMControllerRead(ctx context.Context, d *schema.ResourceData, m
 	} else {
 		setRelationAttribute(d, "relation_vmm_rs_vxlan_ns_def", vmmRsVxlanNsDefData.(string))
 	}
+
+	_, err = setVMMControllerAttributes(vmmCtrlrP, d)
+	if err != nil {
+		d.SetId("")
+		return diag.FromErr(err)
+	}
+
 	log.Printf("[DEBUG] %s: Read finished successfully", d.Id())
 	return nil
 }
